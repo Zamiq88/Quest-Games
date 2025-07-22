@@ -1,0 +1,91 @@
+{
+  "nav": {
+    "home": "Home",
+    "games": "Games",
+    "reservations": "Reservations",
+    "contact": "Contact"
+  },
+  "hero": {
+    "title": "Enter the Ultimate",
+    "subtitle": "Quest Experience",
+    "description": "Immerse yourself in mind-bending escape rooms, thrilling adventures, and team challenges that will test your limits.",
+    "cta": "Start Your Quest",
+    "featured": "Featured Quests"
+  },
+  "games": {
+    "title": "Choose Your Quest",
+    "categories": {
+      "all": "All Games",
+      "escape": "Escape Rooms",
+      "adventure": "Adventure Quests",
+      "puzzle": "Puzzle Games",
+      "horror": "Horror Experiences",
+      "team": "Team Building"
+    },
+    "difficulty": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard"
+    },
+    "duration": "{{duration}} min",
+    "price": "${{price}}",
+    "perPerson": "per person",
+    "perGroup": "per group",
+    "bookNow": "Book Now",
+    "maxPlayers": "Up to {{count}} players"
+  },
+  "booking": {
+    "title": "Book Your Quest",
+    "selectTime": "Select Date & Time",
+    "selectPlayers": "Number of Players",
+    "authentication": "Sign In to Continue",
+    "facebookLogin": "Continue with Facebook",
+    "orDivider": "or",
+    "emailLogin": "Sign in with Email",
+    "emailPlaceholder": "Enter your email",
+    "verificationCode": "Enter verification code",
+    "codePlaceholder": "6-digit code",
+    "specialRequirements": "Special Requirements",
+    "requirementsPlaceholder": "Any accessibility needs or special requests...",
+    "totalPrice": "Total Price",
+    "confirmBooking": "Confirm Booking",
+    "bookingSuccess": "Booking Confirmed!",
+    "referenceNumber": "Reference #{{number}}",
+    "confirmationEmail": "Confirmation details sent to your email.",
+    "backToGames": "Back to Games"
+  },
+  "contact": {
+    "title": "Get in Touch",
+    "info": {
+      "address": "123 Quest Street, Adventure City, AC 12345",
+      "phone": "+1 (555) 123-QUEST",
+      "email": "hello@questvault.com",
+      "hours": "Daily 10:00 AM - 10:00 PM"
+    },
+    "form": {
+      "name": "Your Name",
+      "email": "Email Address",
+      "subject": "Subject",
+      "message": "Message",
+      "send": "Send Message",
+      "success": "Message sent successfully!",
+      "error": "Failed to send message. Please try again."
+    },
+    "social": {
+      "title": "Follow Us",
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "whatsapp": "WhatsApp"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try Again",
+    "back": "Back",
+    "next": "Next",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "close": "Close"
+  }
+}

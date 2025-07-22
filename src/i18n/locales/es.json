@@ -1,0 +1,91 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "games": "Juegos",
+    "reservations": "Reservas",
+    "contact": "Contacto"
+  },
+  "hero": {
+    "title": "Entra en la Última",
+    "subtitle": "Experiencia de Misión",
+    "description": "Sumérgete en salas de escape alucinantes, aventuras emocionantes y desafíos de equipo que pondrán a prueba tus límites.",
+    "cta": "Comienza Tu Misión",
+    "featured": "Misiones Destacadas"
+  },
+  "games": {
+    "title": "Elige Tu Misión",
+    "categories": {
+      "all": "Todos los Juegos",
+      "escape": "Salas de Escape",
+      "adventure": "Misiones de Aventura",
+      "puzzle": "Juegos de Rompecabezas",
+      "horror": "Experiencias de Terror",
+      "team": "Team Building"
+    },
+    "difficulty": {
+      "easy": "Fácil",
+      "medium": "Medio",
+      "hard": "Difícil"
+    },
+    "duration": "{{duration}} min",
+    "price": "${{price}}",
+    "perPerson": "por persona",
+    "perGroup": "por grupo",
+    "bookNow": "Reservar Ahora",
+    "maxPlayers": "Hasta {{count}} jugadores"
+  },
+  "booking": {
+    "title": "Reserva Tu Misión",
+    "selectTime": "Selecciona Fecha y Hora",
+    "selectPlayers": "Número de Jugadores",
+    "authentication": "Inicia Sesión para Continuar",
+    "facebookLogin": "Continuar con Facebook",
+    "orDivider": "o",
+    "emailLogin": "Iniciar sesión con Email",
+    "emailPlaceholder": "Ingresa tu email",
+    "verificationCode": "Ingresa código de verificación",
+    "codePlaceholder": "Código de 6 dígitos",
+    "specialRequirements": "Requisitos Especiales",
+    "requirementsPlaceholder": "Necesidades de accesibilidad o solicitudes especiales...",
+    "totalPrice": "Precio Total",
+    "confirmBooking": "Confirmar Reserva",
+    "bookingSuccess": "¡Reserva Confirmada!",
+    "referenceNumber": "Referencia #{{number}}",
+    "confirmationEmail": "Detalles de confirmación enviados a tu email.",
+    "backToGames": "Volver a Juegos"
+  },
+  "contact": {
+    "title": "Ponte en Contacto",
+    "info": {
+      "address": "123 Calle Misión, Ciudad Aventura, CA 12345",
+      "phone": "+1 (555) 123-QUEST",
+      "email": "hola@questvault.com",
+      "hours": "Diario 10:00 AM - 10:00 PM"
+    },
+    "form": {
+      "name": "Tu Nombre",
+      "email": "Dirección de Email",
+      "subject": "Asunto",
+      "message": "Mensaje",
+      "send": "Enviar Mensaje",
+      "success": "¡Mensaje enviado exitosamente!",
+      "error": "Error al enviar mensaje. Inténtalo de nuevo."
+    },
+    "social": {
+      "title": "Síguenos",
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "whatsapp": "WhatsApp"
+    }
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Algo salió mal",
+    "retry": "Intentar de Nuevo",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "close": "Cerrar"
+  }
+}
