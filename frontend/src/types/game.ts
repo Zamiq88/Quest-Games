@@ -7,7 +7,7 @@ export interface Game {
   difficulty: 'Easy' | 'Medium' | 'Hard';
   price: number;
   image: string;
-  maxPlayers: number;
+  max_players: number;
   minPlayers: number;
   featured?: boolean;
 }
