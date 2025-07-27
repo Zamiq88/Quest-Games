@@ -18,8 +18,11 @@ BASE_URL = 'http://localhost:8000'
 # Static files settings
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # For production
+# STATICFILES_DIRS = [
+#     '/Users/faridaghamalioghlu/Desktop/questgames/quest-haven-portal/static',
+# ]
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',  # Your main static folder
+    BASE_DIR / 'static',
 ]
 
 # Media files

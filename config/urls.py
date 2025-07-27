@@ -22,7 +22,8 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',include('user.urls',namespace='user'))
+    path('',include('user.urls',namespace='user')),
+    path('games/',include('games.urls',namespace='games'))
 ]
 if settings.DEBUG:
     # This serves files from STATICFILES_DIRS
