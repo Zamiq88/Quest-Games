@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client'
-import './i18n'
+import './i18n/config'  // ← Add this import BEFORE App
 import App from './App.tsx'
 import './index.css'
 

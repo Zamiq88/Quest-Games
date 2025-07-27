@@ -1,0 +1,137 @@
+{
+  "nav": {
+    "home": "Головна",
+    "games": "Ігри",
+    "reservations": "Бронювання",
+    "contact": "Контакти"
+  },
+  "hero": {
+    "title": "Увійдіть в Останній",
+    "subtitle": "Квест Досвід",
+    "description": "Зануртесь у розумозламні кімнати втечі, захоплюючі пригоди та командні виклики, які випробують ваші межі.",
+    "cta": "Почати Квест",
+    "featured": "Рекомендовані Квести"
+  },
+  "games": {
+    "title": "Оберіть Ваш Квест",
+    "categories": {
+      "all": "Всі Ігри",
+      "escape": "Кімнати Втечі",
+      "adventure": "Пригодницькі Квести",
+      "puzzle": "Ігри-Головоломки",
+      "horror": "Жахливі Переживання",
+      "team": "Командоутворення"
+    },
+    "difficulty": {
+      "easy": "Легко",
+      "medium": "Середньо",
+      "hard": "Важко"
+    },
+    "duration": "{{duration}} хв",
+    "price": "${{price}}",
+    "perPerson": "за особу",
+    "perGroup": "за групу",
+    "bookNow": "Забронювати Зараз",
+    "maxPlayers": "До {{count}} гравців"
+  },
+  "booking": {
+    "title": "Забронюйте Ваш Квест",
+    "selectTime": "Оберіть Дату та Час",
+    "selectPlayers": "Кількість Гравців",
+    "authentication": "Увійдіть щоб Продовжити",
+    "facebookLogin": "Продовжити з Facebook",
+    "orDivider": "або",
+    "emailLogin": "Увійти з Email",
+    "emailPlaceholder": "Введіть ваш email",
+    "verificationCode": "Введіть код підтвердження",
+    "codePlaceholder": "6-значний код",
+    "specialRequirements": "Особливі Вимоги",
+    "requirementsPlaceholder": "Потреби доступності або особливі запити...",
+    "totalPrice": "Загальна Ціна",
+    "confirmBooking": "Підтвердити Бронювання",
+    "bookingSuccess": "Бронювання Підтверджено!",
+    "referenceNumber": "Референс #{{number}}",
+    "confirmationEmail": "Деталі підтвердження надіслані на ваш email.",
+    "backToGames": "Назад до Ігор"
+  },
+  "contact": {
+    "title": "Зв'яжіться з Нами",
+    "info": {
+      "address": "123 Квест Вулиця, Місто Пригод, AC 12345",
+      "phone": "+1 (555) 123-QUEST",
+      "email": "hello@questvault.com",
+      "hours": "Щодня 10:00 - 22:00"
+    },
+    "form": {
+      "name": "Ваше Ім'я",
+      "email": "Email Адреса",
+      "subject": "Тема",
+      "message": "Повідомлення",
+      "send": "Надіслати Повідомлення",
+      "success": "Повідомлення успішно надіслано!",
+      "error": "Не вдалося надіслати повідомлення. Спробуйте ще раз."
+    },
+    "social": {
+      "title": "Слідкуйте за Нами",
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "whatsapp": "WhatsApp"
+    }
+  },
+  "common": {
+    "loading": "Завантаження...",
+    "error": "Щось пішло не так",
+    "retry": "Спробувати Знову",
+    "back": "Назад",
+    "next": "Далі",
+    "cancel": "Скасувати",
+    "confirm": "Підтвердити",
+    "close": "Закрити"
+  },
+  "features": {
+    "safe": {
+      "title": "Безпечно та Надійно",
+      "description": "Сучасні протоколи безпеки та надійна система бронювання."
+    },
+    "team": {
+      "title": "Командна Робота",
+      "description": "Ідеально підходить для корпоративних заходів та командної згуртованості."
+    },
+    "award": {
+      "title": "Нагороджений",
+      "description": "Визнаний як найкращий квест-досвід у місті."
+    }
+  },
+  "categories": {
+    "escape": "Кімната Втечі",
+    "adventure": "Пригода",
+    "horror": "Жахи",
+    "mystery": "Таємниця",
+    "action": "Бойовик",
+    "puzzle": "Головоломка"
+  },
+  "difficulty": {
+    "easy": "Легко",
+    "medium": "Середньо",
+    "hard": "Важко"
+  },
+  "status": {
+    "available": "Доступно Зараз",
+    "coming_soon": "Незабаром",
+    "maintenance": "Технічне Обслуговування",
+    "unavailable": "Недоступно"
+  },
+  "badges": {
+    "featured": "Рекомендований"
+  },
+  "buttons": {
+    "bookNow": "Забронювати Зараз",
+    "viewDetails": "Переглянути Деталі"
+  },
+  "gameCard": {
+    "noFeatured": "Наразі немає рекомендованих ігор.",
+    "viewAll": "Переглянути Всі Ігри",
+    "minutes": "хв",
+    "upTo": "До"
+  }
+}
