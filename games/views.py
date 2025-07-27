@@ -7,34 +7,25 @@ from django.utils.translation import gettext as _
 from .models import Game
 from .serializers import GameSerializer, FeaturedGameSerializer
 
-class GameListView(generics.ListAPIView):
-    """
-    List all active games
-    """
+class GameListAPIView(generics.ListAPIView):
+    """API endpoint for games with language support"""
+    queryset = Game.objects.filter(is_active=True)
     serializer_class = GameSerializer
     
-    def get_queryset(self):
-        queryset = Game.objects.filter(is_active=True)
+    def get_serializer_context(self):
+        """Pass language to serializer"""
+        context = super().get_serializer_context()
         
-        # Filter by category if provided
-        category = self.request.query_params.get('category')
-        if category:
-            queryset = queryset.filter(category=category)
+        # Get language from query parameter or Accept-Language header
+        language = self.request.GET.get('lang', 'en')
         
-        # Filter by difficulty if provided
-        difficulty = self.request.query_params.get('difficulty')
-        if difficulty:
-            queryset = queryset.filter(difficulty=difficulty)
+        # Validate language code
+        valid_languages = ['en', 'es', 'uk']
+        if language not in valid_languages:
+            language = 'en'
         
-        # Search functionality
-        search = self.request.query_params.get('search')
-        if search:
-            queryset = queryset.filter(
-                Q(title__icontains=search) | 
-                Q(description__icontains=search)
-            )
-        
-        return queryset.order_by('-is_featured', 'category', 'title')
+        context['language'] = language
+        return context
 
 class FeaturedGamesView(generics.ListAPIView):
     """

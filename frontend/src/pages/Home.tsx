@@ -1,138 +1,42 @@
-import { useState, useEffect } from 'react';
+// src/pages/Home.tsx - Complete component with API integration
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { GameCard } from '@/components/GameCard';
-import { ArrowRight, Play, Shield, Users, Trophy, Loader2 } from 'lucide-react';
+import { useGames } from '@/hooks/useGames';
+import { ArrowRight, Play, Shield, Users, Trophy } from 'lucide-react';
 import heroBackground from '@/assets/hero-background.jpg';
 
-// Updated Game interface with translation support
-interface Game {
-  id: number;
-  title_localized: string;
-  description_localized: string;
-  title_translations?: { [key: string]: string };
-  description_translations?: { [key: string]: string };
-  category: string;
-  difficulty: string;
-  status: string;
-  image: string;
-  image_url?: string;
-  price: string;
-  max_players: number;
-  duration: number;
-  working_hours_start: string;
-  working_hours_end: string;
-  is_featured: boolean;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
 export function Home() {
-  const { t, i18n } = useTranslation();
-  const [featuredGames, setFeaturedGames] = useState<Game[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
+  const { games, loading, error } = useGames();
+  
+  // Get featured games (these will already have localized titles/descriptions)
+  const featuredGames = games.filter(game => game.is_featured).slice(0, 3);
 
-  // API configuration
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
-
-  // Features using your translation keys
   const features = [
     {
       icon: <Shield className="w-8 h-8 text-primary" />,
-      title: "Safe & Secure", // Add this to your JSON files
-      description: "State-of-the-art safety protocols and secure booking system."
+      title: t('features.safe.title', 'Safe & Secure'),
+      description: t('features.safe.description', 'State-of-the-art safety protocols and secure booking system.')
     },
     {
       icon: <Users className="w-8 h-8 text-accent" />,
-      title: "Team Building", // Add this to your JSON files
-      description: "Perfect for corporate events and team bonding experiences."
+      title: t('features.team.title', 'Team Building'),
+      description: t('features.team.description', 'Perfect for corporate events and team bonding experiences.')
     },
     {
       icon: <Trophy className="w-8 h-8 text-yellow-400" />,
-      title: "Award Winning", // Add this to your JSON files
-      description: "Recognized as the best quest experience in the city."
+      title: t('features.award.title', 'Award Winning'),
+      description: t('features.award.description', 'Recognized as the best quest experience in the city.')
     }
   ];
 
-  // Fetch featured games function with language parameter
-  const fetchFeaturedGames = async (language: string = 'en'): Promise<Game[]> => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/games/featured/?lang=${language}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      return data.results || data;
-    } catch (error) {
-      console.error('Error fetching featured games:', error);
-      throw error;
-    }
-  };
-
-  // Function to get localized game data
-  const getLocalizedGameData = (game: Game, language: string) => {
-    const title = game.title_translations?.[language] || 
-                 game.title_translations?.['en'] || 
-                 game.title_localized || 
-                 'Untitled Game';
-                 
-    const description = game.description_translations?.[language] || 
-                       game.description_translations?.['en'] || 
-                       game.description_localized || 
-                       'No description available';
-    
-    return {
-      ...game,
-      title_localized: title,
-      description_localized: description
-    };
-  };
-
-  // Update games when language changes
-  useEffect(() => {
-    if (featuredGames.length > 0) {
-      const updatedGames = featuredGames.map(game => 
-        getLocalizedGameData(game, i18n.language)
-      );
-      setFeaturedGames(updatedGames);
-    }
-  }, [i18n.language]);
-
-  // Fetch featured games on component mount and language change
-  useEffect(() => {
-    const loadFeaturedGames = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const games = await fetchFeaturedGames(i18n.language);
-        
-        const localizedGames = games.map(game => 
-          getLocalizedGameData(game, i18n.language)
-        );
-        
-        setFeaturedGames(localizedGames);
-      } catch (err) {
-        console.error('Error fetching featured games:', err);
-        setError(t('common.error', 'Something went wrong'));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadFeaturedGames();
-  }, [t, API_BASE_URL, i18n.language]);
-
-  const handleRetry = () => {
-    window.location.reload();
-  };
-
   return (
     <div className="min-h-screen">
-      {/* Hero Section - Using your existing translation keys */}
+      {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-purple-900/30 to-background/80 z-10" />
           <img
@@ -142,28 +46,29 @@ export function Home() {
           />
         </div>
 
+        {/* Hero Content */}
         <div className="relative z-20 text-center max-w-4xl mx-auto px-4">
           <div className="space-y-6 animate-fade-in">
             <h1 className="text-5xl md:text-7xl font-orbitron font-black">
-              <span className="block text-neon">{t('hero.title')}</span>
-              <span className="block text-accent text-glow">{t('hero.subtitle')}</span>
+              <span className="block text-neon">{t('hero.title', 'Ultimate Quest')}</span>
+              <span className="block text-accent text-glow">{t('hero.subtitle', 'Adventures')}</span>
             </h1>
             
             <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              {t('hero.description')}
+              {t('hero.description', 'Experience thrilling escape rooms and immersive adventures in the heart of Spain')}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
               <Link to="/games">
                 <Button size="lg" className="btn-glow bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-4 text-lg font-semibold">
                   <Play className="w-5 h-5 mr-2" />
-                  {t('hero.cta')}
+                  {t('hero.cta', 'Start Your Quest')}
                 </Button>
               </Link>
               
               <Link to="/contact">
                 <Button variant="outline" size="lg" className="px-8 py-4 text-lg hover:bg-muted border-primary/50">
-                  {t('nav.contact')}
+                  {t('nav.contact', 'Contact')}
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </Link>
@@ -176,6 +81,7 @@ export function Home() {
           <div className="absolute top-1/2 left-10 w-12 h-12 bg-purple-500/20 rounded-full blur-xl animate-float" style={{ animationDelay: '2s' }} />
         </div>
 
+        {/* Scroll Indicator */}
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
           <div className="w-6 h-10 border-2 border-primary rounded-full flex justify-center">
             <div className="w-1 h-3 bg-primary rounded-full mt-2 animate-pulse" />
@@ -208,66 +114,150 @@ export function Home() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-orbitron font-bold mb-4 text-neon">
-              {t('hero.featured')}
+              {t('hero.featured', 'Featured Games')}
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Experience our most popular and thrilling quest adventures
+              {t('featured.subtitle', 'Experience our most popular and thrilling quest adventures')}
             </p>
           </div>
 
+          {/* Loading State */}
           {loading && (
-            <div className="flex justify-center items-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              <span className="ml-2 text-muted-foreground">{t('common.loading')}</span>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="h-80 bg-muted/20 rounded-lg animate-pulse card-glow">
+                  <div className="p-6 space-y-4">
+                    <div className="h-40 bg-muted/30 rounded-lg" />
+                    <div className="h-4 bg-muted/30 rounded w-3/4" />
+                    <div className="h-3 bg-muted/30 rounded w-1/2" />
+                    <div className="space-y-2">
+                      <div className="h-3 bg-muted/30 rounded" />
+                      <div className="h-3 bg-muted/30 rounded w-5/6" />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
-          {error && (
+          {/* Error State */}
+          {error && !loading && (
             <div className="text-center py-12">
-              <p className="text-red-500 mb-4">{error}</p>
+              <div className="text-6xl mb-4">⚠️</div>
+              <h3 className="text-xl font-semibold mb-2 text-red-400">
+                {t('common.error', 'Something went wrong')}
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                {t('error.loadingGames', 'Unable to load games at the moment')}
+              </p>
+              <p className="text-sm text-muted-foreground/70 mb-4">{error}</p>
               <Button 
-                onClick={handleRetry} 
-                variant="outline"
+                variant="outline" 
+                onClick={() => window.location.reload()}
                 className="border-primary/50 hover:bg-primary/10"
               >
-                {t('common.retry')}
+                {t('common.retry', 'Try Again')}
               </Button>
             </div>
           )}
 
+          {/* Games Grid */}
           {!loading && !error && (
             <>
               {featuredGames.length > 0 ? (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-                  {featuredGames.slice(0, 6).map((game) => (
+                  {featuredGames.map((game) => (
                     <GameCard key={game.id} game={game} featured />
                   ))}
                 </div>
               ) : (
                 <div className="text-center py-12">
+                  <div className="text-6xl mb-4">🎮</div>
+                  <h3 className="text-xl font-semibold mb-2">
+                    {t('games.noFeatured', 'No featured games available')}
+                  </h3>
                   <p className="text-muted-foreground mb-4">
-                    No featured games available at the moment.
+                    {t('games.checkBack', 'Check back soon for exciting new adventures!')}
                   </p>
-                  <Link to="/games">
-                    <Button variant="outline" className="border-primary/50 hover:bg-primary/10">
-                      View All Games
-                    </Button>
-                  </Link>
-                </div>
-              )}
-
-              {featuredGames.length > 0 && (
-                <div className="text-center">
-                  <Link to="/games">
-                    <Button size="lg" variant="outline" className="btn-glow border-primary/50 hover:bg-primary/10">
-                      View All Games
-                      <ArrowRight className="w-5 h-5 ml-2" />
-                    </Button>
-                  </Link>
                 </div>
               )}
             </>
           )}
+
+          {/* View All Games Button */}
+          <div className="text-center">
+            <Link to="/games">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="btn-glow border-primary/50 hover:bg-primary/10 px-8 py-4 text-lg"
+                disabled={loading}
+              >
+                {loading 
+                  ? t('common.loading', 'Loading...')
+                  : t('games.viewAll', 'View All Games')
+                }
+                {!loading && <ArrowRight className="w-5 h-5 ml-2" />}
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Statistics Section (Optional) */}
+      <section className="py-16 bg-muted/10">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div className="space-y-2">
+              <div className="text-3xl font-bold text-primary">{games.length}+</div>
+              <div className="text-sm text-muted-foreground">
+                {t('stats.games', 'Unique Games')}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="text-3xl font-bold text-accent">500+</div>
+              <div className="text-sm text-muted-foreground">
+                {t('stats.players', 'Happy Players')}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="text-3xl font-bold text-yellow-400">4.9</div>
+              <div className="text-sm text-muted-foreground">
+                {t('stats.rating', 'Average Rating')}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="text-3xl font-bold text-green-400">98%</div>
+              <div className="text-sm text-muted-foreground">
+                {t('stats.success', 'Success Rate')}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action Section */}
+      <section className="py-20 bg-gradient-to-r from-primary/10 to-accent/10">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl md:text-4xl font-orbitron font-bold mb-4">
+            {t('cta.title', 'Ready for Your Adventure?')}
+          </h2>
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            {t('cta.description', 'Join thousands of adventurers who have discovered the thrill of our escape rooms')}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link to="/games">
+              <Button size="lg" className="btn-glow bg-primary hover:bg-primary/90 px-8 py-4 text-lg">
+                <Play className="w-5 h-5 mr-2" />
+                {t('cta.book', 'Book Now')}
+              </Button>
+            </Link>
+            <Link to="/contact">
+              <Button variant="outline" size="lg" className="px-8 py-4 text-lg border-primary/50 hover:bg-primary/10">
+                {t('cta.learn', 'Learn More')}
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
     </div>

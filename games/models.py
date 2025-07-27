@@ -30,19 +30,20 @@ DIFFICULTY_CHOICES = [
 ]
 
 class Game(models.Model):
-    # Basic game information
-    title = models.CharField(
-        max_length=50, 
+    # Multilingual fields - store as JSON
+    title = models.JSONField(
+        default=dict,
         verbose_name=_('Название игры'),
-        help_text=_('Введите название квест-игры')
+        help_text=_('Название на разных языках: {"en": "English Title", "es": "Título Español", "uk": "Українська Назва"}')
     )
     
-    description = models.TextField(  # Changed to TextField for longer descriptions
-        max_length=500, 
+    description = models.JSONField(
+        default=dict,
         verbose_name=_('Описание'),
-        help_text=_('Детальное описание игры для клиентов')
+        help_text=_('Описание на разных языках: {"en": "English Description", "es": "Descripción", "uk": "Український опис"}')
     )
     
+    # Single-language fields
     category = models.CharField(
         max_length=20,
         choices=CATEGORY_CHOICES,
@@ -50,13 +51,14 @@ class Game(models.Model):
         verbose_name=_('Категория'),
         help_text=_('Выберите категорию игры')
     )
+    
     difficulty = models.CharField(
-    max_length=10,
-    choices=DIFFICULTY_CHOICES,
-    default='medium',
-    verbose_name=_('Сложность'),
-    help_text=_('Уровень сложности игры')
-)
+        max_length=10,
+        choices=DIFFICULTY_CHOICES,
+        default='medium',
+        verbose_name=_('Сложность'),
+        help_text=_('Уровень сложности игры')
+    )
     
     status = models.CharField(
         max_length=20,
@@ -105,7 +107,7 @@ class Game(models.Model):
         help_text=_('Время закрытия для этой игры')
     )
     
-    # Additional fields for better management
+    # Additional fields
     is_featured = models.BooleanField(
         default=False,
         verbose_name=_('Рекомендуемая игра'),
@@ -116,6 +118,18 @@ class Game(models.Model):
         default=True,
         verbose_name=_('Активная'),
         help_text=_('Доступна для бронирования клиентами')
+    )
+    translation_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pending', _('Ожидает перевода')),
+            ('processing', _('Переводится')),
+            ('completed', _('Переведено')),
+            ('failed', _('Ошибка перевода')),
+        ],
+        default='pending',
+        verbose_name=_('Статус перевода'),
+        help_text=_('Статус автоматического перевода')
     )
     
     created_at = models.DateTimeField(
@@ -131,12 +145,61 @@ class Game(models.Model):
     class Meta:
         verbose_name = _('Квест-игра')
         verbose_name_plural = _('Квест-игры')
-        ordering = ['-is_featured', 'category', 'title']
+        ordering = ['-is_featured', 'category', 'id']
 
     def __str__(self):
+        # Use Russian title for admin display, fallback to first available
+        title = self.get_title('ru') or self.get_title() or 'Untitled'
         featured_mark = " ⭐" if self.is_featured else ""
         active_mark = "" if self.is_active else " (неактивная)"
-        return f"{self.title}{featured_mark}{active_mark}"
+        return f"{title}{featured_mark}{active_mark}"
+    
+    def get_title(self, language_code='en'):
+        """Get title in specific language with fallback"""
+        if not self.title:
+            return ''
+        
+        # Try requested language
+        if language_code in self.title:
+            return self.title[language_code]
+        
+        # Fallback to English
+        if 'en' in self.title:
+            return self.title['en']
+        
+        # Fallback to first available language
+        if self.title:
+            return next(iter(self.title.values()), '')
+        
+        return ''
+    
+    def get_description(self, language_code='en'):
+        """Get description in specific language with fallback"""
+        if not self.description:
+            return ''
+        
+        # Try requested language
+        if language_code in self.description:
+            return self.description[language_code]
+        
+        # Fallback to English
+        if 'en' in self.description:
+            return self.description['en']
+        
+        # Fallback to first available language
+        if self.description:
+            return next(iter(self.description.values()), '')
+        
+        return ''
+    
+    def save(self, *args, **kwargs):
+        """Ensure title and description are proper JSON objects"""
+        if not isinstance(self.title, dict):
+            self.title = {}
+        if not isinstance(self.description, dict):
+            self.description = {}
+        super().save(*args, **kwargs)
+
     
 class Reservation(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE)

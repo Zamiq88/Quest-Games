@@ -4,212 +4,148 @@ from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from .models import Game
-from . models import CATEGORY_CHOICES,STATUS_CHOICES,DIFFICULTY_CHOICES
+from . services import GeminiTranslationService
+
+from django.contrib import admin
+from django.forms import ModelForm, CharField, Textarea
+from django.utils.html import format_html
+
+class GameAdminForm(ModelForm):
+    # Custom form fields for Russian input
+    title_ru = CharField(
+        label='Название игры (Русский)',
+        max_length=50,
+        help_text='Введите название квест-игры на русском языке',
+        required=True
+    )
+    
+    description_ru = CharField(
+        label='Описание (Русский)',
+        widget=Textarea(attrs={'rows': 4}),
+        max_length=500,
+        help_text='Детальное описание игры для клиентов на русском языке',
+        required=True
+    )
+    
+    class Meta:
+        model = Game
+        fields = '__all__'
+        exclude = ['title', 'description']  # Hide JSON fields from form
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Populate Russian fields if editing existing game
+        if self.instance and self.instance.pk:
+            if isinstance(self.instance.title, dict):
+                self.fields['title_ru'].initial = self.instance.title.get('ru', '')
+            if isinstance(self.instance.description, dict):
+                self.fields['description_ru'].initial = self.instance.description.get('ru', '')
+    
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        
+        # Save Russian content to JSON fields
+        if not isinstance(instance.title, dict):
+            instance.title = {}
+        if not isinstance(instance.description, dict):
+            instance.description = {}
+        
+        instance.title['ru'] = self.cleaned_data['title_ru']
+        instance.description['ru'] = self.cleaned_data['description_ru']
+        
+        if commit:
+            instance.save()
+        return instance
+
 
 @admin.register(Game)
 class GameAdmin(admin.ModelAdmin):
-    # List view configuration
+    form = GameAdminForm
+    
     list_display = [
-        'title_with_status',
-        'category_display',
-        'difficulty_display',
-        'status_display',
-        'price_display', 
-        'max_players', 
-        'duration_display', 
-        'working_hours_display',
-        'image_preview',
-        'is_active',
-        'created_at',
-        'is_featured',
-        'status',
-        'difficulty'
-
+        'get_title_display', 'category', 'difficulty', 'price', 
+        'is_featured', 'is_active', 'get_translation_status'
     ]
     
     list_filter = [
-        'is_active',
-        'is_featured',
-        'difficulty',
-        'status',
-        'category',
-        'max_players',
-        'working_hours_start',
-        'working_hours_end',
-        'created_at'
+        'category', 'difficulty', 'status', 'is_featured', 
+        'is_active', 'translation_status'
     ]
     
-    search_fields = ['title', 'description']
+    search_fields = ['title__ru']  # Search in Russian titles
     
-    list_editable = ['is_active', 'is_featured', 'status', 'difficulty']  # Quick edit from list view
+    readonly_fields = ['translation_status', 'created_at', 'updated_at', 'get_translations_display']
     
-    # Fieldsets for organized form
     fieldsets = (
-        (_('📋 Основная информация'), {
-            'fields': ('title', 'description', 'category', 'difficulty', 'status', 'image'),
-            'description': _('Основные данные об квест-игре')
+        ('Основная информация', {
+            'fields': ('title_ru', 'description_ru', 'category', 'difficulty', 'status', 'image')
         }),
-        (_('💰 Параметры игры'), {
-            'fields': ('price', 'max_players', 'duration'),
-            'description': _('Стоимость и характеристики игры')
+        ('Детали игры', {
+            'fields': ('price', 'max_players', 'duration')
         }),
-        (_('🕐 Режим работы'), {
-            'fields': ('working_hours_start', 'working_hours_end'),
-            'description': _('Установите время работы для этой игры')
+        ('Рабочие часы', {
+            'fields': ('working_hours_start', 'working_hours_end')
         }),
-        (_('⚙️ Настройки отображения'), {
-            'fields': ('is_featured', 'is_active'),
-            'description': _('Управление видимостью игры на сайте')
+        ('Настройки', {
+            'fields': ('is_featured', 'is_active')
+        }),
+        ('Переводы', {
+            'fields': ('translation_status', 'get_translations_display'),
+            'classes': ('collapse',)
+        }),
+        ('Системная информация', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
         }),
     )
     
-    # Configuration
-    save_on_top = True
-    ordering = ['-is_featured', 'category', 'title']
-    list_per_page = 20
+    def get_title_display(self, obj):
+        return obj.get_title('ru') or "Без названия"
+    get_title_display.short_description = 'Название'
     
-    # Actions
-    actions = ['make_featured', 'remove_featured', 'activate_games', 'deactivate_games', 
-               'set_available_now', 'set_pre_reservation', 'set_easy', 'set_medium', 'set_hard']
-    
-    def make_featured(self, request, queryset):
-        count = queryset.update(is_featured=True)
-        self.message_user(request, f'Отмечено как рекомендуемые: {count} игр(ы)')
-    make_featured.short_description = _("Отметить как рекомендуемые")
-    
-    def remove_featured(self, request, queryset):
-        count = queryset.update(is_featured=False)
-        self.message_user(request, f'Убрано из рекомендуемых: {count} игр(ы)')
-    remove_featured.short_description = _("Убрать из рекомендуемых")
-    
-    def activate_games(self, request, queryset):
-        count = queryset.update(is_active=True)
-        self.message_user(request, f'Активировано: {count} игр(ы)')
-    activate_games.short_description = _("Активировать игры")
-    
-    def deactivate_games(self, request, queryset):
-        count = queryset.update(is_active=False)
-        self.message_user(request, f'Деактивировано: {count} игр(ы)')
-    deactivate_games.short_description = _("Деактивировать игры")
-    
-    def set_available_now(self, request, queryset):
-        count = queryset.update(status='available_now')
-        self.message_user(request, f'Установлен статус "Доступно сейчас": {count} игр(ы)')
-    set_available_now.short_description = _("Установить статус: Доступно сейчас")
-    
-    def set_pre_reservation(self, request, queryset):
-        count = queryset.update(status='pre_reservation')
-        self.message_user(request, f'Установлен статус "Предварительное бронирование": {count} игр(ы)')
-    set_pre_reservation.short_description = _("Установить статус: Предварительное бронирование")
-    
-    def set_easy(self, request, queryset):
-        count = queryset.update(difficulty='easy')
-        self.message_user(request, f'Установлена сложность "Легкий": {count} игр(ы)')
-    set_easy.short_description = _("Установить сложность: Легкий")
-    
-    def set_medium(self, request, queryset):
-        count = queryset.update(difficulty='medium')
-        self.message_user(request, f'Установлена сложность "Средний": {count} игр(ы)')
-    set_medium.short_description = _("Установить сложность: Средний")
-    
-    def set_hard(self, request, queryset):
-        count = queryset.update(difficulty='hard')
-        self.message_user(request, f'Установлена сложность "Сложный": {count} игр(ы)')
-    set_hard.short_description = _("Установить сложность: Сложный")
-    
-    # Custom display methods
-    def title_with_status(self, obj):
-        """Display title with status indicators"""
-        title = obj.title
-        if obj.is_featured:
-            title = f"⭐ {title}"
-        if not obj.is_active:
-            title = f"❌ {title}"
-        return title
-    title_with_status.short_description = _("Название")
-    
-    def category_display(self, obj):
-        """Display category with icon"""
-        category_icons = {
-            'escape': '🔓',
-            'adventure': '🗺️',
-            'puzzle': '🧩',
-            'horror': '👻',
-            'team': '👥'
+    def get_translation_status(self, obj):
+        status_colors = {
+            'pending': 'orange',
+            'processing': 'blue', 
+            'completed': 'green',
+            'failed': 'red'
         }
-        icon = category_icons.get(obj.category, '🎮')
-        category_name = dict(CATEGORY_CHOICES).get(obj.category, obj.category)
-        return f"{icon} {category_name}"
-    category_display.short_description = _("Категория")
-    category_display.admin_order_field = 'category'
+        color = status_colors.get(obj.translation_status, 'gray')
+        return format_html(
+            '<span style="color: {};">{}</span>',
+            color,
+            obj.get_translation_status_display()
+        )
+    get_translation_status.short_description = 'Статус перевода'
     
-    def status_display(self, obj):
-        """Display status with icon"""
-        status_icons = {
-            'available_now': '✅',
-            'pre_reservation': '📅'
-        }
-        icon = status_icons.get(obj.status, '❓')
-        status_name = dict(STATUS_CHOICES).get(obj.status, obj.status)
-        return f"{icon} {status_name}"
-    status_display.short_description = _("Статус")
-    status_display.admin_order_field = 'status'
+    def get_translations_display(self, obj):
+        if not isinstance(obj.title, dict):
+            return "Нет переводов"
+        
+        translations = []
+        languages = {'ru': 'Русский', 'en': 'English', 'es': 'Español', 'uk': 'Українська'}
+        
+        for lang_code, lang_name in languages.items():
+            if obj.title.get(lang_code):
+                translations.append(f"<strong>{lang_name}:</strong> {obj.title[lang_code][:50]}...")
+        
+        return format_html("<br>".join(translations)) if translations else "Нет переводов"
+    get_translations_display.short_description = 'Доступные переводы'
     
-    def difficulty_display(self, obj):
-        """Display difficulty with icon"""
-        difficulty_icons = {
-            'easy': '🟢',      # Green circle for easy
-            'medium': '🟡',    # Yellow circle for medium  
-            'hard': '🔴'       # Red circle for hard
-        }
-        icon = difficulty_icons.get(obj.difficulty, '⚪')
-        difficulty_name = dict(DIFFICULTY_CHOICES).get(obj.difficulty, obj.difficulty)
-        return f"{icon} {difficulty_name}"
-    difficulty_display.short_description = _("Сложность")
-    difficulty_display.admin_order_field = 'difficulty'
+    actions = ['retranslate_games']
     
-    def price_display(self, obj):
-        """Display price with currency"""
-        if obj.price:
-            return f"{obj.price} €"  # Euro currency for Spain
-        return _("Не указано")
-    price_display.short_description = _("Цена")
-    price_display.admin_order_field = 'price'
-    
-    def duration_display(self, obj):
-        """Display duration in readable format"""
-        if obj.duration:
-            hours = obj.duration // 60
-            minutes = obj.duration % 60
-            if hours > 0 and minutes > 0:
-                return f"{hours}ч {minutes}м"
-            elif hours > 0:
-                return f"{hours}ч"
-            else:
-                return f"{minutes}м"
-        return _("Не указано")
-    duration_display.short_description = _("Длительность")
-    duration_display.admin_order_field = 'duration'
-    
-    def working_hours_display(self, obj):
-        """Display working hours"""
-        if obj.working_hours_start and obj.working_hours_end:
-            return f"🕐 {obj.working_hours_start} - {obj.working_hours_end}"
-        return _("Не указано")
-    working_hours_display.short_description = _("Время работы")
-    
-    def image_preview(self, obj):
-        """Show image preview"""
-        if obj.image:
-            return format_html(
-                '<img src="{}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd;" alt="{}" />',
-                obj.image.url,
-                obj.title
-            )
-        return _("❌ Нет изображения")
-    image_preview.short_description = _("Изображение")
-
-# Customize admin site
-admin.site.site_header = _("🎮 Админ-панель Квест-игр")
-admin.site.site_title = _("Квест-игры")
-admin.site.index_title = _("Добро пожаловать в систему управления квест-играми!")
+    def retranslate_games(self, request, queryset):
+        """Admin action to retranslate selected games"""
+        translation_service = GeminiTranslationService()
+        success_count = 0
+        
+        for game in queryset:
+            if translation_service.translate_game_content(game):
+                success_count += 1
+        
+        self.message_user(
+            request,
+            f'Успешно переведено {success_count} из {queryset.count()} игр.'
+        )
+    retranslate_games.short_description = 'Перевести выбранные игры заново'

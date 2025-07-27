@@ -32,7 +32,7 @@
     "perPerson": "por persona",
     "perGroup": "por grupo",
     "bookNow": "Reservar Ahora",
-    "maxPlayers": "Hasta {{count}} jugadores"
+    "maxPlayers": "Hasta {{max_players}} jugadores"
   },
   "booking": {
     "title": "Reserva Tu Misión",
