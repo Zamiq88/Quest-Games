@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { GameCard } from '@/components/GameCard';
@@ -6,39 +6,99 @@ import { CategoryFilter } from '@/components/CategoryFilter';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { games, getGamesByCategory } from '@/data/games';
-import { Search, Filter, SlidersHorizontal } from 'lucide-react';
+import { Search, Filter, SlidersHorizontal, Loader2 } from 'lucide-react';
 
 export function Games() {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   
-  const [searchTerm, setSearchTerm] = useState('');
+  // State for UI controls
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [activeCategory, setActiveCategory] = useState(searchParams.get('category') || 'all');
+  const [activeDifficulty, setActiveDifficulty] = useState(searchParams.get('difficulty') || 'all');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 300]);
   const [showFilters, setShowFilters] = useState(false);
+  
+  // State for API data
+  const [games, setGames] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Filter games based on search and category
-  const filteredGames = useMemo(() => {
-    let filtered = getGamesByCategory(activeCategory);
-    
-    if (searchTerm) {
-      filtered = filtered.filter(game =>
-        game.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        game.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+  // Fetch games from API
+  const fetchGames = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Build query parameters
+      const params = new URLSearchParams();
+      
+      if (activeCategory !== 'all') {
+        params.append('category', activeCategory);
+      }
+      
+      if (activeDifficulty !== 'all') {
+        params.append('difficulty', activeDifficulty);
+      }
+      
+      if (searchTerm.trim()) {
+        params.append('search', searchTerm.trim());
+      }
+      
+      const queryString = params.toString();
+      const url = `api/games/${queryString ? `?${queryString}` : ''}`;
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setGames(data.results || data); // Handle both paginated and non-paginated responses
+      
+    } catch (err) {
+      setError(err.message);
+      console.error('Error fetching games:', err);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    filtered = filtered.filter(game =>
+  // Fetch games on mount and when filters change
+  useEffect(() => {
+    fetchGames();
+  }, [activeCategory, activeDifficulty, searchTerm]);
+
+  // Update URL params when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    
+    if (activeCategory !== 'all') {
+      params.set('category', activeCategory);
+    }
+    
+    if (activeDifficulty !== 'all') {
+      params.set('difficulty', activeDifficulty);
+    }
+    
+    if (searchTerm.trim()) {
+      params.set('search', searchTerm.trim());
+    }
+    
+    setSearchParams(params);
+  }, [activeCategory, activeDifficulty, searchTerm, setSearchParams]);
+
+  // Filter games by price range (client-side filtering)
+  const filteredGames = useMemo(() => {
+    return games.filter(game =>
       game.price >= priceRange[0] && game.price <= priceRange[1]
     );
+  }, [games, priceRange]);
 
-    return filtered;
-  }, [activeCategory, searchTerm, priceRange]);
-
-  // Calculate game counts per category
+  // Calculate game counts per category (you might want to get this from a separate API endpoint)
   const gameCounts = useMemo(() => {
-    const counts: Record<string, number> = {
+    const counts = {
       all: games.length,
       escape: 0,
       adventure: 0,
@@ -48,16 +108,60 @@ export function Games() {
     };
 
     games.forEach(game => {
-      counts[game.category]++;
+      if (counts.hasOwnProperty(game.category)) {
+        counts[game.category]++;
+      }
     });
 
     return counts;
-  }, []);
+  }, [games]);
 
   const handleCategoryChange = (category: string) => {
     setActiveCategory(category);
-    setSearchParams(category === 'all' ? {} : { category });
   };
+
+  const handleDifficultyChange = (difficulty: string) => {
+    setActiveDifficulty(difficulty);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+  };
+
+  const clearAllFilters = () => {
+    setSearchTerm('');
+    setActiveCategory('all');
+    setActiveDifficulty('all');
+    setPriceRange([0, 300]);
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen pt-24 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground">Loading games...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen pt-24 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">⚠️</div>
+          <h3 className="text-xl font-semibold mb-2">Error loading games</h3>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <Button onClick={fetchGames} variant="outline">
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pt-24">
@@ -80,7 +184,7 @@ export function Games() {
               <Input
                 placeholder="Search games..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 className="pl-10 input-glow"
               />
             </div>
@@ -101,6 +205,25 @@ export function Games() {
               <h3 className="font-semibold mb-4">Filter Options</h3>
               
               <div className="space-y-4">
+                {/* Difficulty Filter */}
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Difficulty</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['all', 'easy', 'medium', 'hard'].map((difficulty) => (
+                      <Button
+                        key={difficulty}
+                        variant={activeDifficulty === difficulty ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => handleDifficultyChange(difficulty)}
+                        className="capitalize"
+                      >
+                        {difficulty}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Price Range Filter */}
                 <div>
                   <label className="text-sm font-medium mb-2 block">Price Range</label>
                   <div className="flex items-center gap-4">
@@ -142,7 +265,7 @@ export function Games() {
 
         {/* Results Count */}
         <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Badge variant="outline" className="text-primary border-primary/50">
               {filteredGames.length} {filteredGames.length === 1 ? 'game' : 'games'} found
             </Badge>
@@ -151,7 +274,29 @@ export function Games() {
                 Search: "{searchTerm}"
               </Badge>
             )}
+            {activeCategory !== 'all' && (
+              <Badge variant="secondary" className="capitalize">
+                Category: {activeCategory}
+              </Badge>
+            )}
+            {activeDifficulty !== 'all' && (
+              <Badge variant="secondary" className="capitalize">
+                Difficulty: {activeDifficulty}
+              </Badge>
+            )}
           </div>
+          
+          {(searchTerm || activeCategory !== 'all' || activeDifficulty !== 'all' || 
+            priceRange[0] !== 0 || priceRange[1] !== 300) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearAllFilters}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              Clear all
+            </Button>
+          )}
         </div>
 
         {/* Games Grid */}
@@ -170,12 +315,7 @@ export function Games() {
             </p>
             <Button
               variant="outline"
-              onClick={() => {
-                setSearchTerm('');
-                setActiveCategory('all');
-                setPriceRange([0, 300]);
-                setSearchParams({});
-              }}
+              onClick={clearAllFilters}
             >
               Clear all filters
             </Button>
