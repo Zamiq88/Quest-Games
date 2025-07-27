@@ -1,0 +1,11 @@
+django
+django-environ
+python-dotenv
+djangorestframework
+django-filter
+django-cors-headers
+drf-yasg
+pillow
+
+python-decouple 
+requests
