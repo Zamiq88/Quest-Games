@@ -34,7 +34,7 @@ export function Home() {
   const [error, setError] = useState<string | null>(null);
 
   // API configuration
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
   const features = [
     {
@@ -69,6 +69,11 @@ export function Home() {
     }
   };
 
+  // Retry function for error state
+  const handleRetry = () => {
+    window.location.reload();
+  };
+
   // Fetch featured games on component mount
   useEffect(() => {
     const loadFeaturedGames = async () => {
@@ -86,10 +91,7 @@ export function Home() {
     };
 
     loadFeaturedGames();
-  // Retry function for error state
-  const handleRetry = () => {
-    window.location.reload();
-  };
+  }, []); // Added missing dependency array
 
   return (
     <div className="min-h-screen">
@@ -263,7 +265,7 @@ export const resources = {
           description: "State-of-the-art safety protocols and secure booking system."
         },
         team: {
-          title: "Team Building",
+          title: "Team Building",  
           description: "Perfect for corporate events and team bonding experiences."
         },
         award: {
