@@ -82,7 +82,7 @@ export function GameCard({ game, featured = false }: GameCardProps) {
           
           <div className="flex items-center gap-1">
             <Users className="w-4 h-4" />
-            <span>{t('games.maxPlayers', { count: game.maxPlayers })}</span>
+            <span>{t('games.maxPlayers', { max_players: game.max_players })}</span>
           </div>
         </div>
 

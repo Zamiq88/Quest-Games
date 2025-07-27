@@ -4,12 +4,18 @@ export interface Game {
   category: 'escape' | 'adventure' | 'puzzle' | 'horror' | 'team';
   description: string;
   duration: number; // in minutes
-  difficulty: 'Easy' | 'Medium' | 'Hard';
+  difficulty: 'easy' | 'medium' | 'hard'; // Also fixed to match Django choices
   price: number;
   image: string;
-  max_players: number;
-  minPlayers: number;
+  max_players: number; // Changed from maxPlayers
   featured?: boolean;
+  // Add other fields from your Django model
+  status: 'available_now' | 'pre_reservation';
+  working_hours_start: string;
+  working_hours_end: string;
+  working_hours?: string;
+  is_featured: boolean;
+  is_active: boolean;
 }
 
 export interface BookingData {
