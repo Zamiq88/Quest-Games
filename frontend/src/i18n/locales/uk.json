@@ -32,7 +32,7 @@
     "perPerson": "за особу",
     "perGroup": "за групу",
     "bookNow": "Забронювати Зараз",
-    "maxPlayers": "До {{max_players}} гравців"
+    "maxPlayers": "До {{maxPlayers} гравців"
   },
   "booking": {
     "title": "Забронюйте Ваш Квест",

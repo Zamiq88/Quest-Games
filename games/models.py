@@ -192,6 +192,23 @@ class Game(models.Model):
         
         return ''
     
+    def needs_translation(self):
+        """Check if the game needs translation"""
+        required_languages = ['en', 'es', 'uk']
+        
+        # Check if Russian content exists
+        if not (isinstance(self.title, dict) and self.title.get('ru')):
+            return False
+        if not (isinstance(self.description, dict) and self.description.get('ru')):
+            return False
+        
+        # Check if all required languages exist
+        for lang in required_languages:
+            if not self.title.get(lang) or not self.description.get(lang):
+                return True
+        
+        return False
+    
     def save(self, *args, **kwargs):
         """Ensure title and description are proper JSON objects"""
         if not isinstance(self.title, dict):

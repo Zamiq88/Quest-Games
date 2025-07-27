@@ -32,7 +32,7 @@
     "perPerson": "per person",
     "perGroup": "per group",
     "bookNow": "Book Now",
-    "maxPlayers": "Up to {{max_players}} players"
+    "maxPlayers": "Up to {maxPlayers}} players"
   },
   "booking": {
     "title": "Book Your Quest",

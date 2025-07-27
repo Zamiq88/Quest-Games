@@ -5,14 +5,28 @@ import google.generativeai as genai
 
 logger = logging.getLogger(__name__)
 
-
-
+def clean_gemini_response(response_text):
+    if response_text.startswith('```json'):
+        response_text = response_text[7:]
+    if response_text.endswith('```'):
+        response_text = response_text[:-3]
+        
+        # Remove any leading/trailing whitespace
+    response_text = response_text.strip()
+        
+        # Try to extract JSON from the response if it's embedded in other text
+    import re
+    json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+    if json_match:
+        response_text = json_match.group()
+        
+    return response_text
 
 class GeminiTranslationService:
     def __init__(self):
         if hasattr(settings, 'GEMINI_API_KEY'):
             genai.configure(api_key=settings.GEMINI_API_KEY)
-            self.model = genai.GenerativeModel('gemini-pro')
+            self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
         else:
             logger.error("GEMINI_API_KEY not found in settings")
             self.model = None
@@ -77,8 +91,9 @@ class GeminiTranslationService:
                     
                     if response and response.text:
                         # Parse JSON response
+                        response_text = clean_gemini_response(response_text=response.text)
                         try:
-                            translation_data = json.loads(response.text.strip())
+                            translation_data = json.loads(response_text.strip())
                             
                             # Update game with translations
                             if 'title' in translation_data and translation_data['title']:

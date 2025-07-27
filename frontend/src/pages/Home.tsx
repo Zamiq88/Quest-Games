@@ -1,4 +1,3 @@
-// src/pages/Home.tsx - Complete component with API integration
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,7 @@ import heroBackground from '@/assets/hero-background.jpg';
 
 export function Home() {
   const { t } = useTranslation();
-  const { games, loading, error } = useGames();
+  const { games, loading, error, refetch } = useGames();
   
   // Get featured games (these will already have localized titles/descriptions)
   const featuredGames = games.filter(game => game.is_featured).slice(0, 3);
@@ -153,7 +152,7 @@ export function Home() {
               <p className="text-sm text-muted-foreground/70 mb-4">{error}</p>
               <Button 
                 variant="outline" 
-                onClick={() => window.location.reload()}
+                onClick={refetch}
                 className="border-primary/50 hover:bg-primary/10"
               >
                 {t('common.retry', 'Try Again')}
@@ -204,7 +203,7 @@ export function Home() {
         </div>
       </section>
 
-      {/* Statistics Section (Optional) */}
+      {/* Statistics Section */}
       <section className="py-16 bg-muted/10">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
