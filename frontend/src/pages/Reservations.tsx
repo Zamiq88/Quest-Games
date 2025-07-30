@@ -1,4 +1,4 @@
-// Updated Reservations.jsx - Remove Facebook auth, add name inputs
+// Updated Reservations.jsx - Fetch game data from backend API
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -10,7 +10,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { getGameById } from '@/data/games';
+// Remove the static import
+// import { getGameById } from '@/data/games';
 import { BookingData, TimeSlot } from '@/types/game';
 import { Calendar, Clock, Users, Mail, ArrowLeft, Check, User } from 'lucide-react';
 import DatePicker from 'react-datepicker';
@@ -23,7 +24,11 @@ export function Reservations() {
   const [searchParams] = useSearchParams();
   
   const gameId = searchParams.get('game');
-  const game = gameId ? getGameById(gameId) : null;
+  
+  // Add state for game data and loading
+  const [game, setGame] = useState(null);
+  const [gameLoading, setGameLoading] = useState(true);
+  const [gameError, setGameError] = useState(null);
 
   const [step, setStep] = useState(1);
   const [timeSlots, setTimeSlots] = useState([]);
@@ -39,6 +44,34 @@ export function Reservations() {
     emailVerified: false,
     otp: ''
   });
+
+  // Fetch game data from backend
+  useEffect(() => {
+    if (gameId) {
+      setGameLoading(true);
+      fetch(`/api/games/${gameId}/`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Game not found');
+          }
+          return response.json();
+        })
+        .then(data => {
+          setGame(data);
+          setGameError(null);
+        })
+        .catch(error => {
+          console.error('Failed to fetch game:', error);
+          setGameError(error.message);
+          setGame(null);
+        })
+        .finally(() => {
+          setGameLoading(false);
+        });
+    } else {
+      setGameLoading(false);
+    }
+  }, [gameId]);
 
   useEffect(() => {
     if (game && bookingData.players) {
@@ -236,14 +269,34 @@ export function Reservations() {
     setLoading(false);
   };
 
-  if (!game) {
+  // Show loading state while fetching game
+  if (gameLoading) {
     return (
       <div className="min-h-screen pt-24 flex items-center justify-center">
         <Card className="card-glow max-w-md mx-auto">
           <CardContent className="p-8 text-center">
-            <h2 className="text-xl font-semibold mb-4">Game not found</h2>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <h2 className="text-xl font-semibold mb-2">Loading game details...</h2>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show error state if game fetch failed
+  if (gameError || !game) {
+    return (
+      <div className="min-h-screen pt-24 flex items-center justify-center">
+        <Card className="card-glow max-w-md mx-auto">
+          <CardContent className="p-8 text-center">
+            <h2 className="text-xl font-semibold mb-4">
+              {gameError === 'Game not found' ? 'Game not found' : 'Error loading game'}
+            </h2>
             <p className="text-muted-foreground mb-4">
-              Please select a game from our collection to continue with booking.
+              {gameError === 'Game not found' 
+                ? 'Please select a game from our collection to continue with booking.'
+                : 'There was an error loading the game details. Please try again.'
+              }
             </p>
             <Button onClick={() => navigate('/games')}>
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -363,7 +416,7 @@ export function Reservations() {
                  <Users className="w-12 h-12 text-primary mx-auto mb-4" />
                  <h2 className="text-2xl font-semibold mb-2">Number of Players</h2>
                  <p className="text-muted-foreground">
-                   {game.minPlayers || 1} - {game.max_players} players allowed
+                   1 - {game.max_players} players allowed
                  </p>
                </div>
 
@@ -374,9 +427,9 @@ export function Reservations() {
                      size="icon"
                      onClick={() => setBookingData(prev => ({ 
                        ...prev, 
-                       players: Math.max((game.minPlayers || 1), prev.players - 1) 
+                       players: Math.max(1, prev.players - 1) 
                      }))}
-                     disabled={bookingData.players <= (game.minPlayers || 1)}
+                     disabled={bookingData.players <= 1}
                    >
                      -
                    </Button>
