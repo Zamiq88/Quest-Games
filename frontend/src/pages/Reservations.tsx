@@ -103,7 +103,7 @@ export function Reservations() {
 
     setLoading(true);
     try {
-      const response = await fetch('/api/booking/send-otp/', {
+      const response = await fetch('/api/games/send-otp/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -153,7 +153,7 @@ export function Reservations() {
 
     setLoading(true);
     try {
-      const response = await fetch('/api/booking/verify-otp/', {
+      const response = await fetch('/api/games/verify-otp/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -193,7 +193,7 @@ export function Reservations() {
   const handleConfirmBooking = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/booking/create/', {
+      const response = await fetch('/api/games/create/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
