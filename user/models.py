@@ -60,11 +60,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         max_length=150,
         blank=True,null=True
     )
-    facebook_connected = models.BooleanField(
-        verbose_name='Facebook connected',
-        default=False,
-        help_text='Indicates if the user has connected their Facebook account'
-    )
+
     
     # Required fields for Django's user system
     is_active = models.BooleanField(default=True)
@@ -80,7 +76,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = 'User'
         verbose_name_plural = 'Users'
-        db_table = 'auth_user'  # Optional: use default auth_user table name
+       
 
     def __str__(self):
         return self.email
@@ -104,3 +100,33 @@ class User(AbstractBaseUser, PermissionsMixin):
         Property to get full name
         """
         return self.get_full_name()
+
+class Contacts(models.Model):
+    facebook_page = models.CharField(
+        max_length=100,
+        verbose_name="Страница Facebook",
+        help_text="Ссылка на страницу Facebook"
+    )
+    instagram_page = models.CharField(
+        max_length=100,
+        verbose_name="Страница Instagram", 
+        help_text="Ссылка на страницу Instagram"
+    )
+    whatsapp_number = models.CharField(
+        max_length=100,
+        verbose_name="Номер WhatsApp",
+        help_text="Номер телефона для WhatsApp"
+    )
+    email = models.EmailField(
+        blank=True,
+        null=True,
+        verbose_name="Электронная почта",
+        help_text="Адрес электронной почты"
+    )
+
+    class Meta:
+        verbose_name = "Контакт"
+        verbose_name_plural = "Контакты"
+
+    def __str__(self):
+        return f"Контакты компании"

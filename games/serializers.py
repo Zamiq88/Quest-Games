@@ -1,5 +1,10 @@
 from rest_framework import serializers
 from .models import Game
+from django.contrib.auth import get_user_model
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError as DjangoValidationError
+
+User = get_user_model()
 
 class GameSerializer(serializers.ModelSerializer):
     """Serializer for API - returns data for frontend with language-specific content"""
@@ -65,3 +70,82 @@ class FeaturedGameSerializer(GameSerializer):
     """
     class Meta(GameSerializer.Meta):
         pass
+
+from rest_framework import serializers
+from .models import Game, Reservation
+
+class TimeSlotSerializer(serializers.Serializer):
+    time = serializers.CharField()
+    available = serializers.BooleanField()
+
+class AvailableTimesSerializer(serializers.Serializer):
+    game_title = serializers.CharField()
+    date = serializers.DateField()
+    available_slots = TimeSlotSerializer(many=True)
+    duration = serializers.IntegerField()
+    max_players = serializers.IntegerField()
+    error = serializers.CharField(required=False)
+
+
+    
+class SendOTPSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    first_name = serializers.CharField(max_length=150)
+    last_name = serializers.CharField(max_length=150)
+    
+    def validate_email(self, value):
+        try:
+            validate_email(value)
+        except DjangoValidationError:
+            raise serializers.ValidationError("Please enter a valid email address")
+        return value.lower()
+
+class VerifyOTPSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    otp = serializers.CharField(max_length=6, min_length=6)
+    
+    def validate_otp(self, value):
+        if not value.isdigit():
+            raise serializers.ValidationError("OTP must be 6 digits")
+        return value
+
+class BookingSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(max_length=150, write_only=True)
+    last_name = serializers.CharField(max_length=150, write_only=True)
+    email = serializers.EmailField(write_only=True)
+    
+    class Meta:
+        model = Reservation
+        fields = [
+            'game', 'date', 'time', 'players', 'special_requirements',
+            'first_name', 'last_name', 'email'
+        ]
+    
+    def create(self, validated_data):
+        # Extract user data
+        first_name = validated_data.pop('first_name')
+        last_name = validated_data.pop('last_name')
+        email = validated_data.pop('email')
+        
+        # Create or get user
+        user, created = User.objects.get_or_create(
+            email=email,
+            defaults={
+                'first_name': first_name,
+                'last_name': last_name
+            }
+        )
+        
+        # Update user info if needed
+        if not created:
+            if not user.first_name and first_name:
+                user.first_name = first_name
+            if not user.last_name and last_name:
+                user.last_name = last_name
+            user.save()
+        
+        # Create reservation
+        validated_data['user'] = user
+        validated_data['email'] = email
+        
+        return super().create(validated_data)

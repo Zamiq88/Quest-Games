@@ -1,6 +1,9 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from user.models import User
+from django.core.exceptions import ValidationError
+from datetime import datetime, time, timedelta
+import uuid
 
 HOUR_CHOICES = (
     ('00:00', '00:00'), ('01:00', '01:00'), ('02:00', '02:00'), ('03:00', '03:00'),
@@ -66,6 +69,12 @@ class Game(models.Model):
         default='available_now',
         verbose_name=_('Статус'),
         help_text=_('Статус доступности игры для бронирования')
+    )
+    available_from = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_('Доступно с'),
+        help_text=_('Дата и время, когда игра станет доступна для бронирования (только для предварительного бронирования)')
     )
     
     image = models.ImageField(
@@ -217,9 +226,118 @@ class Game(models.Model):
             self.description = {}
         super().save(*args, **kwargs)
 
+    def clean(self):
+        """Custom validation"""
+        super().clean()
+        
+        
+        if self.status == 'pre_reservation' and not self.available_from:
+            raise ValidationError({
+                'available_from': _('Поле "Доступно с" обязательно для предварительного бронирования')
+            })
+        
+        if self.status == 'available_now' and self.available_from:
+            # Optionally clear the field or just warn
+            self.available_from = None
+
     
 class Reservation(models.Model):
-    user = models.ForeignKey(User,on_delete=models.CASCADE)
-    game = models.ForeignKey(Game,on_delete=models.CASCADE)
-    date = models.DateField()
-    time = models.TimeField()
+    STATUS_CHOICES = [
+        ('pending', _('В ожидании')),
+        ('confirmed', _('Подтверждено')),
+        ('cancelled', _('Отменено')),
+        ('completed', _('Завершено')),
+    ]
+    
+    # Basic fields
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    date = models.DateField(verbose_name=_('Дата'))
+    time = models.TimeField(verbose_name=_('Время'))
+    
+    # Additional fields
+    players = models.PositiveIntegerField(
+        verbose_name=_('Количество игроков'),
+        help_text=_('Количество игроков для бронирования')
+    )
+    total_price = models.DecimalField(
+        max_digits=8, 
+        decimal_places=2,
+        verbose_name=_('Общая стоимость')
+    )
+    special_requirements = models.TextField(
+        blank=True,
+        verbose_name=_('Особые требования'),
+        help_text=_('Дополнительные пожелания или требования')
+    )
+    
+    # Status and tracking
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='pending',
+        verbose_name=_('Статус')
+    )
+    reference_number = models.CharField(
+        max_length=20,
+        unique=True,
+        verbose_name=_('Номер брони'),
+        help_text=_('Уникальный номер для отслеживания брони')
+    )
+    
+    # Contact info
+    email = models.EmailField(verbose_name=_('Email'))
+    phone = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        verbose_name=_('Телефон')
+    )
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = _('Бронирование')
+        verbose_name_plural = _('Бронирования')
+        ordering = ['-created_at']
+        # Prevent double booking
+        unique_together = ['game', 'date', 'time']
+    
+    def save(self, *args, **kwargs):
+        # Generate reference number if not exists
+        if not self.reference_number:
+            self.reference_number = self.generate_reference_number()
+        
+        # Calculate total price
+        if self.game and self.players:
+            if self.game.category == 'team':
+                self.total_price = self.game.price
+            else:
+                self.total_price = self.game.price * self.players
+        
+        super().save(*args, **kwargs)
+    
+    def generate_reference_number(self):
+        """Generate unique reference number"""
+        return f"QH{uuid.uuid4().hex[:8].upper()}"
+    
+    def clean(self):
+        """Validate reservation data"""
+        super().clean()
+        
+        if self.date and self.date < datetime.now().date():
+            raise ValidationError({'date': _('Нельзя бронировать на прошедшую дату')})
+        
+        if self.game and self.players:
+            if self.players < 1:
+                raise ValidationError({'players': _('Количество игроков должно быть больше 0')})
+            if self.players > self.game.max_players:
+                raise ValidationError({
+                    'players': _('Максимум игроков для этой игры: %(max)s') % {'max': self.game.max_players}
+                })
+    
+    def __str__(self):
+        return f"{self.game.get_title('ru')} - {self.date} {self.time} ({self.reference_number})"
+

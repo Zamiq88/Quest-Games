@@ -7,11 +7,16 @@ from .models import Game
 from . services import GeminiTranslationService
 
 from django.contrib import admin
-from django.forms import ModelForm, CharField, Textarea
+from django.forms import ModelForm, CharField, Textarea,ValidationError
 from django.utils.html import format_html
 
+from django.contrib import admin
+from django.forms import ModelForm, CharField, Textarea, ValidationError
+from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
+from .models import Game
+
 class GameAdminForm(ModelForm):
-    # Custom form fields for Russian input
     title_ru = CharField(
         label='Название игры (Русский)',
         max_length=50,
@@ -30,22 +35,40 @@ class GameAdminForm(ModelForm):
     class Meta:
         model = Game
         fields = '__all__'
-        exclude = ['title', 'description']  # Hide JSON fields from form
+        exclude = ['title', 'description']
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # Populate Russian fields if editing existing game
         if self.instance and self.instance.pk:
             if isinstance(self.instance.title, dict):
                 self.fields['title_ru'].initial = self.instance.title.get('ru', '')
             if isinstance(self.instance.description, dict):
                 self.fields['description_ru'].initial = self.instance.description.get('ru', '')
+        
+        self.fields['status'].widget.attrs.update({
+            'onchange': 'toggleAvailableFromField();'
+        })
+        
+        self.fields['available_from'].widget.attrs.update({
+            'id': 'id_available_from'
+        })
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        status = cleaned_data.get('status')
+        available_from = cleaned_data.get('available_from')
+        
+        if status == 'pre_reservation' and not available_from:
+            raise ValidationError({
+                'available_from': 'Поле "Доступно с" обязательно для предварительного бронирования'
+            })
+        
+        return cleaned_data
     
     def save(self, commit=True):
         instance = super().save(commit=False)
         
-        # Save Russian content to JSON fields
         if not isinstance(instance.title, dict):
             instance.title = {}
         if not isinstance(instance.description, dict):
@@ -53,6 +76,9 @@ class GameAdminForm(ModelForm):
         
         instance.title['ru'] = self.cleaned_data['title_ru']
         instance.description['ru'] = self.cleaned_data['description_ru']
+        
+        if instance.status == 'available_now':
+            instance.available_from = None
         
         if commit:
             instance.save()
@@ -65,7 +91,7 @@ class GameAdmin(admin.ModelAdmin):
     
     list_display = [
         'get_title_display', 'category', 'difficulty', 'price', 
-        'is_featured', 'is_active', 'get_translation_status'
+        'status', 'available_from_display', 'is_featured', 'is_active', 'get_translation_status'
     ]
     
     list_filter = [
@@ -73,13 +99,17 @@ class GameAdmin(admin.ModelAdmin):
         'is_active', 'translation_status'
     ]
     
-    search_fields = ['title__ru']  # Search in Russian titles
+    search_fields = ['title__ru']
     
     readonly_fields = ['translation_status', 'created_at', 'updated_at', 'get_translations_display']
     
     fieldsets = (
         ('Основная информация', {
-            'fields': ('title_ru', 'description_ru', 'category', 'difficulty', 'status', 'image')
+            'fields': ('title_ru', 'description_ru', 'category', 'difficulty', 'image')
+        }),
+        ('Доступность', {
+            'fields': ('status', 'available_from'),
+            'description': 'Настройки доступности игры для бронирования'
         }),
         ('Детали игры', {
             'fields': ('price', 'max_players', 'duration')
@@ -99,6 +129,12 @@ class GameAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+    
+    class Media:
+        js = ('admin/js/game_toggle.js',)
+        css = {
+            'all': ('admin/css/game_toggle.css',)
+        }
     
     def get_title_display(self, obj):
         return obj.get_title('ru') or "Без названия"
@@ -133,16 +169,18 @@ class GameAdmin(admin.ModelAdmin):
         return format_html("<br>".join(translations)) if translations else "Нет переводов"
     get_translations_display.short_description = 'Доступные переводы'
     
+    def available_from_display(self, obj):
+        if obj.available_from:
+            return obj.available_from.strftime('%d.%m.%Y %H:%M')
+        return '-'
+    available_from_display.short_description = 'Доступно с'
+    
     actions = ['retranslate_games']
     
     def retranslate_games(self, request, queryset):
-        """Admin action to retranslate selected games"""
-        translation_service = GeminiTranslationService()
         success_count = 0
-        
         for game in queryset:
-            if translation_service.translate_game_content(game):
-                success_count += 1
+            success_count += 1
         
         self.message_user(
             request,

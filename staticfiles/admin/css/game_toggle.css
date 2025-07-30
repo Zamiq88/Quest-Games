@@ -1,0 +1,18 @@
+.form-row {
+    transition: opacity 0.3s ease, pointer-events 0.3s ease;
+}
+
+#id_available_from_0,
+#id_available_from_1 {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#id_available_from_0:disabled,
+#id_available_from_1:disabled {
+    cursor: not-allowed;
+}
+
+.vDateField:disabled,
+.vTimeField:disabled {
+    opacity: 0.7;
+}

@@ -9,4 +9,5 @@ pillow
 
 python-decouple 
 requests
+
 google-generativeai

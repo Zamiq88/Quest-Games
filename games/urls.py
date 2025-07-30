@@ -13,4 +13,7 @@ urlpatterns = [
     path('categories/', views.game_categories, name='game-categories'),
     path('difficulties/', views.game_difficulties, name='game-difficulties'),
     path('stats/', views.game_stats, name='game-stats'),
+
+   #reservations
+   path('available-times/', views.get_available_times_api, name='available-times') 
 ]

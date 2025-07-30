@@ -6,14 +6,54 @@
     "contact": "Contact"
   },
   "hero": {
-    "title": "Enter the Ultimate",
-    "subtitle": "Quest Experience",
-    "description": "Immerse yourself in mind-bending escape rooms, thrilling adventures, and team challenges that will test your limits.",
+    "title": "Ultimate Quest",
+    "subtitle": "Adventures",
+    "description": "Experience thrilling escape rooms and immersive adventures in the heart of Spain",
     "cta": "Start Your Quest",
-    "featured": "Featured Quests"
+    "featured": "Featured Games"
+  },
+  "features": {
+    "safe": {
+      "title": "Safe & Secure",
+      "description": "State-of-the-art safety protocols and secure booking system."
+    },
+    "team": {
+      "title": "Team Building",
+      "description": "Perfect for corporate events and team bonding experiences."
+    },
+    "award": {
+      "title": "Award Winning",
+      "description": "Recognized as the best quest experience in the city."
+    }
+  },
+  "featured": {
+    "subtitle": "Experience our most popular and thrilling quest adventures"
   },
   "games": {
-    "title": "Choose Your Quest",
+    "title": "Our Games",
+    "subtitle": "Discover your perfect adventure from our collection of immersive quest experiences",
+    "search": "Search games...",
+    "filters": "Filters",
+    "filterOptions": "Filter Options",
+    "difficulty": "Difficulty",
+    "availability": "Availability",
+    "priceRange": "Price Range",
+    "reset": "Reset",
+    "categoryLabel": "Category",
+    "difficultyLabel": "Difficulty",
+    "statusLabel": "Status",
+    "searchLabel": "Search",
+    "gameFound": "game found",
+    "gamesFound": "games found",
+    "clearAll": "Clear all",
+    "clearFilters": "Clear all filters",
+    "noResults": "No games found",
+    "noResultsWithFilters": "Try adjusting your search or filter criteria",
+    "noGamesAvailable": "No games are currently available",
+    "noFeatured": "No featured games available",
+    "checkBack": "Check back soon for exciting new adventures!",
+    "viewAll": "View All Games",
+    "statistics": "Game Statistics",
     "categories": {
       "all": "All Games",
       "escape": "Escape Rooms",
@@ -22,17 +62,54 @@
       "horror": "Horror Experiences",
       "team": "Team Building"
     },
-    "difficulty": {
-      "easy": "Easy",
-      "medium": "Medium",
-      "hard": "Hard"
-    },
     "duration": "{{duration}} min",
     "price": "${{price}}",
     "perPerson": "per person",
     "perGroup": "per group",
     "bookNow": "Book Now",
     "maxPlayers": "Up to {{max_players}} players"
+  },
+  "category": {
+    "all": "All",
+    "escape": "Escape Room",
+    "adventure": "Adventure",
+    "horror": "Horror",
+    "mystery": "Mystery",
+    "action": "Action",
+    "puzzle": "Puzzle",
+    "team": "Team Building"
+  },
+  "difficulty": {
+    "all": "All",
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard"
+  },
+  "status": {
+    "all": "All",
+    "available": "Available Now",
+    "available_now": "Available Now",
+    "preorder": "Pre-reservation",
+    "pre_reservation": "Pre-reservation",
+    "coming_soon": "Coming Soon",
+    "maintenance": "Maintenance",
+    "unavailable": "Unavailable"
+  },
+  "stats": {
+    "games": "Unique Games",
+    "totalGames": "Total Games",
+    "players": "Happy Players",
+    "rating": "Average Rating",
+    "success": "Success Rate",
+    "featured": "Featured",
+    "available": "Available Now",
+    "priceRange": "Price Range"
+  },
+  "cta": {
+    "title": "Ready for Your Adventure?",
+    "description": "Join thousands of adventurers who have discovered the thrill of our escape rooms",
+    "book": "Book Now",
+    "learn": "Learn More"
   },
   "booking": {
     "title": "Book Your Quest",
@@ -87,5 +164,21 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "close": "Close"
+  },
+  "error": {
+    "loadingGames": "Unable to load games at the moment"
+  },
+  "badges": {
+    "featured": "Featured"
+  },
+  "buttons": {
+    "bookNow": "Book Now",
+    "viewDetails": "View Details"
+  },
+  "gameCard": {
+    "noFeatured": "No featured games available currently.",
+    "viewAll": "View All Games",
+    "minutes": "min",
+    "upTo": "Up to"
   }
 }

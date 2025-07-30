@@ -6,36 +6,113 @@
     "contact": "Contacto"
   },
   "hero": {
-    "title": "Entra en la Última",
-    "subtitle": "Experiencia de Misión",
-    "description": "Sumérgete en salas de escape alucinantes, aventuras emocionantes y desafíos de equipo que pondrán a prueba tus límites.",
-    "cta": "Comienza Tu Misión",
-    "featured": "Misiones Destacadas"
+    "title": "Aventuras",
+    "subtitle": "Definitivas",
+    "description": "Experimenta emocionantes salas de escape y aventuras inmersivas en el corazón de España",
+    "cta": "Comienza Tu Aventura",
+    "featured": "Juegos Destacados"
+  },
+  "features": {
+    "safe": {
+      "title": "Seguro y Protegido",
+      "description": "Protocolos de seguridad de última generación y sistema de reservas seguro."
+    },
+    "team": {
+      "title": "Team Building",
+      "description": "Perfecto para eventos corporativos y experiencias de unión de equipos."
+    },
+    "award": {
+      "title": "Galardonado",
+      "description": "Reconocido como la mejor experiencia de escape de la ciudad."
+    }
+  },
+  "featured": {
+    "subtitle": "Experimenta nuestras aventuras más populares y emocionantes"
   },
   "games": {
-    "title": "Elige Tu Misión",
+    "title": "Nuestros Juegos",
+    "subtitle": "Descubre tu aventura perfecta de nuestra colección de experiencias inmersivas",
+    "search": "Buscar juegos...",
+    "filters": "Filtros",
+    "filterOptions": "Opciones de Filtro",
+    "difficulty": "Dificultad",
+    "availability": "Disponibilidad",
+    "priceRange": "Rango de Precios",
+    "reset": "Restablecer",
+    "categoryLabel": "Categoría",
+    "difficultyLabel": "Dificultad",
+    "statusLabel": "Estado",
+    "searchLabel": "Búsqueda",
+    "gameFound": "juego encontrado",
+    "gamesFound": "juegos encontrados",
+    "clearAll": "Limpiar todo",
+    "clearFilters": "Limpiar todos los filtros",
+    "noResults": "No se encontraron juegos",
+    "noResultsWithFilters": "Intenta ajustar tu búsqueda o criterios de filtro",
+    "noGamesAvailable": "No hay juegos disponibles actualmente",
+    "noFeatured": "No hay juegos destacados disponibles",
+    "checkBack": "¡Vuelve pronto para nuevas aventuras emocionantes!",
+    "viewAll": "Ver Todos los Juegos",
+    "statistics": "Estadísticas de Juegos",
     "categories": {
       "all": "Todos los Juegos",
       "escape": "Salas de Escape",
-      "adventure": "Misiones de Aventura",
-      "puzzle": "Juegos de Rompecabezas",
-      "horror": "Experiencias de Terror",
+      "adventure": "Aventuras",
+      "puzzle": "Rompecabezas",
+      "horror": "Terror",
       "team": "Team Building"
     },
-    "difficulty": {
-      "easy": "Fácil",
-      "medium": "Medio",
-      "hard": "Difícil"
-    },
     "duration": "{{duration}} min",
-    "price": "${{price}}",
+    "price": "€{{price}}",
     "perPerson": "por persona",
     "perGroup": "por grupo",
     "bookNow": "Reservar Ahora",
     "maxPlayers": "Hasta {{max_players}} jugadores"
   },
+  "category": {
+    "all": "Todos",
+    "escape": "Sala de Escape",
+    "adventure": "Aventura",
+    "horror": "Terror",
+    "mystery": "Misterio",
+    "action": "Acción",
+    "puzzle": "Rompecabezas",
+    "team": "Team Building"
+  },
+  "difficulty": {
+    "all": "Todos",
+    "easy": "Fácil",
+    "medium": "Medio",
+    "hard": "Difícil"
+  },
+  "status": {
+    "all": "Todos",
+    "available": "Disponible Ahora",
+    "available_now": "Disponible Ahora",
+    "preorder": "Pre-reserva",
+    "pre_reservation": "Pre-reserva",
+    "coming_soon": "Próximamente",
+    "maintenance": "Mantenimiento",
+    "unavailable": "No Disponible"
+  },
+  "stats": {
+    "games": "Juegos Únicos",
+    "totalGames": "Total de Juegos",
+    "players": "Jugadores Felices",
+    "rating": "Valoración Promedio",
+    "success": "Tasa de Éxito",
+    "featured": "Destacados",
+    "available": "Disponibles Ahora",
+    "priceRange": "Rango de Precios"
+  },
+  "cta": {
+    "title": "¿Listo para tu Aventura?",
+    "description": "Únete a miles de aventureros que han descubierto la emoción de nuestras salas de escape",
+    "book": "Reservar Ahora",
+    "learn": "Saber Más"
+  },
   "booking": {
-    "title": "Reserva Tu Misión",
+    "title": "Reserva tu Aventura",
     "selectTime": "Selecciona Fecha y Hora",
     "selectPlayers": "Número de Jugadores",
     "authentication": "Inicia Sesión para Continuar",
@@ -57,10 +134,10 @@
   "contact": {
     "title": "Ponte en Contacto",
     "info": {
-      "address": "123 Calle Misión, Ciudad Aventura, CA 12345",
-      "phone": "+1 (555) 123-QUEST",
+      "address": "123 Calle Aventura, Ciudad Aventura, CA 12345",
+      "phone": "+34 (555) 123-QUEST",
       "email": "hola@questvault.com",
-      "hours": "Diario 10:00 AM - 10:00 PM"
+      "hours": "Diario 10:00 - 22:00"
     },
     "form": {
       "name": "Tu Nombre",
@@ -87,5 +164,21 @@
     "cancel": "Cancelar",
     "confirm": "Confirmar",
     "close": "Cerrar"
+  },
+  "error": {
+    "loadingGames": "No se pudieron cargar los juegos en este momento"
+  },
+  "badges": {
+    "featured": "Destacado"
+  },
+  "buttons": {
+    "bookNow": "Reservar Ahora",
+    "viewDetails": "Ver Detalles"
+  },
+  "gameCard": {
+    "noFeatured": "No hay juegos destacados disponibles actualmente.",
+    "viewAll": "Ver Todos los Juegos",
+    "minutes": "min",
+    "upTo": "Hasta"
   }
 }

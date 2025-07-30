@@ -1,3 +1,4 @@
+// Updated Reservations.jsx - Remove Facebook auth, add name inputs
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -11,7 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { getGameById } from '@/data/games';
 import { BookingData, TimeSlot } from '@/types/game';
-import { Calendar, Clock, Users, Facebook, Mail, ArrowLeft, Check } from 'lucide-react';
+import { Calendar, Clock, Users, Mail, ArrowLeft, Check, User } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -25,21 +26,19 @@ export function Reservations() {
   const game = gameId ? getGameById(gameId) : null;
 
   const [step, setStep] = useState(1);
-  const [bookingData, setBookingData] = useState<Partial<BookingData>>({
+  const [timeSlots, setTimeSlots] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [bookingData, setBookingData] = useState({
     gameId: gameId || '',
     players: 2,
-    totalPrice: 0
+    totalPrice: 0,
+    firstName: '',
+    lastName: '',
+    email: '',
+    otpSent: false,
+    emailVerified: false,
+    otp: ''
   });
-
-  // Mock time slots
-  const timeSlots: TimeSlot[] = [
-    { time: '10:00', available: true },
-    { time: '12:00', available: true },
-    { time: '14:00', available: false },
-    { time: '16:00', available: true },
-    { time: '18:00', available: true },
-    { time: '20:00', available: true },
-  ];
 
   useEffect(() => {
     if (game && bookingData.players) {
@@ -48,46 +47,193 @@ export function Reservations() {
     }
   }, [game, bookingData.players]);
 
-  const handleDateTimeSelect = (date: Date, time: string) => {
-    setBookingData(prev => ({ ...prev, date, time }));
+  // Fetch available times when date is selected
+  const fetchAvailableTimes = async (selectedDate) => {
+    if (!selectedDate || !gameId) return;
+
+    setLoading(true);
+    try {
+      const dateStr = selectedDate.toISOString().split('T')[0];
+      const response = await fetch(`/api/games/available-times/?game_id=${gameId}&date=${dateStr}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        setTimeSlots(data.time_slots);
+      } else {
+        toast({
+          title: "Error",
+          description: data.error || "Failed to load available times",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load available times",
+        variant: "destructive"
+      });
+    }
+    setLoading(false);
+  };
+
+  const handleDateSelect = (date) => {
+    setBookingData(prev => ({ ...prev, date }));
+    fetchAvailableTimes(date);
+  };
+
+  const handleTimeSelect = (time) => {
+    setBookingData(prev => ({ ...prev, time }));
     setStep(2);
   };
 
-  const handlePlayersSelect = (players: number) => {
+  const handlePlayersSelect = (players) => {
     setBookingData(prev => ({ ...prev, players }));
     setStep(3);
   };
 
-  const handleFacebookAuth = () => {
-    setBookingData(prev => ({ ...prev, facebookAuth: true }));
-    setStep(4);
+  const handleSendOTP = async () => {
+    if (!bookingData.firstName || !bookingData.lastName || !bookingData.email) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch('/api/booking/send-otp/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: bookingData.email,
+          first_name: bookingData.firstName,
+          last_name: bookingData.lastName
+        })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        setBookingData(prev => ({ ...prev, otpSent: true }));
+        toast({
+          title: "OTP Sent",
+          description: "Please check your email for the verification code",
+        });
+        setStep(4);
+      } else {
+        toast({
+          title: "Error",
+          description: data.error || "Failed to send verification code",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send verification code",
+        variant: "destructive"
+      });
+    }
+    setLoading(false);
   };
 
-  const handleEmailAuth = (email: string) => {
-    setBookingData(prev => ({ ...prev, email, facebookAuth: false }));
-    setStep(5);
+  const handleVerifyOTP = async () => {
+    if (!bookingData.otp || bookingData.otp.length !== 6) {
+      toast({
+        title: "Invalid OTP",
+        description: "Please enter the 6-digit verification code",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch('/api/booking/verify-otp/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: bookingData.email,
+          otp: bookingData.otp
+        })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        setBookingData(prev => ({ ...prev, emailVerified: true }));
+        toast({
+          title: "Email Verified",
+          description: "Your email has been successfully verified",
+        });
+        setStep(5);
+      } else {
+        toast({
+          title: "Verification Failed",
+          description: data.error || "Invalid verification code",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to verify code",
+        variant: "destructive"
+      });
+    }
+    setLoading(false);
   };
 
-  const handleVerificationCode = (code: string) => {
-    setBookingData(prev => ({ ...prev, verificationCode: code }));
-    setStep(4);
-  };
+  const handleConfirmBooking = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/booking/create/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          game: parseInt(gameId),
+          date: bookingData.date.toISOString().split('T')[0],
+          time: bookingData.time,
+          players: bookingData.players,
+          special_requirements: bookingData.specialRequirements || '',
+          email: bookingData.email,
+          first_name: bookingData.firstName,
+          last_name: bookingData.lastName
+        })
+      });
 
-  const handleConfirmBooking = () => {
-    const referenceNumber = Math.random().toString(36).substr(2, 9).toUpperCase();
-    const finalBookingData = { ...bookingData, referenceNumber };
-    
-    // Store booking in localStorage (simulate backend)
-    const existingBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
-    existingBookings.push(finalBookingData);
-    localStorage.setItem('bookings', JSON.stringify(existingBookings));
-
-    toast({
-      title: t('booking.bookingSuccess'),
-      description: t('booking.referenceNumber', { number: referenceNumber }),
-    });
-
-    setStep(6);
+      const data = await response.json();
+      
+      if (response.ok) {
+        setBookingData(prev => ({ ...prev, referenceNumber: data.reservation.reference_number }));
+        toast({
+          title: "Booking Confirmed!",
+          description: `Your reference number is ${data.reservation.reference_number}`,
+        });
+        setStep(6);
+      } else {
+        toast({
+          title: "Booking Failed",
+          description: data.error || "Failed to create booking",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create booking",
+        variant: "destructive"
+      });
+    }
+    setLoading(false);
   };
 
   if (!game) {
@@ -158,274 +304,382 @@ export function Reservations() {
               <div className="space-y-6">
                 <div className="text-center">
                   <Calendar className="w-12 h-12 text-primary mx-auto mb-4" />
-                  <h2 className="text-2xl font-semibold mb-2">{t('booking.selectTime')}</h2>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div>
-                    <Label className="text-base font-medium mb-4 block">Select Date</Label>
-                    <DatePicker
-                      selected={bookingData.date}
-                      onChange={(date: Date | null) => date && setBookingData(prev => ({ ...prev, date }))}
-                      minDate={new Date()}
-                      maxDate={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)}
-                      className="w-full p-3 rounded-md border border-border bg-background text-foreground"
-                      placeholderText="Choose a date"
-                      dateFormat="MMMM d, yyyy"
-                    />
+                  <h2 className="text-2xl font-semibold mb-2">Select Date & Time</h2>
                   </div>
 
-                  <div>
-                    <Label className="text-base font-medium mb-4 block">Available Times</Label>
-                    <div className="grid grid-cols-2 gap-3">
-                      {timeSlots.map((slot) => (
-                        <Button
-                          key={slot.time}
-                          variant={slot.available ? "outline" : "secondary"}
-                          disabled={!slot.available || !bookingData.date}
-                          onClick={() => bookingData.date && handleDateTimeSelect(bookingData.date, slot.time)}
-                          className="h-12"
-                        >
-                          <Clock className="w-4 h-4 mr-2" />
-                          {slot.time}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+               <div className="grid md:grid-cols-2 gap-8">
+                 <div>
+                   <Label className="text-base font-medium mb-4 block">Select Date</Label>
+                   <DatePicker
+                     selected={bookingData.date}
+                     onChange={handleDateSelect}
+                     minDate={new Date()}
+                     maxDate={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)}
+                     className="w-full p-3 rounded-md border border-border bg-background text-foreground"
+                     placeholderText="Choose a date"
+                     dateFormat="MMMM d, yyyy"
+                   />
+                 </div>
 
-            {/* Step 2: Player Count */}
-            {step === 2 && (
-              <div className="space-y-6">
-                <div className="text-center">
-                  <Users className="w-12 h-12 text-primary mx-auto mb-4" />
-                  <h2 className="text-2xl font-semibold mb-2">{t('booking.selectPlayers')}</h2>
-                  <p className="text-muted-foreground">
-                    {game.minPlayers} - {game.maxPlayers} players allowed
-                  </p>
-                </div>
+                 <div>
+                   <Label className="text-base font-medium mb-4 block">Available Times</Label>
+                   {loading ? (
+                     <div className="flex items-center justify-center h-32">
+                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                     </div>
+                   ) : timeSlots.length > 0 ? (
+                     <div className="grid grid-cols-2 gap-3">
+                       {timeSlots.map((slot) => (
+                         <Button
+                           key={slot.time}
+                           variant={slot.available ? "outline" : "secondary"}
+                           disabled={!slot.available}
+                           onClick={() => handleTimeSelect(slot.time)}
+                           className="h-12"
+                         >
+                           <Clock className="w-4 h-4 mr-2" />
+                           {slot.time}
+                         </Button>
+                       ))}
+                     </div>
+                   ) : bookingData.date ? (
+                     <p className="text-muted-foreground text-center py-8">
+                       No available times for selected date
+                     </p>
+                   ) : (
+                     <p className="text-muted-foreground text-center py-8">
+                       Please select a date first
+                     </p>
+                   )}
+                 </div>
+               </div>
+             </div>
+           )}
 
-                <div className="flex justify-center">
-                  <div className="flex items-center space-x-4">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => bookingData.players && bookingData.players > game.minPlayers && 
-                        setBookingData(prev => ({ ...prev, players: (prev.players || 2) - 1 }))}
-                      disabled={!bookingData.players || bookingData.players <= game.minPlayers}
-                    >
-                      -
-                    </Button>
-                    
-                    <div className="text-2xl font-bold w-16 text-center">
-                      {bookingData.players}
-                    </div>
-                    
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => bookingData.players && bookingData.players < game.maxPlayers && 
-                        setBookingData(prev => ({ ...prev, players: (prev.players || 2) + 1 }))}
-                      disabled={!bookingData.players || bookingData.players >= game.maxPlayers}
-                    >
-                      +
-                    </Button>
-                  </div>
-                </div>
+           {/* Step 2: Player Count */}
+           {step === 2 && (
+             <div className="space-y-6">
+               <div className="text-center">
+                 <Users className="w-12 h-12 text-primary mx-auto mb-4" />
+                 <h2 className="text-2xl font-semibold mb-2">Number of Players</h2>
+                 <p className="text-muted-foreground">
+                   {game.minPlayers || 1} - {game.maxPlayers} players allowed
+                 </p>
+               </div>
 
-                <div className="text-center">
-                  <Button 
-                    onClick={() => bookingData.players && handlePlayersSelect(bookingData.players)}
-                    className="btn-glow"
-                  >
-                    Continue
-                  </Button>
-                </div>
-              </div>
-            )}
+               <div className="flex justify-center">
+                 <div className="flex items-center space-x-4">
+                   <Button
+                     variant="outline"
+                     size="icon"
+                     onClick={() => setBookingData(prev => ({ 
+                       ...prev, 
+                       players: Math.max((game.minPlayers || 1), prev.players - 1) 
+                     }))}
+                     disabled={bookingData.players <= (game.minPlayers || 1)}
+                   >
+                     -
+                   </Button>
+                   
+                   <div className="text-2xl font-bold w-16 text-center">
+                     {bookingData.players}
+                   </div>
+                   
+                   <Button
+                     variant="outline"
+                     size="icon"
+                     onClick={() => setBookingData(prev => ({ 
+                       ...prev, 
+                       players: Math.min(game.maxPlayers, prev.players + 1) 
+                     }))}
+                     disabled={bookingData.players >= game.maxPlayers}
+                   >
+                     +
+                   </Button>
+                 </div>
+               </div>
 
-            {/* Step 3: Authentication */}
-            {step === 3 && (
-              <div className="space-y-6">
-                <div className="text-center">
-                  <h2 className="text-2xl font-semibold mb-2">{t('booking.authentication')}</h2>
-                </div>
+               <div className="text-center">
+                 <Button onClick={() => handlePlayersSelect(bookingData.players)} className="btn-glow">
+                   Continue
+                 </Button>
+               </div>
+             </div>
+           )}
 
-                <div className="max-w-md mx-auto space-y-4">
-                  <Button
-                    onClick={handleFacebookAuth}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                  >
-                    <Facebook className="w-5 h-5 mr-2" />
-                    {t('booking.facebookLogin')}
-                  </Button>
+           {/* Step 3: Personal Information */}
+           {step === 3 && (
+             <div className="space-y-6">
+               <div className="text-center">
+                 <User className="w-12 h-12 text-primary mx-auto mb-4" />
+                 <h2 className="text-2xl font-semibold mb-2">Your Information</h2>
+                 <p className="text-muted-foreground">
+                   We'll send your booking confirmation to this email
+                 </p>
+               </div>
 
-                  <div className="text-center text-muted-foreground">
-                    {t('booking.orDivider')}
-                  </div>
+               <div className="max-w-md mx-auto space-y-4">
+                 <div>
+                   <Label htmlFor="firstName">First Name *</Label>
+                   <Input
+                     id="firstName"
+                     type="text"
+                     placeholder="Enter your first name"
+                     value={bookingData.firstName}
+                     onChange={(e) => setBookingData(prev => ({ ...prev, firstName: e.target.value }))}
+                     className="input-glow mt-2"
+                     required
+                   />
+                 </div>
 
-                  <div className="space-y-3">
-                    <Input
-                      type="email"
-                      placeholder={t('booking.emailPlaceholder')}
-                      value={bookingData.email || ''}
-                      onChange={(e) => setBookingData(prev => ({ ...prev, email: e.target.value }))}
-                      className="input-glow"
-                    />
-                    <Button
-                      onClick={() => bookingData.email && handleEmailAuth(bookingData.email)}
-                      disabled={!bookingData.email}
-                      variant="outline"
-                      className="w-full"
-                    >
-                      <Mail className="w-4 h-4 mr-2" />
-                      {t('booking.emailLogin')}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
+                 <div>
+                   <Label htmlFor="lastName">Last Name *</Label>
+                   <Input
+                     id="lastName"
+                     type="text"
+                     placeholder="Enter your last name"
+                     value={bookingData.lastName}
+                     onChange={(e) => setBookingData(prev => ({ ...prev, lastName: e.target.value }))}
+                     className="input-glow mt-2"
+                     required
+                   />
+                 </div>
 
-            {/* Step 5: Email Verification */}
-            {step === 5 && (
-              <div className="space-y-6">
-                <div className="text-center">
-                  <h2 className="text-2xl font-semibold mb-2">{t('booking.verificationCode')}</h2>
-                  <p className="text-muted-foreground">
-                    We've sent a verification code to {bookingData.email}
-                  </p>
-                </div>
+                 <div>
+                   <Label htmlFor="email">Email Address *</Label>
+                   <Input
+                     id="email"
+                     type="email"
+                     placeholder="Enter your email address"
+                     value={bookingData.email}
+                     onChange={(e) => setBookingData(prev => ({ ...prev, email: e.target.value }))}
+                     className="input-glow mt-2"
+                     required
+                   />
+                 </div>
 
-                <div className="max-w-md mx-auto">
-                  <Input
-                    placeholder={t('booking.codePlaceholder')}
-                    value={bookingData.verificationCode || ''}
-                    onChange={(e) => setBookingData(prev => ({ ...prev, verificationCode: e.target.value }))}
-                    className="input-glow text-center text-lg"
-                    maxLength={6}
-                  />
-                  <Button
-                    onClick={() => bookingData.verificationCode && handleVerificationCode(bookingData.verificationCode)}
-                    disabled={!bookingData.verificationCode || bookingData.verificationCode.length !== 6}
-                    className="w-full mt-4 btn-glow"
-                  >
-                    Verify Code
-                  </Button>
-                </div>
-              </div>
-            )}
+                 <Button
+                   onClick={handleSendOTP}
+                   disabled={loading || !bookingData.firstName || !bookingData.lastName || !bookingData.email}
+                   className="w-full btn-glow"
+                 >
+                   {loading ? (
+                     <>
+                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                       Sending...
+                     </>
+                   ) : (
+                     <>
+                       <Mail className="w-4 h-4 mr-2" />
+                       Send Verification Code
+                     </>
+                   )}
+                 </Button>
+               </div>
+             </div>
+           )}
 
-            {/* Step 4: Final Details */}
-            {step === 4 && (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-semibold text-center mb-6">Booking Details</h2>
+           {/* Step 4: Email Verification */}
+           {step === 4 && (
+             <div className="space-y-6">
+               <div className="text-center">
+                 <Mail className="w-12 h-12 text-primary mx-auto mb-4" />
+                 <h2 className="text-2xl font-semibold mb-2">Verify Your Email</h2>
+                 <p className="text-muted-foreground">
+                   We've sent a 6-digit verification code to <strong>{bookingData.email}</strong>
+                 </p>
+               </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="requirements" className="text-base font-medium">
-                      {t('booking.specialRequirements')}
-                    </Label>
-                    <Textarea
-                      id="requirements"
-                      placeholder={t('booking.requirementsPlaceholder')}
-                      value={bookingData.specialRequirements || ''}
-                      onChange={(e) => setBookingData(prev => ({ ...prev, specialRequirements: e.target.value }))}
-                      className="input-glow mt-2"
-                    />
-                  </div>
+               <div className="max-w-md mx-auto space-y-4">
+                 <div>
+                   <Label htmlFor="otp">Verification Code</Label>
+                   <Input
+                     id="otp"
+                     type="text"
+                     placeholder="Enter 6-digit code"
+                     value={bookingData.otp}
+                     onChange={(e) => setBookingData(prev => ({ ...prev, otp: e.target.value.replace(/\D/g, '').slice(0, 6) }))}
+                     className="input-glow text-center text-lg tracking-widest mt-2"
+                     maxLength={6}
+                   />
+                 </div>
 
-                  <Separator />
+                 <Button
+                   onClick={handleVerifyOTP}
+                   disabled={loading || bookingData.otp.length !== 6}
+                   className="w-full btn-glow"
+                 >
+                   {loading ? (
+                     <>
+                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                       Verifying...
+                     </>
+                   ) : (
+                     'Verify Code'
+                   )}
+                 </Button>
 
-                  <div className="bg-muted/50 p-4 rounded-lg space-y-2">
-                    <h3 className="font-semibold text-lg">{t('booking.totalPrice')}</h3>
-                    <div className="flex justify-between">
-                      <span>Game: {game.title}</span>
-                      <span>{t('games.price', { price: game.price })} x {bookingData.players}</span>
-                    </div>
-                    <Separator />
-                    <div className="flex justify-between text-xl font-bold text-primary">
-                      <span>Total:</span>
-                      <span>{t('games.price', { price: bookingData.totalPrice })}</span>
-                    </div>
-                  </div>
+                 <div className="text-center">
+                   <Button
+                     variant="ghost"
+                     onClick={handleSendOTP}
+                     disabled={loading}
+                     className="text-sm"
+                   >
+                     Didn't receive the code? Resend
+                   </Button>
+                 </div>
+               </div>
+             </div>
+           )}
 
-                  <Button
-                    onClick={handleConfirmBooking}
-                    className="w-full btn-glow text-lg py-6"
-                  >
-                    {t('booking.confirmBooking')}
-                  </Button>
-                </div>
-              </div>
-            )}
+           {/* Step 5: Special Requirements & Final Confirmation */}
+           {step === 5 && (
+             <div className="space-y-6">
+               <h2 className="text-2xl font-semibold text-center mb-6">Final Details</h2>
 
-            {/* Step 6: Confirmation */}
-            {step === 6 && (
-              <div className="text-center space-y-6">
-                <div className="text-6xl mb-4">🎉</div>
-                <h2 className="text-3xl font-orbitron font-bold text-accent">
-                  {t('booking.bookingSuccess')}
-                </h2>
-                <div className="text-2xl font-semibold">
-                  {t('booking.referenceNumber', { number: bookingData.referenceNumber })}
-                </div>
-                <p className="text-muted-foreground">
-                  {t('booking.confirmationEmail')}
-                </p>
-                
-                <div className="bg-muted/50 p-6 rounded-lg max-w-md mx-auto">
-                  <h3 className="font-semibold mb-4">Booking Summary</h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>Game:</span>
-                      <span>{game.title}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Date:</span>
-                      <span>{bookingData.date?.toLocaleDateString()}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Time:</span>
-                      <span>{bookingData.time}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Players:</span>
-                      <span>{bookingData.players}</span>
-                    </div>
-                    <div className="flex justify-between font-semibold">
-                      <span>Total:</span>
-                      <span>{t('games.price', { price: bookingData.totalPrice })}</span>
-                    </div>
-                  </div>
-                </div>
+               <div className="space-y-4">
+                 <div>
+                   <Label htmlFor="requirements" className="text-base font-medium">
+                     Special Requirements (Optional)
+                   </Label>
+                   <Textarea
+                     id="requirements"
+                     placeholder="Any special requests, accessibility needs, or celebrations..."
+                     value={bookingData.specialRequirements || ''}
+                     onChange={(e) => setBookingData(prev => ({ ...prev, specialRequirements: e.target.value }))}
+                     className="input-glow mt-2"
+                     rows={4}
+                   />
+                 </div>
 
-                <Button
-                  onClick={() => navigate('/games')}
-                  variant="outline"
-                  className="mt-6"
-                >
-                  {t('booking.backToGames')}
-                </Button>
-              </div>
-            )}
+                 <Separator />
 
-            {/* Back Button */}
-            {step > 1 && step < 6 && (
-              <div className="flex justify-between mt-8">
-                <Button
-                  variant="outline"
-                  onClick={() => setStep(step - 1)}
-                >
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  {t('common.back')}
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
+                 {/* Booking Summary */}
+                 <div className="bg-muted/50 p-6 rounded-lg space-y-3">
+                   <h3 className="font-semibold text-lg">Booking Summary</h3>
+                   <div className="grid gap-2 text-sm">
+                     <div className="flex justify-between">
+                       <span>Game:</span>
+                       <span className="font-medium">{game.title}</span>
+                     </div>
+                     <div className="flex justify-between">
+                       <span>Date:</span>
+                       <span className="font-medium">{bookingData.date?.toLocaleDateString()}</span>
+                     </div>
+                     <div className="flex justify-between">
+                       <span>Time:</span>
+                       <span className="font-medium">{bookingData.time}</span>
+                     </div>
+                     <div className="flex justify-between">
+                       <span>Players:</span>
+                       <span className="font-medium">{bookingData.players}</span>
+                     </div>
+                     <div className="flex justify-between">
+                       <span>Name:</span>
+                       <span className="font-medium">{bookingData.firstName} {bookingData.lastName}</span>
+                     </div>
+                     <div className="flex justify-between">
+                       <span>Email:</span>
+                       <span className="font-medium">{bookingData.email}</span>
+                     </div>
+                     <Separator />
+                     <div className="flex justify-between text-lg font-bold text-primary">
+                       <span>Total Price:</span>
+                       <span>€{bookingData.totalPrice}</span>
+                     </div>
+                   </div>
+                 </div>
+
+                 <Button
+                   onClick={handleConfirmBooking}
+                   disabled={loading}
+                   className="w-full btn-glow text-lg py-6"
+                 >
+                   {loading ? (
+                     <>
+                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                       Creating Booking...
+                     </>
+                   ) : (
+                     'Confirm Booking'
+                   )}
+                 </Button>
+               </div>
+             </div>
+           )}
+
+           {/* Step 6: Confirmation */}
+           {step === 6 && (
+             <div className="text-center space-y-6">
+               <div className="text-6xl mb-4">🎉</div>
+               <h2 className="text-3xl font-orbitron font-bold text-accent">
+                 Booking Confirmed!
+               </h2>
+               <div className="text-2xl font-semibold">
+                 Reference: <span className="text-primary">{bookingData.referenceNumber}</span>
+               </div>
+               <p className="text-muted-foreground">
+                 A confirmation email has been sent to <strong>{bookingData.email}</strong>
+               </p>
+               
+               <div className="bg-muted/50 p-6 rounded-lg max-w-md mx-auto">
+                 <h3 className="font-semibold mb-4">Booking Details</h3>
+                 <div className="space-y-2 text-sm">
+                   <div className="flex justify-between">
+                     <span>Game:</span>
+                     <span>{game.title}</span>
+                   </div>
+                   <div className="flex justify-between">
+                     <span>Date:</span>
+                     <span>{bookingData.date?.toLocaleDateString()}</span>
+                   </div>
+                   <div className="flex justify-between">
+                     <span>Time:</span>
+                     <span>{bookingData.time}</span>
+                   </div>
+                   <div className="flex justify-between">
+                     <span>Players:</span>
+                     <span>{bookingData.players}</span>
+                   </div>
+                   <div className="flex justify-between font-semibold">
+                     <span>Total:</span>
+                     <span>€{bookingData.totalPrice}</span>
+                   </div>
+                 </div>
+               </div>
+
+               <div className="space-y-3">
+                 <Button
+                   onClick={() => navigate('/games')}
+                   variant="outline"
+                 >
+                   Book Another Game
+                 </Button>
+                 
+                 <p className="text-sm text-muted-foreground">
+                   Please arrive 15 minutes before your scheduled time.
+                 </p>
+               </div>
+             </div>
+           )}
+
+           {/* Back Button */}
+           {step > 1 && step < 6 && (
+             <div className="flex justify-between mt-8">
+               <Button
+                 variant="outline"
+                 onClick={() => setStep(step - 1)}
+                 disabled={loading}
+               >
+                 <ArrowLeft className="w-4 h-4 mr-2" />
+                 Back
+               </Button>
+             </div>
+           )}
+         </CardContent>
+       </Card>
+     </div>
+   </div>
+ );
 }
