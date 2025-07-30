@@ -127,7 +127,7 @@ export function Contact() {
     {
       icon: <MapPin className="w-6 h-6 text-primary" />,
       title: 'Address',
-      content: t('contact.info.address')
+      content: contactData?.address || t('contact.info.address')
     },
     {
       icon: <Phone className="w-6 h-6 text-accent" />,
@@ -138,12 +138,8 @@ export function Contact() {
       icon: <Mail className="w-6 h-6 text-yellow-400" />,
       title: 'Email',
       content: contactData?.email || t('contact.info.email')
-    },
-    {
-      icon: <Clock className="w-6 h-6 text-purple-400" />,
-      title: 'Hours',
-      content: t('contact.info.hours')
     }
+    
   ];
 
   if (isLoading) {

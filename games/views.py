@@ -16,6 +16,7 @@ from .utils import get_available_times
 from .serializers import AvailableTimesSerializer
 import random
 import string
+from django.views.decorators.csrf import csrf_exempt
 
 def generate_otp():
     """Generate 6-digit OTP"""
@@ -134,6 +135,8 @@ def get_available_times_api(request):
     
     return Response(response_data, status=status.HTTP_200_OK)
 
+
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def send_otp(request):
@@ -147,9 +150,12 @@ def send_otp(request):
         "last_name": "Doe"
     }
     """
+    print('weee areee here')
     serializer = SendOTPSerializer(data=request.data)
+    print('dataa',serializer.data)
     
     if not serializer.is_valid():
+        print('errror',serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     email = serializer.validated_data['email']
@@ -240,6 +246,7 @@ def create_booking(request):
         "last_name": "Doe"
     }
     """
+    print('userrrrr',request.user)
     # Verify that email was verified in this session
     stored_email = request.session.get('booking_email')
     submitted_email = request.data.get('email')

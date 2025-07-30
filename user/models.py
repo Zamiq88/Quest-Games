@@ -123,10 +123,17 @@ class Contacts(models.Model):
         verbose_name="Электронная почта",
         help_text="Адрес электронной почты"
     )
-
+    address = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        verbose_name="Адрес",
+        help_text="Физический адрес компании"
+    )
+    
     class Meta:
         verbose_name = "Контакт"
         verbose_name_plural = "Контакты"
-
+    
     def __str__(self):
         return f"Контакты компании"
