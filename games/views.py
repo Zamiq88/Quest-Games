@@ -158,6 +158,7 @@ def send_otp(request):
     
     # Generate OTP
     otp = generate_otp()
+    print('otppp',otp)
     
     # Store OTP in session
     request.session['booking_otp'] = otp
@@ -169,10 +170,10 @@ def send_otp(request):
     # Send email
     # email_sent = send_verification_email(email, otp, first_name)
     
-    if not email_sent:
-        return Response({
-            'error': 'Failed to send verification email. Please try again.'
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    # if not email_sent:
+    #     return Response({
+    #         'error': 'Failed to send verification email. Please try again.'
+    #     }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     return Response({
         'message': 'Verification code sent to your email',
