@@ -17,6 +17,7 @@ from .serializers import AvailableTimesSerializer
 import random
 import string
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import login
 
 def generate_otp():
     """Generate 6-digit OTP"""
@@ -135,6 +136,54 @@ def get_available_times_api(request):
     
     return Response(response_data, status=status.HTTP_200_OK)
 
+from rest_framework.views import APIView
+
+class SendOTPView(APIView):
+    permission_classes = [AllowAny]
+    
+    
+    
+    def post(self, request):
+        print('=== CLASS-BASED DEBUG ===')
+        print('Request method:', request.method)
+        print('Request data:', request.data)
+        
+        # Your existing logic here
+        serializer = SendOTPSerializer(data=request.data)
+        
+    
+        if not serializer.is_valid():
+            print('errror',serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+        email = serializer.validated_data['email']
+        first_name = serializer.validated_data['first_name']
+        last_name = serializer.validated_data['last_name']
+        
+        # Generate OTP
+        otp = generate_otp()
+        print('otppp',otp)
+        
+        # Store OTP in session
+        request.session['booking_otp'] = otp
+        request.session['booking_email'] = email
+        request.session['booking_first_name'] = first_name
+        request.session['booking_last_name'] = last_name
+        request.session.set_expiry(600)  # 10 minutes
+    
+    # Send email
+    # email_sent = send_verification_email(email, otp, first_name)
+    
+    # if not email_sent:
+    #     return Response({
+    #         'error': 'Failed to send verification email. Please try again.'
+    #     }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+        return Response({
+            'message': 'Verification code sent to your email',
+            'email': email,
+            'expires_in': 600  # 10 minutes in seconds
+        }, status=status.HTTP_200_OK)
 
 @csrf_exempt
 @api_view(['POST'])
@@ -228,6 +277,12 @@ def verify_otp(request):
         }
     }, status=status.HTTP_200_OK)
 
+from django.contrib.auth import login
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework import status
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def create_booking(request):
@@ -246,7 +301,7 @@ def create_booking(request):
         "last_name": "Doe"
     }
     """
-    print('userrrrr',request.user)
+    
     # Verify that email was verified in this session
     stored_email = request.session.get('booking_email')
     submitted_email = request.data.get('email')
@@ -256,7 +311,7 @@ def create_booking(request):
             'error': 'Email not verified. Please verify your email first.'
         }, status=status.HTTP_400_BAD_REQUEST)
     
-    serializer = BookingSerializer(data=request.data)
+    serializer = BookingSerializer(data=request.data, context={'request': request})
     
     if not serializer.is_valid():
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -264,6 +319,10 @@ def create_booking(request):
     try:
         # Create reservation
         reservation = serializer.save()
+        
+        # Auto-login the user
+        if reservation.user:
+            login(request, reservation.user)  # Changed from self.request to request
         
         # Send confirmation email
         # send_booking_confirmation_email(reservation)
@@ -274,6 +333,7 @@ def create_booking(request):
         return Response({
             'success': True,
             'message': 'Booking created successfully!',
+            'user_authenticated': request.user.is_authenticated,  # Optional: confirm login worked
             'reservation': {
                 'reference_number': reservation.reference_number,
                 'game': reservation.game.get_title('en'),

@@ -363,7 +363,7 @@ export function Reservations() {
                  <Users className="w-12 h-12 text-primary mx-auto mb-4" />
                  <h2 className="text-2xl font-semibold mb-2">Number of Players</h2>
                  <p className="text-muted-foreground">
-                   {game.minPlayers || 1} - {game.maxPlayers} players allowed
+                   {game.minPlayers || 1} - {game.max_players} players allowed
                  </p>
                </div>
 
@@ -390,9 +390,9 @@ export function Reservations() {
                      size="icon"
                      onClick={() => setBookingData(prev => ({ 
                        ...prev, 
-                       players: Math.min(game.maxPlayers, prev.players + 1) 
+                       players: Math.min(game.max_players, prev.players + 1) 
                      }))}
-                     disabled={bookingData.players >= game.maxPlayers}
+                     disabled={bookingData.players >= game.max_players}
                    >
                      +
                    </Button>

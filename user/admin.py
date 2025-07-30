@@ -3,7 +3,7 @@ from .models import Contacts
 
 @admin.register(Contacts)
 class ContactsAdmin(admin.ModelAdmin):
-    list_display = ('facebook_page', 'instagram_page', 'whatsapp_number', 'email')
+    list_display = ('facebook_page', 'instagram_page', 'whatsapp_number', 'email','address')
     
     fieldsets = (
         ('Социальные сети', {
@@ -11,7 +11,7 @@ class ContactsAdmin(admin.ModelAdmin):
             'description': 'Ссылки на страницы в социальных сетях'
         }),
         ('Контактная информация', {
-            'fields': ('whatsapp_number', 'email'),
+            'fields': ('whatsapp_number', 'email','address'),
             'description': 'Контактные данные для связи'
         }),
     )

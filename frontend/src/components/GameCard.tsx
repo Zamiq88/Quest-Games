@@ -60,7 +60,7 @@ export function GameCard({ game, featured = false }: GameCardProps) {
             {t(`games.categories.${game.category}`)}
           </Badge>
           <Badge className={getDifficultyColor(game.difficulty)}>
-            {t(`games.difficulty.${game.difficulty.toLowerCase()}`)}
+            {t(`games.difficulty.${game.difficulty}`)}
           </Badge>
         </div>
       </CardHeader>

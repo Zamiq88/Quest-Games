@@ -16,7 +16,7 @@ urlpatterns = [
 
    #reservations
    path('available-times/', views.get_available_times_api, name='available-times') ,
-   path('send-otp/',views.send_otp,name='send-otp'),
+   path('send-otp/',views.SendOTPView.as_view(),name='send-otp'),
    path('verify-otp/',views.verify_otp,name='verify-otp'),
    path('create/',views.create_booking,name='create-booking')
 ]
