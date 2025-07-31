@@ -149,3 +149,14 @@ class BookingSerializer(serializers.ModelSerializer):
         validated_data['email'] = email
         
         return super().create(validated_data)
+    
+class ReservationSerializer(serializers.ModelSerializer):
+    game = GameSerializer(read_only=True)  # Include game details
+    
+    class Meta:
+        model = Reservation
+        fields = [
+            'id', 'reference_number', 'game', 'date', 'time', 
+            'players', 'total_price', 'status', 'special_requirements',
+            'created_at'
+        ]

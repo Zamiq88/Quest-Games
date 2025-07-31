@@ -30,6 +30,11 @@ export function Reservations() {
   const [gameLoading, setGameLoading] = useState(true);
   const [gameError, setGameError] = useState(null);
 
+  // Add state for user reservations
+  const [userReservations, setUserReservations] = useState([]);
+  const [reservationsLoading, setReservationsLoading] = useState(false);
+  const [showReservations, setShowReservations] = useState(false);
+
   const [step, setStep] = useState(1);
   const [timeSlots, setTimeSlots] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -44,6 +49,38 @@ export function Reservations() {
     emailVerified: false,
     otp: ''
   });
+
+  // Fetch user reservations
+  const fetchUserReservations = async () => {
+    setReservationsLoading(true);
+    try {
+      const response = await fetch('/api/reservations/', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Adjust based on your auth method
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setUserReservations(data);
+      } else if (response.status === 401) {
+        // User not authenticated, that's okay
+        setUserReservations([]);
+      } else {
+        console.error('Failed to fetch reservations');
+      }
+    } catch (error) {
+      console.error('Error fetching reservations:', error);
+    }
+    setReservationsLoading(false);
+  };
+
+  // Check if user is authenticated and fetch reservations
+  useEffect(() => {
+    // You might want to check authentication status here
+    // For now, just try to fetch reservations
+    fetchUserReservations();
+  }, []);
 
   // Fetch game data from backend
   useEffect(() => {
@@ -247,6 +284,8 @@ export function Reservations() {
       
       if (response.ok) {
         setBookingData(prev => ({ ...prev, referenceNumber: data.reservation.reference_number }));
+        // Refresh user reservations after successful booking
+        fetchUserReservations();
         toast({
           title: "Booking Confirmed!",
           description: `Your reference number is ${data.reservation.reference_number}`,
@@ -325,7 +364,84 @@ export function Reservations() {
             <span>•</span>
             <span>{t('games.difficulty.' + game.difficulty.toLowerCase())}</span>
           </div>
+          
+          {/* User Reservations Toggle */}
+          {userReservations.length > 0 && (
+            <div className="mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setShowReservations(!showReservations)}
+                className="mb-4"
+              >
+                {showReservations ? 'Hide' : 'Show'} My Reservations ({userReservations.length})
+              </Button>
+            </div>
+          )}
         </div>
+
+        {/* User Reservations Section */}
+        {showReservations && userReservations.length > 0 && (
+          <Card className="card-glow mb-8">
+            <CardHeader>
+              <CardTitle className="text-xl font-semibold">My Reservations</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {reservationsLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {userReservations.map((reservation) => (
+                    <div key={reservation.id} className="border border-border rounded-lg p-4 bg-muted/20">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h3 className="font-semibold text-lg">{reservation.game?.title || 'Game'}</h3>
+                          <div className="text-sm text-muted-foreground">
+                            Reference: {reservation.reference_number}
+                          </div>
+                        </div>
+                        <Badge variant={
+                          reservation.status === 'confirmed' ? 'default' :
+                          reservation.status === 'cancelled' ? 'destructive' :
+                          'secondary'
+                        }>
+                          {reservation.status}
+                        </Badge>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Date:</span>
+                          <div className="font-medium">{new Date(reservation.date).toLocaleDateString()}</div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Time:</span>
+                          <div className="font-medium">{reservation.time}</div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Players:</span>
+                          <div className="font-medium">{reservation.players}</div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Total:</span>
+                          <div className="font-medium">€{reservation.total_price}</div>
+                        </div>
+                      </div>
+                      
+                      {reservation.special_requirements && (
+                        <div className="mt-3 pt-3 border-t border-border">
+                          <span className="text-muted-foreground text-sm">Special Requirements:</span>
+                          <div className="text-sm">{reservation.special_requirements}</div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Progress Steps */}
         <div className="flex justify-center mb-12">
