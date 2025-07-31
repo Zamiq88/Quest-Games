@@ -54,6 +54,7 @@ def get_available_times(game_id: str, selected_date: str) -> Dict:
     Returns:
         Dictionary with available and booked time slots
     """
+    print('claaauuuuddd cobani',selected_date)
     from .models import Game, Reservation
     from datetime import datetime
     
@@ -61,7 +62,7 @@ def get_available_times(game_id: str, selected_date: str) -> Dict:
         game = Game.objects.get(id=game_id, is_active=True)
         date_obj = datetime.strptime(selected_date, '%Y-%m-%d').date()
         now = datetime.now()
-        
+        print('claaauuuuddd cobani',date_obj)
         # Check if date is in the past (but allow today)
         if date_obj < now.date():
             return {
