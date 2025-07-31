@@ -149,3 +149,33 @@ def get_available_times(game_id: str, selected_date: str) -> Dict:
             'available_slots': [],
             'booked_slots': []
         }
+
+import os
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+from django.conf import settings
+
+
+
+
+
+
+def sendgrid_send_email(to_email,  dynamic_template_data,template_id='d-e35c392eeaca464a8e23fab4794f0486'):
+
+    message = Mail(
+        from_email='Vidanenacho <zamiq.nuriyev@hrwise.ai>',
+        to_emails=to_email,
+        
+    )
+    message.template_id = template_id
+    message.dynamic_template_data = dynamic_template_data
+
+    try:
+        sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
+        response = sg.send(message)
+        print('responsseeeeeee',response)
+        print(f"Email sent! Status code: {response.status_code}")
+        return True
+    except Exception as e:
+        print(f"Error sending email to {to_email}: {e}")
+        return False

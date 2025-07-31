@@ -29,6 +29,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://vidadenoche.com",
     "https://www.vidadenoche.com",
     "http://143.110.234.145",
+   " http://127.0.0.1:8000"
 ]
 
 
@@ -186,6 +187,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'user.User'
+
+SENDGRID_API_KEY = "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"
 
 
 

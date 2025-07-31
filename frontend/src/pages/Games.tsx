@@ -242,7 +242,7 @@ export function Games() {
                 {/* Difficulty Filter */}
                 <div>
                   <label className="text-sm font-medium mb-2 block">
-                    {t('games.difficulty', 'Difficulty')}
+                    {t('difficulty', 'Difficulty')}
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {[

@@ -517,7 +517,7 @@ export function Reservations() {
             <span>•</span>
             <span>{t('games.duration', { duration: game.duration })}</span>
             <span>•</span>
-            <span>{t('games.difficulty.' + game.difficulty.toLowerCase())}</span>
+            <span>{t('difficulty.' + game.difficulty.toLowerCase())}</span>
           </div>
           
           {/* User Reservations Quick Link */}

@@ -13,3 +13,5 @@ requests
 google-generativeai
 
 psycopg2-binary
+
+endgrid

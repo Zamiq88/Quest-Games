@@ -18,6 +18,7 @@ import random
 import string
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login
+from games.utils import sendgrid_send_email
 
 def generate_otp():
     """Generate 6-digit OTP"""
@@ -141,28 +142,86 @@ from rest_framework.views import APIView
 class SendOTPView(APIView):
     permission_classes = [AllowAny]
     
-    
+    def get_language_from_request(self, request):
+        """
+        Extract language from request in priority order:
+        1. Custom X-Language header (sent by your React app)
+        2. Accept-Language header  
+        3. Query parameter 'lang'
+        4. Session language
+        5. Default to 'en'
+        """
+        # Method 1: Custom header (recommended for your React app)
+        if 'HTTP_X_LANGUAGE' in request.META:
+            language = request.META['HTTP_X_LANGUAGE']
+            print(f'Language from X-Language header: {language}')
+            return language
+        
+        # Method 2: Accept-Language header
+        if 'HTTP_ACCEPT_LANGUAGE' in request.META:
+            accept_lang = request.META['HTTP_ACCEPT_LANGUAGE']
+            if accept_lang:
+                # Parse first language from "en-US,en;q=0.9,es;q=0.8"
+                language = accept_lang.split(',')[0].split('-')[0]
+                print(f'Language from Accept-Language: {language}')
+                return language
+        
+        # Method 3: Query parameter
+        if 'lang' in request.GET:
+            language = request.GET['lang']
+            print(f'Language from query param: {language}')
+            return language
+        
+        # Method 4: Session
+        if hasattr(request, 'session') and 'language' in request.session:
+            language = request.session['language']
+            print(f'Language from session: {language}')
+            return language
+        
+        # Method 5: Request object (if using Django's i18n middleware)
+        if hasattr(request, 'LANGUAGE_CODE'):
+            language = request.LANGUAGE_CODE
+            print(f'Language from request.LANGUAGE_CODE: {language}')
+            return language
+        
+        # Default fallback
+        print('Using default language: en')
+        return 'en'
     
     def post(self, request):
         print('=== CLASS-BASED DEBUG ===')
         print('Request method:', request.method)
         print('Request data:', request.data)
+        print('Request headers:', dict(request.META))
+        
+        # Get language from request
+        language = self.get_language_from_request(request)
+        
+        # Validate language is supported
+        supported_languages = ['en', 'es', 'uk']
+        if language not in supported_languages:
+            print(f'Unsupported language {language}, defaulting to en')
+            language = 'en'
+        
+        print(f'Final language selected: {language}')
+        
+        # Store language in session for consistency
+        request.session['language'] = language
         
         # Your existing logic here
         serializer = SendOTPSerializer(data=request.data)
         
-    
         if not serializer.is_valid():
-            print('errror',serializer.errors)
+            print('error', serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+        
         email = serializer.validated_data['email']
         first_name = serializer.validated_data['first_name']
         last_name = serializer.validated_data['last_name']
         
         # Generate OTP
         otp = generate_otp()
-        print('otppp',otp)
+        print('otp:', otp)
         
         # Store OTP in session
         request.session['booking_otp'] = otp
@@ -170,18 +229,38 @@ class SendOTPView(APIView):
         request.session['booking_first_name'] = first_name
         request.session['booking_last_name'] = last_name
         request.session.set_expiry(600)  # 10 minutes
-    
-    # Send email
-    # email_sent = send_verification_email(email, otp, first_name)
-    
-    # if not email_sent:
-    #     return Response({
-    #         'error': 'Failed to send verification email. Please try again.'
-    #     }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+        
+        # Localized subjects
+        subjects = {
+            "en": "Quest Adventure - OTP Verification",
+            "es": "Quest Adventure - Verificación OTP",
+            "uk": "Quest Adventure - Підтвердження OTP"
+        }
+        
+        # Localized messages (optional - for more complete localization)
+
+        
+        template_data = {
+            "otp": otp,
+            "language": language,
+            "subject": subjects[language],
+  
+        }
+        
+        print(f'Sending email with template data: {template_data}')
+        
+        # Send email
+        email_sent = sendgrid_send_email(to_email=email, dynamic_template_data=template_data)
+        
+        if not email_sent:
+            return Response({
+                'error': 'Failed to send verification email. Please try again.'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
         return Response({
             'message': 'Verification code sent to your email',
             'email': email,
+            'language': language,  # Include language in response
             'expires_in': 600  # 10 minutes in seconds
         }, status=status.HTTP_200_OK)
 
