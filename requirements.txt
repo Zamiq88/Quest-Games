@@ -11,3 +11,5 @@ python-decouple
 requests
 
 google-generativeai
+
+psycopg2-binary
