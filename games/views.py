@@ -326,9 +326,9 @@ def create_booking(request):
         
         # Send confirmation email
         # send_booking_confirmation_email(reservation)
-        
+        print('useerrrrr',request.user)
         # Clear session data
-        request.session.flush()
+        # request.session.flush()
         
         return Response({
             'success': True,

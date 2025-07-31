@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,AllowAny
 from games.models import Reservation
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -42,14 +42,21 @@ def get_contacts(request):
 
 
 class GetReservations(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     
     def get(self, request):
+        print('userrrrr hereeeee', request.user)
         try:
             reservations = Reservation.objects.filter(user=request.user).order_by('-created_at')
+            
+            # Pass QuerySet as instance, not data
             serializer = ReservationSerializer(reservations, many=True)
+            
+            print('daaaatttaaaaaaa', serializer.data)
             return Response(serializer.data, status=status.HTTP_200_OK)
+            
         except Exception as e:
+            print(e)
             return Response({
                 'error': 'Failed to fetch reservations'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

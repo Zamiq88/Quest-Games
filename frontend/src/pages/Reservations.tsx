@@ -1,4 +1,4 @@
-// Updated Reservations.jsx - Fetch game data from backend API
+// Updated Reservations.jsx - Show reservations list when no gameId provided
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -10,10 +10,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-// Remove the static import
-// import { getGameById } from '@/data/games';
 import { BookingData, TimeSlot } from '@/types/game';
-import { Calendar, Clock, Users, Mail, ArrowLeft, Check, User } from 'lucide-react';
+import { Calendar, Clock, Users, Mail, ArrowLeft, Check, User, GamepadIcon } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -33,7 +31,6 @@ export function Reservations() {
   // Add state for user reservations
   const [userReservations, setUserReservations] = useState([]);
   const [reservationsLoading, setReservationsLoading] = useState(false);
-  const [showReservations, setShowReservations] = useState(false);
 
   const [step, setStep] = useState(1);
   const [timeSlots, setTimeSlots] = useState([]);
@@ -54,11 +51,7 @@ export function Reservations() {
   const fetchUserReservations = async () => {
     setReservationsLoading(true);
     try {
-      const response = await fetch('/api/reservations/', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Adjust based on your auth method
-        }
-      });
+      const response = await fetch('/api/reservations/');
       
       if (response.ok) {
         const data = await response.json();
@@ -68,21 +61,21 @@ export function Reservations() {
         setUserReservations([]);
       } else {
         console.error('Failed to fetch reservations');
+        setUserReservations([]);
       }
     } catch (error) {
       console.error('Error fetching reservations:', error);
+      setUserReservations([]);
     }
     setReservationsLoading(false);
   };
 
   // Check if user is authenticated and fetch reservations
   useEffect(() => {
-    // You might want to check authentication status here
-    // For now, just try to fetch reservations
     fetchUserReservations();
   }, []);
 
-  // Fetch game data from backend
+  // Fetch game data from backend only if gameId is provided
   useEffect(() => {
     if (gameId) {
       setGameLoading(true);
@@ -308,6 +301,142 @@ export function Reservations() {
     setLoading(false);
   };
 
+  // If no gameId is provided, show reservations list
+  if (!gameId) {
+    return (
+      <div className="min-h-screen pt-24">
+        <div className="container mx-auto px-4 max-w-4xl">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-orbitron font-bold mb-4 text-neon">
+              My Reservations
+            </h1>
+            <p className="text-muted-foreground">
+              View and manage your game reservations
+            </p>
+          </div>
+
+          {/* Reservations List */}
+          <Card className="card-glow">
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-2xl font-semibold">Your Bookings</CardTitle>
+                <Button onClick={() => navigate('/games')} className="btn-glow">
+                  <GamepadIcon className="w-4 h-4 mr-2" />
+                  Book New Game
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {reservationsLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-4"></div>
+                  <span>Loading your reservations...</span>
+                </div>
+              ) : userReservations.length > 0 ? (
+                <div className="space-y-6">
+                  {userReservations.map((reservation) => (
+                    <div key={reservation.id} className="border border-border rounded-lg p-6 bg-muted/20 hover:bg-muted/30 transition-colors">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h3 className="font-semibold text-xl mb-1">
+                            {reservation.game?.title || 'Game'}
+                          </h3>
+                          <div className="text-sm text-muted-foreground">
+                            Reference: <span className="font-mono">{reservation.reference_number}</span>
+                          </div>
+                        </div>
+                        <Badge variant={
+                          reservation.status === 'confirmed' ? 'default' :
+                          reservation.status === 'cancelled' ? 'destructive' :
+                          'secondary'
+                        } className="text-sm px-3 py-1">
+                          {reservation.status?.charAt(0).toUpperCase() + reservation.status?.slice(1)}
+                        </Badge>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                        <div className="flex items-center space-x-2">
+                          <Calendar className="w-4 h-4 text-muted-foreground" />
+                          <div>
+                            <span className="text-muted-foreground text-sm">Date:</span>
+                            <div className="font-medium">{new Date(reservation.date).toLocaleDateString('en-US', { 
+                              weekday: 'short', 
+                              month: 'short', 
+                              day: 'numeric', 
+                              year: 'numeric' 
+                            })}</div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <Clock className="w-4 h-4 text-muted-foreground" />
+                          <div>
+                            <span className="text-muted-foreground text-sm">Time:</span>
+                            <div className="font-medium">{reservation.time}</div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <Users className="w-4 h-4 text-muted-foreground" />
+                          <div>
+                            <span className="text-muted-foreground text-sm">Players:</span>
+                            <div className="font-medium">{reservation.players}</div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <div className="w-4 h-4 text-primary">€</div>
+                          <div>
+                            <span className="text-muted-foreground text-sm">Total:</span>
+                            <div className="font-medium text-primary">€{reservation.total_price}</div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {reservation.special_requirements && (
+                        <div className="pt-4 border-t border-border">
+                          <span className="text-muted-foreground text-sm font-medium">Special Requirements:</span>
+                          <div className="text-sm mt-1 bg-muted/50 p-3 rounded">
+                            {reservation.special_requirements}
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="flex justify-between items-center pt-4 border-t border-border mt-4">
+                        <span className="text-xs text-muted-foreground">
+                          Booked on {new Date(reservation.created_at).toLocaleDateString()}
+                        </span>
+                        
+                        {reservation.status === 'confirmed' && new Date(reservation.date) > new Date() && (
+                          <Button variant="outline" size="sm">
+                            Modify Booking
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <GamepadIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">No Reservations Yet</h3>
+                  <p className="text-muted-foreground mb-6">
+                    You haven't made any game reservations yet. Ready to start your adventure?
+                  </p>
+                  <Button onClick={() => navigate('/games')} className="btn-glow">
+                    <GamepadIcon className="w-4 h-4 mr-2" />
+                    Browse Games
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   // Show loading state while fetching game
   if (gameLoading) {
     return (
@@ -365,83 +494,19 @@ export function Reservations() {
             <span>{t('games.difficulty.' + game.difficulty.toLowerCase())}</span>
           </div>
           
-          {/* User Reservations Toggle */}
+          {/* User Reservations Quick Link */}
           {userReservations.length > 0 && (
             <div className="mt-6">
               <Button
                 variant="outline"
-                onClick={() => setShowReservations(!showReservations)}
+                onClick={() => navigate('/reservations')}
                 className="mb-4"
               >
-                {showReservations ? 'Hide' : 'Show'} My Reservations ({userReservations.length})
+                View My Reservations ({userReservations.length})
               </Button>
             </div>
           )}
         </div>
-
-        {/* User Reservations Section */}
-        {showReservations && userReservations.length > 0 && (
-          <Card className="card-glow mb-8">
-            <CardHeader>
-              <CardTitle className="text-xl font-semibold">My Reservations</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {reservationsLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {userReservations.map((reservation) => (
-                    <div key={reservation.id} className="border border-border rounded-lg p-4 bg-muted/20">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <h3 className="font-semibold text-lg">{reservation.game?.title || 'Game'}</h3>
-                          <div className="text-sm text-muted-foreground">
-                            Reference: {reservation.reference_number}
-                          </div>
-                        </div>
-                        <Badge variant={
-                          reservation.status === 'confirmed' ? 'default' :
-                          reservation.status === 'cancelled' ? 'destructive' :
-                          'secondary'
-                        }>
-                          {reservation.status}
-                        </Badge>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">Date:</span>
-                          <div className="font-medium">{new Date(reservation.date).toLocaleDateString()}</div>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Time:</span>
-                          <div className="font-medium">{reservation.time}</div>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Players:</span>
-                          <div className="font-medium">{reservation.players}</div>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Total:</span>
-                          <div className="font-medium">€{reservation.total_price}</div>
-                        </div>
-                      </div>
-                      
-                      {reservation.special_requirements && (
-                        <div className="mt-3 pt-3 border-t border-border">
-                          <span className="text-muted-foreground text-sm">Special Requirements:</span>
-                          <div className="text-sm">{reservation.special_requirements}</div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
 
         {/* Progress Steps */}
         <div className="flex justify-center mb-12">
@@ -824,6 +889,13 @@ export function Reservations() {
                    variant="outline"
                  >
                    Book Another Game
+                 </Button>
+                 
+                 <Button
+                   onClick={() => navigate('/reservations')}
+                   className="btn-glow"
+                 >
+                   View All Reservations
                  </Button>
                  
                  <p className="text-sm text-muted-foreground">
