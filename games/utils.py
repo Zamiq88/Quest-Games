@@ -86,14 +86,14 @@ def get_available_times(game_id: str, selected_date: str) -> Dict:
             game.duration
         )
         
-        # Filter out past time slots for today
+        # Filter out past time slots ONLY for today
         if date_obj == now.date():
             current_hour = now.hour
             # If we're past the current hour's start, move to next hour
             if now.minute > 0:
                 current_hour += 1
             
-            # Filter slots to only include future times
+            # Filter slots to only include future times (only for today)
             all_slots = [slot for slot in all_slots if int(slot.split(':')[0]) >= current_hour]
         
         # Get booked slots for this date
