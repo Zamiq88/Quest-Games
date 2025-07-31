@@ -26,10 +26,15 @@ DEBUG = env.bool('DEBUG', default=False)
 
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # React development server
+    "http://localhost:3000",  
     "http://127.0.0.1:3000",
-       "http://127.0.0.1:8000",  # Django dev server (if needed)
-    "http://localhost:8000"
+    "http://127.0.0.1:8000",  
+    "http://localhost:8000",
+    "http://143.110.234.145",      
+    "http://vidadenoche.com",
+    "http://www.vidadenoche.com",
+    "https://vidadenoche.com",
+    "https://www.vidadenoche.com"
 ]
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
