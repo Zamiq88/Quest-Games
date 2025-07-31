@@ -23,6 +23,13 @@ GEMINI_API_KEY = env('GEMINI_API_KEY')
 
 DEBUG = env.bool('DEBUG', default=False)
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://vidadenoche.com",
+    "http://www.vidadenoche.com",
+    "https://vidadenoche.com",
+    "https://www.vidadenoche.com",
+    "http://143.110.234.145",
+]
 
 
 CORS_ALLOWED_ORIGINS = [
