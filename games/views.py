@@ -196,9 +196,15 @@ class SendOTPView(APIView):
         
         # Get language from request
         language = self.get_language_from_request(request)
-        
+        language_map = {
+        'en': 'en',
+        'es': 'es',
+        'uk': 'uk',
+        'ua': 'uk'  # Ukrainian variants
+    }
+        language = language_map.get(language,'en')
         # Validate language is supported
-        supported_languages = ['en', 'es', 'uk']
+        supported_languages = ['en', 'es', 'uk',]
         if language not in supported_languages:
             print(f'Unsupported language {language}, defaulting to en')
             language = 'en'
@@ -232,9 +238,9 @@ class SendOTPView(APIView):
         
         # Localized subjects
         subjects = {
-            "en": "Quest Adventure - OTP Verification",
-            "es": "Quest Adventure - Verificación OTP",
-            "uk": "Quest Adventure - Підтвердження OTP"
+            "en": "OTP Verification",
+            "es": "Verificación OTP",
+            "uk": "Підтвердження OTP"
         }
         
         # Localized messages (optional - for more complete localization)
