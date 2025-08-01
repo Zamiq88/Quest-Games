@@ -1,4 +1,4 @@
-// Fixed Reservations.jsx - Corrected date handling to prevent timezone issues
+// Fixed Reservations.jsx - Added language support for API calls
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -13,6 +13,48 @@ import { Calendar } from '@/components/ui/calendar';
 import { useToast } from '@/hooks/use-toast';
 import { BookingData, TimeSlot } from '@/types/game';
 import { Calendar as CalendarIcon, Clock, Users, Mail, ArrowLeft, Check, User, GamepadIcon } from 'lucide-react';
+
+// Helper function to get current language from localStorage or i18n
+const getCurrentLanguage = () => {
+  // First try localStorage (set by LanguageSwitcher)
+  const savedLanguage = localStorage.getItem('language');
+  if (savedLanguage) {
+    return savedLanguage;
+  }
+  
+  // Fallback to browser language or default
+  const browserLang = navigator.language.split('-')[0];
+  const supportedLanguages = ['en', 'es', 'uk'];
+  return supportedLanguages.includes(browserLang) ? browserLang : 'en';
+};
+
+// Helper function to make API calls with language
+const makeAPIRequest = async (url, options = {}) => {
+  const language = getCurrentLanguage();
+  
+  const defaultOptions = {
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Language': language, // Send language in custom header
+      ...options.headers,
+    },
+    ...options,
+  };
+
+  // Also add language as query parameter as backup
+  const separator = url.includes('?') ? '&' : '?';
+  const urlWithLang = `${url}${separator}lang=${language}`;
+
+  console.log(`Making API request to: ${urlWithLang} with language: ${language}`);
+  
+  try {
+    const response = await fetch(urlWithLang, defaultOptions);
+    return response;
+  } catch (error) {
+    console.error('API request failed:', error);
+    throw error;
+  }
+};
 
 // FIXED: Helper function to format date consistently
 const formatDateForAPI = (date) => {
@@ -47,7 +89,7 @@ const formatDateForDisplay = (date) => {
 };
 
 export function Reservations() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -78,11 +120,25 @@ export function Reservations() {
     otp: ''
   });
 
+  // Listen for language changes and update API calls accordingly
+  useEffect(() => {
+    const handleLanguageChange = () => {
+      console.log('Language changed to:', i18n.language);
+      // You can trigger a refresh of data here if needed
+    };
+    
+    i18n.on('languageChanged', handleLanguageChange);
+    
+    return () => {
+      i18n.off('languageChanged', handleLanguageChange);
+    };
+  }, [i18n]);
+
   // Fetch user reservations
   const fetchUserReservations = async () => {
     setReservationsLoading(true);
     try {
-      const response = await fetch('/api/reservations/');
+      const response = await makeAPIRequest('/api/reservations/');
       
       if (response.ok) {
         const data = await response.json();
@@ -110,7 +166,7 @@ export function Reservations() {
   useEffect(() => {
     if (gameId) {
       setGameLoading(true);
-      fetch(`/api/games/${gameId}/`)
+      makeAPIRequest(`/api/games/${gameId}/`)
         .then(response => {
           if (!response.ok) {
             throw new Error('Game not found');
@@ -150,7 +206,7 @@ export function Reservations() {
       const dateStr = formatDateForAPI(selectedDate);
       console.log('Fetching times for date:', dateStr, 'Original date:', selectedDate);
       
-      const response = await fetch(`/api/games/available-times/?game_id=${gameId}&date=${dateStr}`);
+      const response = await makeAPIRequest(`/api/games/available-times/?game_id=${gameId}&date=${dateStr}`);
       const data = await response.json();
       
       if (response.ok) {
@@ -201,11 +257,8 @@ export function Reservations() {
 
     setLoading(true);
     try {
-      const response = await fetch('/api/games/send-otp/', {
+      const response = await makeAPIRequest('/api/games/send-otp/', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           email: bookingData.email,
           first_name: bookingData.firstName,
@@ -222,6 +275,9 @@ export function Reservations() {
           description: "Please check your email for the verification code",
         });
         setStep(4);
+        
+        // Log the language that was sent
+        console.log('OTP sent with language:', getCurrentLanguage(), 'Response:', data);
       } else {
         toast({
           title: "Error",
@@ -230,6 +286,7 @@ export function Reservations() {
         });
       }
     } catch (error) {
+      console.error('Error sending OTP:', error);
       toast({
         title: "Error",
         description: "Failed to send verification code",
@@ -251,11 +308,8 @@ export function Reservations() {
 
     setLoading(true);
     try {
-      const response = await fetch('/api/games/verify-otp/', {
+      const response = await makeAPIRequest('/api/games/verify-otp/', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           email: bookingData.email,
           otp: bookingData.otp
@@ -279,6 +333,7 @@ export function Reservations() {
         });
       }
     } catch (error) {
+      console.error('Error verifying OTP:', error);
       toast({
         title: "Error",
         description: "Failed to verify code",
@@ -294,11 +349,8 @@ export function Reservations() {
       const dateStr = formatDateForAPI(bookingData.date);
       console.log('Confirming booking with date:', dateStr);
       
-      const response = await fetch('/api/games/create/', {
+      const response = await makeAPIRequest('/api/games/create/', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           game: parseInt(gameId),
           date: dateStr,
@@ -330,6 +382,7 @@ export function Reservations() {
         });
       }
     } catch (error) {
+      console.error('Error confirming booking:', error);
       toast({
         title: "Error",
         description: "Failed to create booking",

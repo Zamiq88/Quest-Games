@@ -3,6 +3,35 @@ from typing import List, Dict
 from django.db.models import Q
 from datetime import datetime, date, time, timedelta
 import pytz
+import os
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+from django.conf import settings
+
+
+
+
+
+
+def sendgrid_send_email(to_email, subject, dynamic_template_data,template_id):
+
+    message = Mail(
+        from_email='Vidadenoche <zamiq.nuriyev@hrwise.ai>',
+        to_emails=to_email,
+        subject=subject
+    )
+    message.template_id = template_id
+    message.dynamic_template_data = dynamic_template_data
+
+    try:
+        sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
+        response = sg.send(message)
+        print('responsseeeeeee',response)
+        print(f"Email sent! Status code: {response.status_code}")
+        return True
+    except Exception as e:
+        print(f"Error sending email to {to_email}: {e}")
+        return False
 
 def generate_time_slots(start_time: str, end_time: str, duration: int, interval: int = 60) -> List[str]:
     """
