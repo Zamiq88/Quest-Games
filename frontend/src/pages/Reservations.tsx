@@ -1,4 +1,4 @@
-// Updated Reservations.jsx - Fixed date handling to prevent timezone issues
+// Fixed Reservations.jsx - Corrected date handling to prevent timezone issues
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -9,26 +9,30 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Calendar } from '@/components/ui/calendar'; // Use your custom calendar instead of react-datepicker
+import { Calendar } from '@/components/ui/calendar';
 import { useToast } from '@/hooks/use-toast';
 import { BookingData, TimeSlot } from '@/types/game';
 import { Calendar as CalendarIcon, Clock, Users, Mail, ArrowLeft, Check, User, GamepadIcon } from 'lucide-react';
 
-// Helper function to format date consistently using Spain timezone
+// FIXED: Helper function to format date consistently
 const formatDateForAPI = (date) => {
   if (!date) return null;
-  // Convert to Spain timezone (Europe/Madrid) to ensure consistency with business location
-  const spainDate = new Date(date.toLocaleString("en-US", {timeZone: "Europe/Madrid"}));
-  const year = spainDate.getFullYear();
-  const month = String(spainDate.getMonth() + 1).padStart(2, '0');
-  const day = String(spainDate.getDate()).padStart(2, '0');
+  
+  // Simply format the date without timezone conversion
+  // The calendar component gives us the correct local date
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  
   return `${year}-${month}-${day}`;
 };
 
-// Helper function to get current date in Spain timezone
-const getSpainToday = () => {
+// FIXED: Helper function to get current date properly
+const getToday = () => {
   const now = new Date();
-  return new Date(now.toLocaleString("en-US", {timeZone: "Europe/Madrid"}));
+  // Reset time to start of day for comparison
+  now.setHours(0, 0, 0, 0);
+  return now;
 };
 
 // Helper function to format date for display
@@ -144,7 +148,7 @@ export function Reservations() {
     setLoading(true);
     try {
       const dateStr = formatDateForAPI(selectedDate);
-      console.log('Fetching times for date:', dateStr, 'Original date:', selectedDate); // Debug log
+      console.log('Fetching times for date:', dateStr, 'Original date:', selectedDate);
       
       const response = await fetch(`/api/games/available-times/?game_id=${gameId}&date=${dateStr}`);
       const data = await response.json();
@@ -159,6 +163,7 @@ export function Reservations() {
         });
       }
     } catch (error) {
+      console.error('Error fetching available times:', error);
       toast({
         title: "Error",
         description: "Failed to load available times",
@@ -169,7 +174,7 @@ export function Reservations() {
   };
 
   const handleDateSelect = (date) => {
-    console.log('Date selected:', date, 'Formatted:', formatDateForAPI(date)); // Debug log
+    console.log('Date selected:', date, 'Formatted:', formatDateForAPI(date));
     setBookingData(prev => ({ ...prev, date }));
     fetchAvailableTimes(date);
   };
@@ -287,7 +292,7 @@ export function Reservations() {
     setLoading(true);
     try {
       const dateStr = formatDateForAPI(bookingData.date);
-      console.log('Confirming booking with date:', dateStr); // Debug log
+      console.log('Confirming booking with date:', dateStr);
       
       const response = await fetch('/api/games/create/', {
         method: 'POST',
@@ -583,14 +588,15 @@ export function Reservations() {
                         selected={bookingData.date}
                         onSelect={handleDateSelect}
                         disabled={(date) => {
-                          const spainToday = getSpainToday();
-                          spainToday.setHours(0, 0, 0, 0); // Reset time to start of day
+                          // FIXED: Simplified date comparison logic
+                          const today = getToday();
                           const checkDate = new Date(date);
-                          checkDate.setHours(0, 0, 0, 0); // Reset time to start of day
+                          checkDate.setHours(0, 0, 0, 0);
                           
+                          // Disable if before today or more than 30 days in future
                           return (
-                            checkDate < spainToday || 
-                            checkDate > new Date(spainToday.getTime() + 30 * 24 * 60 * 60 * 1000)
+                            checkDate < today || 
+                            checkDate > new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000)
                           );
                         }}
                         className="rounded-md border"

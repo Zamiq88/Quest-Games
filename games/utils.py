@@ -1,6 +1,8 @@
-from datetime import datetime, time, timedelta
+
 from typing import List, Dict
 from django.db.models import Q
+from datetime import datetime, date, time, timedelta
+import pytz
 
 def generate_time_slots(start_time: str, end_time: str, duration: int, interval: int = 60) -> List[str]:
     """
@@ -43,6 +45,8 @@ def generate_time_slots(start_time: str, end_time: str, duration: int, interval:
     return slots
 
 
+
+
 def get_available_times(game_id: str, selected_date: str) -> Dict:
     """
     Get available time slots for a game on a specific date
@@ -56,15 +60,22 @@ def get_available_times(game_id: str, selected_date: str) -> Dict:
     """
     print('claaauuuuddd cobani',selected_date)
     from .models import Game, Reservation
-    from datetime import datetime
     
     try:
         game = Game.objects.get(id=game_id, is_active=True)
         date_obj = datetime.strptime(selected_date, '%Y-%m-%d').date()
-        now = datetime.now()
-        print('claaauuuuddd cobani',date_obj)
-        # Check if date is in the past (but allow today)
-        if date_obj < now.date():
+        
+        # FIXED: Get current time in Spain timezone
+        spain_tz = pytz.timezone('Europe/Madrid')
+        now_spain = datetime.now(spain_tz)
+        today_spain = now_spain.date()
+        
+        print('claaauuuuddd cobani - date_obj:', date_obj)
+        print('claaauuuuddd cobani - today_spain:', today_spain)
+        print('claaauuuuddd cobani - now_spain:', now_spain)
+        
+        # Check if date is in the past (but allow today in Spain timezone)
+        if date_obj < today_spain:
             return {
                 'error': 'Cannot book for past dates',
                 'available_slots': [],
@@ -88,10 +99,10 @@ def get_available_times(game_id: str, selected_date: str) -> Dict:
         )
         
         # Filter out past time slots ONLY for today
-        if date_obj == now.date():
-            current_hour = now.hour
+        if date_obj == today_spain:
+            current_hour = now_spain.hour
             # If we're past the current hour's start, move to next hour
-            if now.minute > 0:
+            if now_spain.minute > 0:
                 current_hour += 1
             
             # Filter slots to only include future times (only for today)
@@ -149,33 +160,3 @@ def get_available_times(game_id: str, selected_date: str) -> Dict:
             'available_slots': [],
             'booked_slots': []
         }
-
-import os
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
-from django.conf import settings
-
-
-
-
-
-
-def sendgrid_send_email(to_email,  dynamic_template_data,template_id='d-e35c392eeaca464a8e23fab4794f0486'):
-
-    message = Mail(
-        from_email='Vidanenacho <zamiq.nuriyev@hrwise.ai>',
-        to_emails=to_email,
-        
-    )
-    message.template_id = template_id
-    message.dynamic_template_data = dynamic_template_data
-
-    try:
-        sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
-        response = sg.send(message)
-        print('responsseeeeeee',response)
-        print(f"Email sent! Status code: {response.status_code}")
-        return True
-    except Exception as e:
-        print(f"Error sending email to {to_email}: {e}")
-        return False
