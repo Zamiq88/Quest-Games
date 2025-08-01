@@ -279,13 +279,14 @@ class SendOTPView(APIView):
             "uk": "Підтвердження OTP"
         }
         
-        # Localized messages (optional - for more complete localization)
+       
 
         
         template_data = {
-            "otp": otp,
-            "language": language,
-            "subject": subjects[language],
+            "language":language,
+            "otp":otp,
+           
+            "subject":subjects[language],
   
         }
         

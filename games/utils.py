@@ -13,12 +13,12 @@ from django.conf import settings
 
 
 
-def sendgrid_send_email(to_email, subject, dynamic_template_data,template_id):
+def sendgrid_send_email(to_email,  dynamic_template_data,template_id='d-e35c392eeaca464a8e23fab4794f0486'):
 
     message = Mail(
         from_email='Vidadenoche <zamiq.nuriyev@hrwise.ai>',
         to_emails=to_email,
-        subject=subject
+        
     )
     message.template_id = template_id
     message.dynamic_template_data = dynamic_template_data
