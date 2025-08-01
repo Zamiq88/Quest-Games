@@ -19,6 +19,8 @@ import string
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login
 from games.utils import sendgrid_send_email
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 def generate_otp():
     """Generate 6-digit OTP"""
@@ -138,7 +140,7 @@ def get_available_times_api(request):
     return Response(response_data, status=status.HTTP_200_OK)
 
 from rest_framework.views import APIView
-
+@method_decorator(csrf_exempt, name='dispatch')
 class SendOTPView(APIView):
     permission_classes = [AllowAny]
     
