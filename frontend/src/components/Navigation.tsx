@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from './LanguageSwitcher';
-import { Menu, X, Zap } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 export function Navigation() {
   const { t } = useTranslation();
@@ -26,13 +26,33 @@ export function Navigation() {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 text-xl font-orbitron font-bold">
-            <div className="relative">
-              <Zap className="w-8 h-8 text-primary animate-pulse-glow" />
-              <div className="absolute inset-0 bg-primary/20 blur-md rounded-full"></div>
+          {/* VDA Logo */}
+          <Link to="/" className="flex items-center">
+            <div className="relative w-12 h-12 flex items-center justify-center">
+              {/* Outer golden circle */}
+              <div className="absolute inset-0 rounded-full border border-yellow-400/80"></div>
+              
+              {/* Inner content container */}
+              <div className="relative z-10 text-center">
+                {/* Main VDA text */}
+                <div className="text-yellow-400 font-serif text-xs font-light tracking-wider">
+                  VDA
+                </div>
+                
+                {/* DE NOCHE text */}
+                <div className="text-yellow-400 font-serif text-[6px] font-light tracking-widest opacity-90">
+                  DE NOCHE
+                </div>
+                
+                {/* ESTUDIO CREATIVO text */}
+                <div className="text-yellow-400 font-serif text-[4px] font-light tracking-widest opacity-80">
+                  ESTUDIO CREATIVO
+                </div>
+              </div>
+              
+              {/* Subtle glow effect */}
+              <div className="absolute inset-0 bg-yellow-400/10 blur-sm rounded-full"></div>
             </div>
-            <span className="text-neon">QuestVault</span>
           </Link>
 
           {/* Desktop Navigation */}

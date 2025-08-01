@@ -14,14 +14,21 @@ import { useToast } from '@/hooks/use-toast';
 import { BookingData, TimeSlot } from '@/types/game';
 import { Calendar as CalendarIcon, Clock, Users, Mail, ArrowLeft, Check, User, GamepadIcon } from 'lucide-react';
 
-// Helper function to format date consistently
+// Helper function to format date consistently using Spain timezone
 const formatDateForAPI = (date) => {
   if (!date) return null;
-  // Ensure we get the local date without timezone conversion
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  // Convert to Spain timezone (Europe/Madrid) to ensure consistency with business location
+  const spainDate = new Date(date.toLocaleString("en-US", {timeZone: "Europe/Madrid"}));
+  const year = spainDate.getFullYear();
+  const month = String(spainDate.getMonth() + 1).padStart(2, '0');
+  const day = String(spainDate.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+};
+
+// Helper function to get current date in Spain timezone
+const getSpainToday = () => {
+  const now = new Date();
+  return new Date(now.toLocaleString("en-US", {timeZone: "Europe/Madrid"}));
 };
 
 // Helper function to format date for display
@@ -517,7 +524,7 @@ export function Reservations() {
             <span>•</span>
             <span>{t('games.duration', { duration: game.duration })}</span>
             <span>•</span>
-            <span>{t('difficulty.' + game.difficulty.toLowerCase())}</span>
+            <span>{t('games.difficulty.' + game.difficulty.toLowerCase())}</span>
           </div>
           
           {/* User Reservations Quick Link */}
@@ -575,10 +582,17 @@ export function Reservations() {
                         mode="single"
                         selected={bookingData.date}
                         onSelect={handleDateSelect}
-                        disabled={(date) => 
-                          date < new Date() || 
-                          date > new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-                        }
+                        disabled={(date) => {
+                          const spainToday = getSpainToday();
+                          spainToday.setHours(0, 0, 0, 0); // Reset time to start of day
+                          const checkDate = new Date(date);
+                          checkDate.setHours(0, 0, 0, 0); // Reset time to start of day
+                          
+                          return (
+                            checkDate < spainToday || 
+                            checkDate > new Date(spainToday.getTime() + 30 * 24 * 60 * 60 * 1000)
+                          );
+                        }}
                         className="rounded-md border"
                       />
                     </div>
