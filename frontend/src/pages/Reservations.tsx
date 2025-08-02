@@ -927,7 +927,7 @@ export function Reservations() {
                       </div>
                       <Separator />
                       <div className="flex justify-between text-lg font-bold text-primary">
-                        <span>{t('reservations.finalDetails.total_price')}:</span>
+                        <span>{t('reservations.finalDetails.totalPrice')}:</span>
                         <span>€{bookingData.totalPrice}</span>
                       </div>
                     </div>
