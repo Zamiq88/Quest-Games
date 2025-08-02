@@ -582,7 +582,7 @@ export function Reservations() {
             <span>•</span>
             <span>{t('games.duration', { duration: game.duration })}</span>
             <span>•</span>
-            <span>{t('games.difficulty.' + game.difficulty.toLowerCase())}</span>
+            <span>{t('difficulty.' + game.difficulty.toLowerCase())}</span>
           </div>
           
           {/* User Reservations Quick Link */}
@@ -754,15 +754,15 @@ export function Reservations() {
               <div className="space-y-6">
                 <div className="text-center">
                   <User className="w-12 h-12 text-primary mx-auto mb-4" />
-                  <h2 className="text-2xl font-semibold mb-2">Your Information</h2>
+                  <h2 className="text-2xl font-semibold mb-2">{t('reservations.personalInfo.title')}</h2>
                   <p className="text-muted-foreground">
-                    We'll send your booking confirmation to this email
+                  {t('reservations.personalInfo.description')}
                   </p>
                 </div>
 
                 <div className="max-w-md mx-auto space-y-4">
                   <div>
-                    <Label htmlFor="firstName">First Name *</Label>
+                    <Label htmlFor="firstName">{t('reservations.personalInfo.firstName')} *</Label>
                     <Input
                       id="firstName"
                       type="text"
@@ -775,7 +775,7 @@ export function Reservations() {
                   </div>
 
                   <div>
-                    <Label htmlFor="lastName">Last Name *</Label>
+                    <Label htmlFor="lastName">{t('reservations.personalInfo.lastName')} *</Label>
                     <Input
                       id="lastName"
                       type="text"
@@ -788,7 +788,7 @@ export function Reservations() {
                   </div>
 
                   <div>
-                    <Label htmlFor="email">Email Address *</Label>
+                    <Label htmlFor="email">{t('reservations.personalInfo.email')} *</Label>
                     <Input
                       id="email"
                       type="email"
@@ -808,12 +808,12 @@ export function Reservations() {
                     {loading ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Sending...
+                        {t('reservations.personalInfo.sending')}
                       </>
                     ) : (
                       <>
                         <Mail className="w-4 h-4 mr-2" />
-                        Send Verification Code
+                        {t('reservations.personalInfo.sendVerificationCode')}
                       </>
                     )}
                   </Button>
@@ -826,26 +826,25 @@ export function Reservations() {
               <div className="space-y-6">
                 <div className="text-center">
                   <Mail className="w-12 h-12 text-primary mx-auto mb-4" />
-                  <h2 className="text-2xl font-semibold mb-2">Verify Your Email</h2>
+                  <h2 className="text-2xl font-semibold mb-2"> {t('reservations.emailVerification.title')}</h2>
                   <p className="text-muted-foreground">
-                    We've sent a 6-digit verification code to <strong>{bookingData.email}</strong>
+                  {t('reservations.emailVerification.description')} <strong>{bookingData.email}</strong>
                   </p>
                 </div>
 
                 <div className="max-w-md mx-auto space-y-4">
                   <div>
-                    <Label htmlFor="otp">Verification Code</Label>
+                    <Label htmlFor="otp">{t('reservations.emailVerification.verificationCode')}</Label>
                     <Input
                       id="otp"
                       type="text"
-                      placeholder="Enter 6-digit code"
+                      placeholder={t('reservations.emailVerification.codePlaceholder')}
                       value={bookingData.otp}
                       onChange={(e) => setBookingData(prev => ({ ...prev, otp: e.target.value.replace(/\D/g, '').slice(0, 6) }))}
                       className="input-glow text-center text-lg tracking-widest mt-2"
                       maxLength={6}
                     />
                   </div>
-
                   <Button
                     onClick={handleVerifyOTP}
                     disabled={loading || bookingData.otp.length !== 6}
@@ -854,12 +853,13 @@ export function Reservations() {
                     {loading ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Verifying...
+                        {t('reservations.emailVerification.verifying')}
                       </>
                     ) : (
-                      'Verify Code'
+                      t('reservations.emailVerification.verifyCode')
                     )}
                   </Button>
+
 
                   <div className="text-center">
                     <Button
@@ -868,7 +868,7 @@ export function Reservations() {
                       disabled={loading}
                       className="text-sm"
                     >
-                      Didn't receive the code? Resend
+                      {t('reservations.emailVerification.resendCode')}
                     </Button>
                   </div>
                 </div>
@@ -878,7 +878,7 @@ export function Reservations() {
             {/* Step 5: Special Requirements & Final Confirmation */}
             {step === 5 && (
               <div className="space-y-6">
-                <h2 className="text-2xl font-semibold text-center mb-6">Final Details</h2>
+                <h2 className="text-2xl font-semibold text-center mb-6">{t('reservations.finalDetails.title')}</h2>
 
                 <div className="space-y-4">
                   <div>
@@ -887,7 +887,7 @@ export function Reservations() {
                     </Label>
                     <Textarea
                       id="requirements"
-                      placeholder="Any special requests, accessibility needs, or celebrations..."
+                      placeholder={t('reservations.finalDetails.requirementsPlaceholder')}
                       value={bookingData.specialRequirements || ''}
                       onChange={(e) => setBookingData(prev => ({ ...prev, specialRequirements: e.target.value }))}
                       className="input-glow mt-2"
@@ -899,35 +899,35 @@ export function Reservations() {
 
                   {/* Booking Summary */}
                   <div className="bg-muted/50 p-6 rounded-lg space-y-3">
-                    <h3 className="font-semibold text-lg">Booking Summary</h3>
+                    <h3 className="font-semibold text-lg">{t('reservations.finalDetails.bookingSummary')}</h3>
                     <div className="grid gap-2 text-sm">
                       <div className="flex justify-between">
-                        <span>Game:</span>
+                        <span>{t('reservations.finalDetails.game')}:</span>
                         <span className="font-medium">{game.title}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Date:</span>
+                        <span>{t('reservations.finalDetails.date')}:</span>
                         <span className="font-medium">{formatDateForDisplay(bookingData.date)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Time:</span>
+                        <span>{t('reservations.finalDetails.time')}:</span>
                         <span className="font-medium">{bookingData.time}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Players:</span>
+                        <span>{t('reservations.finalDetails.players')}:</span>
                         <span className="font-medium">{bookingData.players}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Name:</span>
+                        <span>{t('reservations.finalDetails.name')}:</span>
                         <span className="font-medium">{bookingData.firstName} {bookingData.lastName}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Email:</span>
+                        <span>{t('reservations.finalDetails.email')}:</span>
                         <span className="font-medium">{bookingData.email}</span>
                       </div>
                       <Separator />
                       <div className="flex justify-between text-lg font-bold text-primary">
-                        <span>Total Price:</span>
+                        <span>{t('reservations.finalDetails.total_price')}:</span>
                         <span>€{bookingData.totalPrice}</span>
                       </div>
                     </div>
@@ -941,10 +941,10 @@ export function Reservations() {
                     {loading ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Creating Booking...
+                        {t('reservations.finalDetails.creatingBooking')}
                       </>
                     ) : (
-                      'Confirm Booking'
+                      t('reservations.finalDetails.confirmBooking')
                     )}
                   </Button>
                 </div>
@@ -956,36 +956,36 @@ export function Reservations() {
               <div className="text-center space-y-6">
                 <div className="text-6xl mb-4">🎉</div>
                 <h2 className="text-3xl font-orbitron font-bold text-accent">
-                  Booking Confirmed!
+                {t('reservations.confirmation.title')}
                 </h2>
                 <div className="text-2xl font-semibold">
-                  Reference: <span className="text-primary">{bookingData.referenceNumber}</span>
+                {t('reservations.confirmation.reference')}: <span className="text-primary">{bookingData.referenceNumber}</span>
                 </div>
                 <p className="text-muted-foreground">
-                  A confirmation email has been sent to <strong>{bookingData.email}</strong>
+                {t('reservations.confirmation.emailSent')} <strong>{bookingData.email}</strong>
                 </p>
                 
                 <div className="bg-muted/50 p-6 rounded-lg max-w-md mx-auto">
-                  <h3 className="font-semibold mb-4">Booking Details</h3>
+                  <h3 className="font-semibold mb-4">{t('reservations.confirmation.bookingDetails')}</h3>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span>Game:</span>
+                      <span>{t('reservations.confirmation.game')}:</span>
                       <span>{game.title}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Date:</span>
+                      <span>{t('reservations.confirmation.date')}:</span>
                       <span>{formatDateForDisplay(bookingData.date)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Time:</span>
+                      <span>{t('reservations.confirmation.time')}:</span>
                       <span>{bookingData.time}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Players:</span>
+                      <span>{t('reservations.confirmation.players')}:</span>
                       <span>{bookingData.players}</span>
                     </div>
                     <div className="flex justify-between font-semibold">
-                      <span>Total:</span>
+                      <span>{t('reservations.confirmation.total')}:</span>
                       <span>€{bookingData.totalPrice}</span>
                     </div>
                   </div>
@@ -996,18 +996,18 @@ export function Reservations() {
                     onClick={() => navigate('/games')}
                     variant="outline"
                   >
-                    Book Another Game
+                    {t('reservations.confirmation.bookAnotherGame')}
                   </Button>
                   
                   <Button
                     onClick={() => navigate('/reservations')}
                     className="btn-glow"
                   >
-                    View All Reservations
+                    {t('reservations.confirmation.viewAllReservations')}
                   </Button>
                   
                   <p className="text-sm text-muted-foreground">
-                    Please arrive 15 minutes before your scheduled time.
+                  {t('reservations.confirmation.arrivalNote')}
                   </p>
                 </div>
               </div>
