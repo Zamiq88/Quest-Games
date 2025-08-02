@@ -400,10 +400,10 @@ export function Reservations() {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-orbitron font-bold mb-4 text-neon">
-              My Reservations
+            {t('reservations.title')}
             </h1>
             <p className="text-muted-foreground">
-              View and manage your game reservations
+            {t('reservations.subtitle')}
             </p>
           </div>
 
@@ -411,10 +411,10 @@ export function Reservations() {
           <Card className="card-glow">
             <CardHeader>
               <div className="flex justify-between items-center">
-                <CardTitle className="text-2xl font-semibold">Your Bookings</CardTitle>
+                <CardTitle className="text-2xl font-semibold">{t('reservations.yourBookings')}</CardTitle>
                 <Button onClick={() => navigate('/games')} className="btn-glow">
                   <GamepadIcon className="w-4 h-4 mr-2" />
-                  Book New Game
+                  {t('reservations.bookNewGame')}
                 </Button>
               </div>
             </CardHeader>
@@ -422,7 +422,7 @@ export function Reservations() {
               {reservationsLoading ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-4"></div>
-                  <span>Loading your reservations...</span>
+                  <span>{t('reservations.loadingReservations')}</span>
                 </div>
               ) : userReservations.length > 0 ? (
                 <div className="space-y-6">
@@ -434,7 +434,7 @@ export function Reservations() {
                             {reservation.game?.title || 'Game'}
                           </h3>
                           <div className="text-sm text-muted-foreground">
-                            Reference: <span className="font-mono">{reservation.reference_number}</span>
+                          {t('reservations.reference')}: <span className="font-mono">{reservation.reference_number}</span>
                           </div>
                         </div>
                         <Badge variant={
@@ -450,7 +450,7 @@ export function Reservations() {
                         <div className="flex items-center space-x-2">
                           <CalendarIcon className="w-4 h-4 text-muted-foreground" />
                           <div>
-                            <span className="text-muted-foreground text-sm">Date:</span>
+                            <span className="text-muted-foreground text-sm">{t('reservations.date')}:</span>
                             <div className="font-medium">{new Date(reservation.date).toLocaleDateString('en-US', { 
                               weekday: 'short', 
                               month: 'short', 
@@ -463,7 +463,7 @@ export function Reservations() {
                         <div className="flex items-center space-x-2">
                           <Clock className="w-4 h-4 text-muted-foreground" />
                           <div>
-                            <span className="text-muted-foreground text-sm">Time:</span>
+                            <span className="text-muted-foreground text-sm">{t('reservations.time')}:</span>
                             <div className="font-medium">{reservation.time}</div>
                           </div>
                         </div>
@@ -471,7 +471,7 @@ export function Reservations() {
                         <div className="flex items-center space-x-2">
                           <Users className="w-4 h-4 text-muted-foreground" />
                           <div>
-                            <span className="text-muted-foreground text-sm">Players:</span>
+                            <span className="text-muted-foreground text-sm">{t('reservations.players')}:</span>
                             <div className="font-medium">{reservation.players}</div>
                           </div>
                         </div>
@@ -479,7 +479,7 @@ export function Reservations() {
                         <div className="flex items-center space-x-2">
                           <div className="w-4 h-4 text-primary">€</div>
                           <div>
-                            <span className="text-muted-foreground text-sm">Total:</span>
+                            <span className="text-muted-foreground text-sm">T{t('reservations.total')}:</span>
                             <div className="font-medium text-primary">€{reservation.total_price}</div>
                           </div>
                         </div>
@@ -487,7 +487,7 @@ export function Reservations() {
                       
                       {reservation.special_requirements && (
                         <div className="pt-4 border-t border-border">
-                          <span className="text-muted-foreground text-sm font-medium">Special Requirements:</span>
+                          <span className="text-muted-foreground text-sm font-medium">{t('reservations.specialRequirements')}:</span>
                           <div className="text-sm mt-1 bg-muted/50 p-3 rounded">
                             {reservation.special_requirements}
                           </div>
@@ -496,12 +496,12 @@ export function Reservations() {
                       
                       <div className="flex justify-between items-center pt-4 border-t border-border mt-4">
                         <span className="text-xs text-muted-foreground">
-                          Booked on {new Date(reservation.created_at).toLocaleDateString()}
+                        {t('reservations.bookedOn')} {new Date(reservation.created_at).toLocaleDateString()}
                         </span>
                         
                         {reservation.status === 'confirmed' && new Date(reservation.date) > new Date() && (
                           <Button variant="outline" size="sm">
-                            Modify Booking
+                            {t('reservations.modifyBooking')}
                           </Button>
                         )}
                       </div>
@@ -511,13 +511,13 @@ export function Reservations() {
               ) : (
                 <div className="text-center py-12">
                   <GamepadIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold mb-2">No Reservations Yet</h3>
+                  <h3 className="text-xl font-semibold mb-2">{t('reservations.noReservationsYet')}</h3>
                   <p className="text-muted-foreground mb-6">
-                    You haven't made any game reservations yet. Ready to start your adventure?
+                  {t('reservations.noReservationsDescription')}
                   </p>
                   <Button onClick={() => navigate('/games')} className="btn-glow">
                     <GamepadIcon className="w-4 h-4 mr-2" />
-                    Browse Games
+                    {t('reservations.browseGames')}
                   </Button>
                 </div>
               )}
@@ -549,17 +549,17 @@ export function Reservations() {
         <Card className="card-glow max-w-md mx-auto">
           <CardContent className="p-8 text-center">
             <h2 className="text-xl font-semibold mb-4">
-              {gameError === 'Game not found' ? 'Game not found' : 'Error loading game'}
+              {gameError === 'Game not found' ? 'Game not found' : {t('reservations.errorLoadingGame')}}
             </h2>
             <p className="text-muted-foreground mb-4">
               {gameError === 'Game not found' 
-                ? 'Please select a game from our collection to continue with booking.'
-                : 'There was an error loading the game details. Please try again.'
+                ? {t('reservations.gameNotFoundDescription')}
+                : {t('reservations.errorLoadingGameDescription')}
               }
             </p>
             <Button onClick={() => navigate('/games')}>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Games
+              {t('reservations.backToGames')}
             </Button>
           </CardContent>
         </Card>
@@ -593,7 +593,7 @@ export function Reservations() {
                 onClick={() => navigate('/reservations')}
                 className="mb-4"
               >
-                View My Reservations ({userReservations.length})
+                {t('reservations.viewMy')} ({userReservations.length})
               </Button>
             </div>
           )}
@@ -629,12 +629,12 @@ export function Reservations() {
               <div className="space-y-6">
                 <div className="text-center">
                   <CalendarIcon className="w-12 h-12 text-primary mx-auto mb-4" />
-                  <h2 className="text-2xl font-semibold mb-2">Select Date & Time</h2>
+                  <h2 className="text-2xl font-semibold mb-2">{t('reservations.dateTimeSelection.title')}</h2>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-8">
                   <div>
-                    <Label className="text-base font-medium mb-4 block">Select Date</Label>
+                    <Label className="text-base font-medium mb-4 block">{t('reservations.dateTimeSelection.selectDate')}</Label>
                     <div className="flex justify-center">
                       <Calendar
                         mode="single"
@@ -657,14 +657,14 @@ export function Reservations() {
                     </div>
                     {bookingData.date && (
                       <div className="mt-4 p-3 bg-muted/50 rounded-md text-center">
-                        <p className="font-medium">Selected Date:</p>
+                        <p className="font-medium">{t('reservations.dateTimeSelection.selectedDate')}:</p>
                         <p className="text-primary">{formatDateForDisplay(bookingData.date)}</p>
                       </div>
                     )}
                   </div>
 
                   <div>
-                    <Label className="text-base font-medium mb-4 block">Available Times</Label>
+                    <Label className="text-base font-medium mb-4 block">{t('reservations.dateTimeSelection.availableTimes')}</Label>
                     {loading ? (
                       <div className="flex items-center justify-center h-32">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -686,11 +686,11 @@ export function Reservations() {
                       </div>
                     ) : bookingData.date ? (
                       <p className="text-muted-foreground text-center py-8">
-                        No available times for selected date
+                        {t('reservations.dateTimeSelection.noAvailableTimes')}
                       </p>
                     ) : (
                       <p className="text-muted-foreground text-center py-8">
-                        Please select a date first
+                        {t('reservations.dateTimeSelection.selectDateFirst')}
                       </p>
                     )}
                   </div>
@@ -703,9 +703,9 @@ export function Reservations() {
               <div className="space-y-6">
                 <div className="text-center">
                   <Users className="w-12 h-12 text-primary mx-auto mb-4" />
-                  <h2 className="text-2xl font-semibold mb-2">Number of Players</h2>
+                  <h2 className="text-2xl font-semibold mb-2">{t('reservations.playerSelection.title')}</h2>
                   <p className="text-muted-foreground">
-                    1 - {game.max_players} players allowed
+                    1 - {game.max_players} {t('reservations.playerSelection.playersAllowed')}
                   </p>
                 </div>
 
@@ -743,7 +743,7 @@ export function Reservations() {
 
                 <div className="text-center">
                   <Button onClick={() => handlePlayersSelect(bookingData.players)} className="btn-glow">
-                    Continue
+                  {t('reservations.playerSelection.continue')}
                   </Button>
                 </div>
               </div>
@@ -766,7 +766,7 @@ export function Reservations() {
                     <Input
                       id="firstName"
                       type="text"
-                      placeholder="Enter your first name"
+                      placeholder={t('reservations.personalInfo.firstNamePlaceholder')}
                       value={bookingData.firstName}
                       onChange={(e) => setBookingData(prev => ({ ...prev, firstName: e.target.value }))}
                       className="input-glow mt-2"
@@ -779,7 +779,7 @@ export function Reservations() {
                     <Input
                       id="lastName"
                       type="text"
-                      placeholder="Enter your last name"
+                      placeholder={t('reservations.personalInfo.firstNamePlaceholder')}
                       value={bookingData.lastName}
                       onChange={(e) => setBookingData(prev => ({ ...prev, lastName: e.target.value }))}
                       className="input-glow mt-2"
@@ -792,7 +792,7 @@ export function Reservations() {
                     <Input
                       id="email"
                       type="email"
-                      placeholder="Enter your email address"
+                      placeholder={t('reservations.personalInfo.emailPlaceholder')}
                       value={bookingData.email}
                       onChange={(e) => setBookingData(prev => ({ ...prev, email: e.target.value }))}
                       className="input-glow mt-2"

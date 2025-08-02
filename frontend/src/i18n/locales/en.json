@@ -211,6 +211,7 @@
     "errorLoadingGame": "Error loading game",
     "errorLoadingGameDescription": "There was an error loading the game details. Please try again.",
     "backToGames": "Back to Games",
+    "viewMy": "View My Reservations",
     "progressSteps": {
       "dateTime": "Date & Time",
       "players": "Players",
@@ -229,7 +230,7 @@
     },
     "playerSelection": {
       "title": "Number of Players",
-      "playersAllowed": "{{min}} - {{max}} players allowed",
+      "playersAllowed": "players allowed",
       "continue": "Continue"
     },
     "personalInfo": {

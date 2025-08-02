@@ -211,6 +211,7 @@
     "errorLoadingGame": "Помилка завантаження гри",
     "errorLoadingGameDescription": "Сталася помилка при завантаженні деталей гри. Будь ласка, спробуйте ще раз.",
     "backToGames": "Назад до Ігор",
+    "viewMy": "Переглянути Мої Бронювання",
     "progressSteps": {
       "dateTime": "Дата та Час",
       "players": "Гравці",
@@ -229,7 +230,7 @@
     },
     "playerSelection": {
       "title": "Кількість Гравців",
-      "playersAllowed": "{{min}} - {{max}} гравців дозволено",
+      "playersAllowed": "гравців дозволено",
       "continue": "Продовжити"
     },
     "personalInfo": {

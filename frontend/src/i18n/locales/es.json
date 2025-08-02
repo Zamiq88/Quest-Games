@@ -211,6 +211,7 @@
     "errorLoadingGame": "Error al cargar el juego",
     "errorLoadingGameDescription": "Hubo un error al cargar los detalles del juego. Por favor inténtalo de nuevo.",
     "backToGames": "Volver a Juegos",
+    "viewMy": "Ver Mis Reservas",
     "progressSteps": {
       "dateTime": "Fecha y Hora",
       "players": "Jugadores",
@@ -229,7 +230,7 @@
     },
     "playerSelection": {
       "title": "Número de Jugadores",
-      "playersAllowed": "{{min}} - {{max}} jugadores permitidos",
+      "playersAllowed": "jugadores permitidos",
       "continue": "Continuar"
     },
     "personalInfo": {
