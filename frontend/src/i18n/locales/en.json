@@ -133,13 +133,18 @@
   },
   "contact": {
     "title": "Get in Touch",
-    "info": {
-      "address": "123 Quest Street, Adventure City, AC 12345",
-      "phone": "+1 (555) 123-QUEST",
-      "email": "hello@questvault.com",
-      "hours": "Daily 10:00 AM - 10:00 PM"
+    "labels": {
+      "address": "Address",
+      "phone": "Phone",
+      "email": "Email",
+      "hours": "Hours"
+    },
+    "map": {
+      "title": "Interactive Map",
+      "comingSoon": "Coming Soon"
     },
     "form": {
+      "title": "Send us a Message",
       "name": "Your Name",
       "email": "Email Address",
       "subject": "Subject",
@@ -153,7 +158,10 @@
       "facebook": "Facebook",
       "instagram": "Instagram",
       "whatsapp": "WhatsApp"
-    }
+    },
+    "loading": "Loading contact information...",
+    "errorLoading": "Error loading contact information",
+    "retry": "Retry"
   },
   "common": {
     "loading": "Loading...",
@@ -180,5 +188,99 @@
     "viewAll": "View All Games",
     "minutes": "min",
     "upTo": "Up to"
+  },
+  "reservations": {
+    "title": "My Reservations",
+    "subtitle": "View and manage your game reservations",
+    "yourBookings": "Your Bookings",
+    "bookNewGame": "Book New Game",
+    "loadingReservations": "Loading your reservations...",
+    "reference": "Reference",
+    "date": "Date",
+    "time": "Time",
+    "players": "Players",
+    "total": "Total",
+    "specialRequirements": "Special Requirements",
+    "bookedOn": "Booked on",
+    "modifyBooking": "Modify Booking",
+    "noReservationsYet": "No Reservations Yet",
+    "noReservationsDescription": "You haven't made any game reservations yet. Ready to start your adventure?",
+    "browseGames": "Browse Games",
+    "gameNotFound": "Game not found",
+    "gameNotFoundDescription": "Please select a game from our collection to continue with booking.",
+    "errorLoadingGame": "Error loading game",
+    "errorLoadingGameDescription": "There was an error loading the game details. Please try again.",
+    "backToGames": "Back to Games",
+    "progressSteps": {
+      "dateTime": "Date & Time",
+      "players": "Players",
+      "information": "Information",
+      "verification": "Verification",
+      "review": "Review",
+      "confirmation": "Confirmation"
+    },
+    "dateTimeSelection": {
+      "title": "Select Date & Time",
+      "selectDate": "Select Date",
+      "selectedDate": "Selected Date",
+      "availableTimes": "Available Times",
+      "noAvailableTimes": "No available times for selected date",
+      "selectDateFirst": "Please select a date first"
+    },
+    "playerSelection": {
+      "title": "Number of Players",
+      "playersAllowed": "{{min}} - {{max}} players allowed",
+      "continue": "Continue"
+    },
+    "personalInfo": {
+      "title": "Your Information",
+      "description": "We'll send your booking confirmation to this email",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email Address",
+      "firstNamePlaceholder": "Enter your first name",
+      "lastNamePlaceholder": "Enter your last name",
+      "emailPlaceholder": "Enter your email address",
+      "sendVerificationCode": "Send Verification Code",
+      "sending": "Sending..."
+    },
+    "emailVerification": {
+      "title": "Verify Your Email",
+      "description": "We've sent a 6-digit verification code to",
+      "verificationCode": "Verification Code",
+      "codePlaceholder": "Enter 6-digit code",
+      "verifyCode": "Verify Code",
+      "verifying": "Verifying...",
+      "resendCode": "Didn't receive the code? Resend"
+    },
+    "finalDetails": {
+      "title": "Final Details",
+      "specialRequirements": "Special Requirements (Optional)",
+      "requirementsPlaceholder": "Any special requests, accessibility needs, or celebrations...",
+      "bookingSummary": "Booking Summary",
+      "game": "Game",
+      "date": "Date",
+      "time": "Time",
+      "players": "Players",
+      "name": "Name",
+      "email": "Email",
+      "totalPrice": "Total Price",
+      "confirmBooking": "Confirm Booking",
+      "creatingBooking": "Creating Booking..."
+    },
+    "confirmation": {
+      "title": "Booking Confirmed!",
+      "reference": "Reference",
+      "emailSent": "A confirmation email has been sent to",
+      "bookingDetails": "Booking Details",
+      "game": "Game",
+      "date": "Date",
+      "time": "Time",
+      "players": "Players",
+      "total": "Total",
+      "bookAnotherGame": "Book Another Game",
+      "viewAllReservations": "View All Reservations",
+      "arrivalNote": "Please arrive 15 minutes before your scheduled time."
+    }
   }
 }

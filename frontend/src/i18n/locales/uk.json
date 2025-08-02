@@ -133,13 +133,18 @@
   },
   "contact": {
     "title": "Зв'яжіться з Нами",
-    "info": {
-      "address": "123 Квест Вулиця, Місто Пригод, МП 12345",
-      "phone": "+380 (55) 123-QUEST",
-      "email": "hello@questvault.com",
-      "hours": "Щодня 10:00 - 22:00"
+    "labels": {
+      "address": "Адреса",
+      "phone": "Телефон",
+      "email": "Електронна Пошта",
+      "hours": "Години Роботи"
+    },
+    "map": {
+      "title": "Інтерактивна Карта",
+      "comingSoon": "Незабаром"
     },
     "form": {
+      "title": "Надішліть нам Повідомлення",
       "name": "Ваше Ім'я",
       "email": "Email Адреса",
       "subject": "Тема",
@@ -153,7 +158,10 @@
       "facebook": "Facebook",
       "instagram": "Instagram",
       "whatsapp": "WhatsApp"
-    }
+    },
+    "loading": "Завантаження контактної інформації...",
+    "errorLoading": "Помилка завантаження контактної інформації",
+    "retry": "Повторити"
   },
   "common": {
     "loading": "Завантаження...",
@@ -180,5 +188,99 @@
     "viewAll": "Переглянути Всі Ігри",
     "minutes": "хв",
     "upTo": "До"
+  },
+  "reservations": {
+    "title": "Мої Бронювання",
+    "subtitle": "Переглядайте та керуйте своїми бронюваннями ігор",
+    "yourBookings": "Ваші Бронювання",
+    "bookNewGame": "Забронювати Нову Гру",
+    "loadingReservations": "Завантаження ваших бронювань...",
+    "reference": "Референс",
+    "date": "Дата",
+    "time": "Час",
+    "players": "Гравці",
+    "total": "Загалом",
+    "specialRequirements": "Особливі Вимоги",
+    "bookedOn": "Заброньовано",
+    "modifyBooking": "Змінити Бронювання",
+    "noReservationsYet": "Поки Немає Бронювань",
+    "noReservationsDescription": "Ви ще не зробили жодного бронювання ігор. Готові почати свою пригоду?",
+    "browseGames": "Переглянути Ігри",
+    "gameNotFound": "Гру не знайдено",
+    "gameNotFoundDescription": "Будь ласка, оберіть гру з нашої колекції, щоб продовжити бронювання.",
+    "errorLoadingGame": "Помилка завантаження гри",
+    "errorLoadingGameDescription": "Сталася помилка при завантаженні деталей гри. Будь ласка, спробуйте ще раз.",
+    "backToGames": "Назад до Ігор",
+    "progressSteps": {
+      "dateTime": "Дата та Час",
+      "players": "Гравці",
+      "information": "Інформація",
+      "verification": "Перевірка",
+      "review": "Огляд",
+      "confirmation": "Підтвердження"
+    },
+    "dateTimeSelection": {
+      "title": "Оберіть Дату та Час",
+      "selectDate": "Обрати Дату",
+      "selectedDate": "Обрана Дата",
+      "availableTimes": "Доступні Часи",
+      "noAvailableTimes": "Немає доступних часів для обраної дати",
+      "selectDateFirst": "Будь ласка, спочатку оберіть дату"
+    },
+    "playerSelection": {
+      "title": "Кількість Гравців",
+      "playersAllowed": "{{min}} - {{max}} гравців дозволено",
+      "continue": "Продовжити"
+    },
+    "personalInfo": {
+      "title": "Ваша Інформація",
+      "description": "Ми надішлемо підтвердження бронювання на цей email",
+      "firstName": "Ім'я",
+      "lastName": "Прізвище",
+      "email": "Email Адреса",
+      "firstNamePlaceholder": "Введіть ваше ім'я",
+      "lastNamePlaceholder": "Введіть ваше прізвище",
+      "emailPlaceholder": "Введіть вашу email адресу",
+      "sendVerificationCode": "Надіслати Код Підтвердження",
+      "sending": "Надсилання..."
+    },
+    "emailVerification": {
+      "title": "Підтвердіть Ваш Email",
+      "description": "Ми надіслали 6-значний код підтвердження на",
+      "verificationCode": "Код Підтвердження",
+      "codePlaceholder": "Введіть 6-значний код",
+      "verifyCode": "Підтвердити Код",
+      "verifying": "Підтвердження...",
+      "resendCode": "Не отримали код? Надіслати знову"
+    },
+    "finalDetails": {
+      "title": "Фінальні Деталі",
+      "specialRequirements": "Особливі Вимоги (Необов'язково)",
+      "requirementsPlaceholder": "Будь-які особливі запити, потреби доступності або святкування...",
+      "bookingSummary": "Підсумок Бронювання",
+      "game": "Гра",
+      "date": "Дата",
+      "time": "Час",
+      "players": "Гравці",
+      "name": "Ім'я",
+      "email": "Email",
+      "totalPrice": "Загальна Ціна",
+      "confirmBooking": "Підтвердити Бронювання",
+      "creatingBooking": "Створення Бронювання..."
+    },
+    "confirmation": {
+      "title": "Бронювання Підтверджено!",
+      "reference": "Референс",
+      "emailSent": "Email підтвердження надіслано на",
+      "bookingDetails": "Деталі Бронювання",
+      "game": "Гра",
+      "date": "Дата",
+      "time": "Час",
+      "players": "Гравці",
+      "total": "Загалом",
+      "bookAnotherGame": "Забронювати Іншу Гру",
+      "viewAllReservations": "Переглянути Всі Бронювання",
+      "arrivalNote": "Будь ласка, прибудьте за 15 хвилин до запланованого часу."
+    }
   }
 }

@@ -133,13 +133,18 @@
   },
   "contact": {
     "title": "Ponte en Contacto",
-    "info": {
-      "address": "123 Calle Aventura, Ciudad Aventura, CA 12345",
-      "phone": "+34 (555) 123-QUEST",
-      "email": "hola@questvault.com",
-      "hours": "Diario 10:00 - 22:00"
+    "labels": {
+      "address": "Dirección",
+      "phone": "Teléfono", 
+      "email": "Correo Electrónico",
+      "hours": "Horarios"
+    },
+    "map": {
+      "title": "Mapa Interactivo",
+      "comingSoon": "Próximamente"
     },
     "form": {
+      "title": "Envíanos un Mensaje",
       "name": "Tu Nombre",
       "email": "Dirección de Email",
       "subject": "Asunto",
@@ -153,7 +158,10 @@
       "facebook": "Facebook",
       "instagram": "Instagram",
       "whatsapp": "WhatsApp"
-    }
+    },
+    "loading": "Cargando información de contacto...",
+    "errorLoading": "Error al cargar información de contacto",
+    "retry": "Reintentar"
   },
   "common": {
     "loading": "Cargando...",
@@ -180,5 +188,99 @@
     "viewAll": "Ver Todos los Juegos",
     "minutes": "min",
     "upTo": "Hasta"
+  },
+  "reservations": {
+    "title": "Mis Reservas",
+    "subtitle": "Ve y gestiona tus reservas de juegos",
+    "yourBookings": "Tus Reservas",
+    "bookNewGame": "Reservar Nuevo Juego",
+    "loadingReservations": "Cargando tus reservas...",
+    "reference": "Referencia",
+    "date": "Fecha",
+    "time": "Hora",
+    "players": "Jugadores",
+    "total": "Total",
+    "specialRequirements": "Requisitos Especiales",
+    "bookedOn": "Reservado el",
+    "modifyBooking": "Modificar Reserva",
+    "noReservationsYet": "Aún No Tienes Reservas",
+    "noReservationsDescription": "Aún no has hecho ninguna reserva de juegos. ¿Listo para comenzar tu aventura?",
+    "browseGames": "Explorar Juegos",
+    "gameNotFound": "Juego no encontrado",
+    "gameNotFoundDescription": "Por favor selecciona un juego de nuestra colección para continuar con la reserva.",
+    "errorLoadingGame": "Error al cargar el juego",
+    "errorLoadingGameDescription": "Hubo un error al cargar los detalles del juego. Por favor inténtalo de nuevo.",
+    "backToGames": "Volver a Juegos",
+    "progressSteps": {
+      "dateTime": "Fecha y Hora",
+      "players": "Jugadores",
+      "information": "Información",
+      "verification": "Verificación",
+      "review": "Revisión",
+      "confirmation": "Confirmación"
+    },
+    "dateTimeSelection": {
+      "title": "Selecciona Fecha y Hora",
+      "selectDate": "Seleccionar Fecha",
+      "selectedDate": "Fecha Seleccionada",
+      "availableTimes": "Horarios Disponibles",
+      "noAvailableTimes": "No hay horarios disponibles para la fecha seleccionada",
+      "selectDateFirst": "Por favor selecciona una fecha primero"
+    },
+    "playerSelection": {
+      "title": "Número de Jugadores",
+      "playersAllowed": "{{min}} - {{max}} jugadores permitidos",
+      "continue": "Continuar"
+    },
+    "personalInfo": {
+      "title": "Tu Información",
+      "description": "Enviaremos la confirmación de tu reserva a este email",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "email": "Dirección de Email",
+      "firstNamePlaceholder": "Ingresa tu nombre",
+      "lastNamePlaceholder": "Ingresa tu apellido",
+      "emailPlaceholder": "Ingresa tu dirección de email",
+      "sendVerificationCode": "Enviar Código de Verificación",
+      "sending": "Enviando..."
+    },
+    "emailVerification": {
+      "title": "Verifica tu Email",
+      "description": "Hemos enviado un código de verificación de 6 dígitos a",
+      "verificationCode": "Código de Verificación",
+      "codePlaceholder": "Ingresa código de 6 dígitos",
+      "verifyCode": "Verificar Código",
+      "verifying": "Verificando...",
+      "resendCode": "¿No recibiste el código? Reenviar"
+    },
+    "finalDetails": {
+      "title": "Detalles Finales",
+      "specialRequirements": "Requisitos Especiales (Opcional)",
+      "requirementsPlaceholder": "Cualquier solicitud especial, necesidades de accesibilidad o celebraciones...",
+      "bookingSummary": "Resumen de Reserva",
+      "game": "Juego",
+      "date": "Fecha",
+      "time": "Hora",
+      "players": "Jugadores",
+      "name": "Nombre",
+      "email": "Email",
+      "totalPrice": "Precio Total",
+      "confirmBooking": "Confirmar Reserva",
+      "creatingBooking": "Creando Reserva..."
+    },
+    "confirmation": {
+      "title": "¡Reserva Confirmada!",
+      "reference": "Referencia",
+      "emailSent": "Un email de confirmación ha sido enviado a",
+      "bookingDetails": "Detalles de la Reserva",
+      "game": "Juego",
+      "date": "Fecha",
+      "time": "Hora",
+      "players": "Jugadores",
+      "total": "Total",
+      "bookAnotherGame": "Reservar Otro Juego",
+      "viewAllReservations": "Ver Todas las Reservas",
+      "arrivalNote": "Por favor llega 15 minutos antes de tu hora programada."
+    }
   }
 }

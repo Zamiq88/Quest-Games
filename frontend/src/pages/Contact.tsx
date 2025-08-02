@@ -55,10 +55,10 @@ export function Contact() {
         if (result.success) {
           setContactData(result.data);
         } else {
-          setError(result.message || 'Failed to load contact information');
+          setError(result.message || t('contact.errorLoading'));
         }
       } catch (err) {
-        setError('Failed to connect to server');
+        setError(t('contact.errorLoading'));
         console.error('Error fetching contacts:', err);
       } finally {
         setIsLoading(false);
@@ -66,7 +66,7 @@ export function Contact() {
     };
 
     fetchContacts();
-  }, []);
+  }, [t]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -123,23 +123,23 @@ export function Contact() {
     return links;
   };
 
+  // Updated contactInfo with proper translations
   const contactInfo = [
     {
       icon: <MapPin className="w-6 h-6 text-primary" />,
-      title: 'Address',
-      content: contactData?.address || t('contact.info.address')
+      title: t('contact.labels.address'),
+      content: contactData?.address || t('common.loading')
     },
     {
       icon: <Phone className="w-6 h-6 text-accent" />,
-      title: 'Phone',
-      content: contactData?.whatsapp_number || t('contact.info.phone')
+      title: t('contact.labels.phone'),
+      content: contactData?.whatsapp_number || t('common.loading')
     },
     {
       icon: <Mail className="w-6 h-6 text-yellow-400" />,
-      title: 'Email',
-      content: contactData?.email || t('contact.info.email')
+      title: t('contact.labels.email'),
+      content: contactData?.email || t('common.loading')
     }
-    
   ];
 
   if (isLoading) {
@@ -149,7 +149,7 @@ export function Contact() {
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
               <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
-              <p className="text-muted-foreground">Loading contact information...</p>
+              <p className="text-muted-foreground">{t('contact.loading')}</p>
             </div>
           </div>
         </div>
@@ -163,9 +163,9 @@ export function Contact() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
-              <p className="text-red-500 mb-4">Error: {error}</p>
+              <p className="text-red-500 mb-4">{t('common.error')}: {error}</p>
               <Button onClick={() => window.location.reload()}>
-                Retry
+                {t('contact.retry')}
               </Button>
             </div>
           </div>
@@ -236,8 +236,8 @@ export function Contact() {
                 <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
                   <div className="text-center text-muted-foreground">
                     <MapPin className="w-12 h-12 mx-auto mb-2" />
-                    <p>Interactive Map</p>
-                    <p className="text-sm">Coming Soon</p>
+                    <p>{t('contact.map.title')}</p>
+                    <p className="text-sm">{t('contact.map.comingSoon')}</p>
                   </div>
                 </div>
               </CardContent>
@@ -248,7 +248,7 @@ export function Contact() {
           <Card className="card-glow">
             <CardHeader>
               <CardTitle className="text-2xl font-orbitron text-center">
-                Send us a Message
+                {t('contact.form.title')}
               </CardTitle>
             </CardHeader>
             <CardContent>
