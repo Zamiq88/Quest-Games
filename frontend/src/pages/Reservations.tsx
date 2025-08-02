@@ -549,12 +549,12 @@ export function Reservations() {
         <Card className="card-glow max-w-md mx-auto">
           <CardContent className="p-8 text-center">
             <h2 className="text-xl font-semibold mb-4">
-              {gameError === 'Game not found' ? 'Game not found' : {t('reservations.errorLoadingGame')}}
+            {gameError === 'Game not found' ? t('reservations.gameNotFound') : t('reservations.errorLoadingGame')}
             </h2>
             <p className="text-muted-foreground mb-4">
               {gameError === 'Game not found' 
-                ? {t('reservations.gameNotFoundDescription')}
-                : {t('reservations.errorLoadingGameDescription')}
+                ? t('reservations.gameNotFoundDescription')
+                : t('reservations.errorLoadingGameDescription')
               }
             </p>
             <Button onClick={() => navigate('/games')}>
