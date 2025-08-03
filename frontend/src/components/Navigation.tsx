@@ -29,7 +29,7 @@ export function Navigation() {
           {/* VDA Logo - Now using image */}
           <Link to="/" className="flex items-center">
             <img 
-              src="/media/images/vidalogo.jpeg" 
+              src="/media/images/vida-logo.png" 
               alt="VDA De Noche Estudio Creativo" 
               className="w-36 h-36 object-contain transform translate-y-4 -translate-x-9"
             />
