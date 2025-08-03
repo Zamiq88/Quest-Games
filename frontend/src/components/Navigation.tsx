@@ -31,7 +31,7 @@ export function Navigation() {
             <img 
               src="/media/images/vida-logo.png" 
               alt="VDA De Noche Estudio Creativo" 
-              className="w-36 h-36 object-contain transform translate-y-4 -translate-x-9"
+              className="w-36 h-36 object-contain transform translate-y-2 -translate-x-9"
             />
           </Link>
 
