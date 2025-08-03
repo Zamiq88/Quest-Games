@@ -31,7 +31,7 @@ export function Navigation() {
             <img 
               src="/media/images/vidalogo.jpeg" 
               alt="VDA De Noche Estudio Creativo" 
-              className="w-38 h-38 object-contain transform translate-y-5 -translate-x-9"
+              className="w-36 h-36 object-contain transform translate-y-5 -translate-x-9"
             />
           </Link>
 
