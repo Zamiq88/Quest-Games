@@ -21,6 +21,7 @@ from django.contrib.auth import login
 from games.utils import sendgrid_send_email
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+import json
 
 def generate_otp():
     """Generate 6-digit OTP"""
@@ -283,12 +284,14 @@ class SendOTPView(APIView):
 
         
         template_data = {
-            "language":language,
+            "spanish":language=="es",
+            "ukrainian":language=="uk",
             "otp":otp,
            
             "subject":subjects[language],
   
         }
+        
         
         print(f'Sending email with template data: {template_data}')
         
@@ -445,12 +448,31 @@ def create_booking(request):
         # Auto-login the user
         if reservation.user:
             login(request, reservation.user)  # Changed from self.request to request
-        
-        # Send confirmation email
-        # send_booking_confirmation_email(reservation)
-        print('useerrrrr',request.user)
-        # Clear session data
-        # request.session.flush()
+        language = request.GET.get('lang')
+        print('lannguuuuuage param',language)
+        language_map = {
+        'en': 'en',
+        'es': 'es',
+        'uk': 'uk',
+        'ua': 'uk'  # Ukrainian variants
+    }
+        language = language_map.get(language,'en')
+        subjects = {
+            "en": "Booking Confirmed",
+            "es": "Reserva Confirmada", 
+            "uk": "Бронювання Підтверджено"
+        }
+        template_data = {
+            "game_title": reservation.game.title[language],
+            "spanish": language == "es",
+            "ukrainian": language == "uk", 
+            "date": reservation.date.strftime("%B %d, %Y"),  # Convert to string
+            "time": reservation.time.strftime("%I:%M %p"),   # Convert to string
+            "subject": subjects[language],
+        }
+        email_sent = sendgrid_send_email(to_email=submitted_email, dynamic_template_data=template_data,template_id='d-f0aa12f4f2944b61a8d004d96560efbe')
+        if not email_sent:
+            print("email couldn sent")
         
         return Response({
             'success': True,

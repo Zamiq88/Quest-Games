@@ -189,3 +189,7 @@ def get_available_times(game_id: str, selected_date: str) -> Dict:
             'available_slots': [],
             'booked_slots': []
         }
+
+
+
+#template_data = { "language": { "es": language == "es", "uk": language == "uk", "en": language == "en" }, "otp": otp, "subject": subjects[language], } 
