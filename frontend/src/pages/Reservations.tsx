@@ -779,7 +779,7 @@ export function Reservations() {
                     <Input
                       id="lastName"
                       type="text"
-                      placeholder={t('reservations.personalInfo.firstNamePlaceholder')}
+                      placeholder={t('reservations.personalInfo.lastNamePlaceholder')}
                       value={bookingData.lastName}
                       onChange={(e) => setBookingData(prev => ({ ...prev, lastName: e.target.value }))}
                       className="input-glow mt-2"
