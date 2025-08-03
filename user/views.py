@@ -8,6 +8,10 @@ from rest_framework import status
 from .models import Contacts
 from .serializers import ContactsSerializer
 from games.serializers import ReservationSerializer
+from django.middleware.csrf import get_token
+from django.http import JsonResponse
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_http_methods
 
 def home_view(request):
     print('view called')
@@ -60,3 +64,15 @@ class GetReservations(APIView):
             return Response({
                 'error': 'Failed to fetch reservations'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+
+@ensure_csrf_cookie
+@require_http_methods(["GET"])
+def get_csrf_token(request):
+    """
+    Return CSRF token for the client.
+    This ensures the CSRF cookie is set.
+    """
+    token = get_token(request)
+    return JsonResponse({'csrfToken': token})

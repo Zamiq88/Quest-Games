@@ -1,4 +1,4 @@
-// Fixed Reservations.jsx - Added language support for API calls
+// Updated Reservations.jsx with CSRF support
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -14,6 +14,65 @@ import { useToast } from '@/hooks/use-toast';
 import { BookingData, TimeSlot } from '@/types/game';
 import { Calendar as CalendarIcon, Clock, Users, Mail, ArrowLeft, Check, User, GamepadIcon } from 'lucide-react';
 
+// CSRF Hook
+const useCsrf = () => {
+  const [csrfToken, setCsrfToken] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const getCsrfTokenFromCookie = () => {
+    const name = 'csrftoken';
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  };
+
+  const fetchCsrfToken = async () => {
+    try {
+      const response = await fetch('/api/csrf-token/', {
+        credentials: 'include',
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setCsrfToken(data.csrfToken);
+      } else {
+        // Try to get from cookie as fallback
+        const cookieToken = getCsrfTokenFromCookie();
+        setCsrfToken(cookieToken);
+      }
+    } catch (error) {
+      console.error('Failed to fetch CSRF token:', error);
+      // Try to get from cookie as fallback
+      const cookieToken = getCsrfTokenFromCookie();
+      setCsrfToken(cookieToken);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // First try to get from cookie
+    const cookieToken = getCsrfTokenFromCookie();
+    if (cookieToken) {
+      setCsrfToken(cookieToken);
+      setLoading(false);
+    } else {
+      // If no cookie token, fetch from server
+      fetchCsrfToken();
+    }
+  }, []);
+
+  return { csrfToken, loading, refetch: fetchCsrfToken };
+};
+
 // Helper function to get current language from localStorage or i18n
 const getCurrentLanguage = () => {
   // First try localStorage (set by LanguageSwitcher)
@@ -28,16 +87,22 @@ const getCurrentLanguage = () => {
   return supportedLanguages.includes(browserLang) ? browserLang : 'en';
 };
 
-// Helper function to make API calls with language
-const makeAPIRequest = async (url, options = {}) => {
+// Enhanced API request function with CSRF support
+const makeAPIRequest = async (url, options = {}, csrfToken = null) => {
   const language = getCurrentLanguage();
   
   const defaultOptions = {
     headers: {
       'Content-Type': 'application/json',
       'X-Language': language, // Send language in custom header
+      // Add CSRF token for POST, PUT, DELETE requests
+      ...(csrfToken && options.method && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(options.method.toUpperCase()) ? {
+        'X-CSRFToken': csrfToken
+      } : {}),
       ...options.headers,
     },
+    // Include credentials to send cookies
+    credentials: 'include',
     ...options,
   };
 
@@ -45,7 +110,7 @@ const makeAPIRequest = async (url, options = {}) => {
   const separator = url.includes('?') ? '&' : '?';
   const urlWithLang = `${url}${separator}lang=${language}`;
 
-  console.log(`Making API request to: ${urlWithLang} with language: ${language}`);
+  console.log(`Making API request to: ${urlWithLang} with language: ${language}, CSRF: ${csrfToken ? 'present' : 'missing'}`);
   
   try {
     const response = await fetch(urlWithLang, defaultOptions);
@@ -94,6 +159,9 @@ export function Reservations() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   
+  // CSRF Hook
+  const { csrfToken, loading: csrfLoading, refetch: refetchCsrf } = useCsrf();
+  
   const gameId = searchParams.get('game');
   
   // Add state for game data and loading
@@ -138,7 +206,7 @@ export function Reservations() {
   const fetchUserReservations = async () => {
     setReservationsLoading(true);
     try {
-      const response = await makeAPIRequest('/api/reservations/');
+      const response = await makeAPIRequest('/api/reservations/', {}, csrfToken);
       
       if (response.ok) {
         const data = await response.json();
@@ -157,16 +225,18 @@ export function Reservations() {
     setReservationsLoading(false);
   };
 
-  // Check if user is authenticated and fetch reservations
+  // Check if user is authenticated and fetch reservations (wait for CSRF token)
   useEffect(() => {
-    fetchUserReservations();
-  }, []);
+    if (!csrfLoading) {
+      fetchUserReservations();
+    }
+  }, [csrfLoading, csrfToken]);
 
   // Fetch game data from backend only if gameId is provided
   useEffect(() => {
-    if (gameId) {
+    if (gameId && !csrfLoading) {
       setGameLoading(true);
-      makeAPIRequest(`/api/games/${gameId}/`)
+      makeAPIRequest(`/api/games/${gameId}/`, {}, csrfToken)
         .then(response => {
           if (!response.ok) {
             throw new Error('Game not found');
@@ -185,10 +255,10 @@ export function Reservations() {
         .finally(() => {
           setGameLoading(false);
         });
-    } else {
+    } else if (!gameId) {
       setGameLoading(false);
     }
-  }, [gameId]);
+  }, [gameId, csrfLoading, csrfToken]);
 
   useEffect(() => {
     if (game && bookingData.players) {
@@ -206,7 +276,7 @@ export function Reservations() {
       const dateStr = formatDateForAPI(selectedDate);
       console.log('Fetching times for date:', dateStr, 'Original date:', selectedDate);
       
-      const response = await makeAPIRequest(`/api/games/available-times/?game_id=${gameId}&date=${dateStr}`);
+      const response = await makeAPIRequest(`/api/games/available-times/?game_id=${gameId}&date=${dateStr}`, {}, csrfToken);
       const data = await response.json();
       
       if (response.ok) {
@@ -255,6 +325,17 @@ export function Reservations() {
       return;
     }
 
+    if (!csrfToken) {
+      toast({
+        title: "Security Error",
+        description: "Security token missing. Please refresh the page.",
+        variant: "destructive"
+      });
+      // Try to refetch CSRF token
+      refetchCsrf();
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await makeAPIRequest('/api/games/send-otp/', {
@@ -264,7 +345,7 @@ export function Reservations() {
           first_name: bookingData.firstName,
           last_name: bookingData.lastName
         })
-      });
+      }, csrfToken);
 
       const data = await response.json();
       
@@ -279,11 +360,21 @@ export function Reservations() {
         // Log the language that was sent
         console.log('OTP sent with language:', getCurrentLanguage(), 'Response:', data);
       } else {
-        toast({
-          title: "Error",
-          description: data.error || "Failed to send verification code",
-          variant: "destructive"
-        });
+        if (response.status === 403) {
+          toast({
+            title: "Security Error",
+            description: "Security verification failed. Please refresh the page and try again.",
+            variant: "destructive"
+          });
+          // Try to refetch CSRF token
+          refetchCsrf();
+        } else {
+          toast({
+            title: "Error",
+            description: data.error || "Failed to send verification code",
+            variant: "destructive"
+          });
+        }
       }
     } catch (error) {
       console.error('Error sending OTP:', error);
@@ -306,6 +397,16 @@ export function Reservations() {
       return;
     }
 
+    if (!csrfToken) {
+      toast({
+        title: "Security Error",
+        description: "Security token missing. Please refresh the page.",
+        variant: "destructive"
+      });
+      refetchCsrf();
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await makeAPIRequest('/api/games/verify-otp/', {
@@ -314,7 +415,7 @@ export function Reservations() {
           email: bookingData.email,
           otp: bookingData.otp
         })
-      });
+      }, csrfToken);
 
       const data = await response.json();
       
@@ -326,11 +427,20 @@ export function Reservations() {
         });
         setStep(5);
       } else {
-        toast({
-          title: "Verification Failed",
-          description: data.error || "Invalid verification code",
-          variant: "destructive"
-        });
+        if (response.status === 403) {
+          toast({
+            title: "Security Error",
+            description: "Security verification failed. Please refresh the page and try again.",
+            variant: "destructive"
+          });
+          refetchCsrf();
+        } else {
+          toast({
+            title: "Verification Failed",
+            description: data.error || "Invalid verification code",
+            variant: "destructive"
+          });
+        }
       }
     } catch (error) {
       console.error('Error verifying OTP:', error);
@@ -344,6 +454,16 @@ export function Reservations() {
   };
 
   const handleConfirmBooking = async () => {
+    if (!csrfToken) {
+      toast({
+        title: "Security Error",
+        description: "Security token missing. Please refresh the page.",
+        variant: "destructive"
+      });
+      refetchCsrf();
+      return;
+    }
+
     setLoading(true);
     try {
       const dateStr = formatDateForAPI(bookingData.date);
@@ -361,7 +481,7 @@ export function Reservations() {
           first_name: bookingData.firstName,
           last_name: bookingData.lastName
         })
-      });
+      }, csrfToken);
 
       const data = await response.json();
       
@@ -375,11 +495,20 @@ export function Reservations() {
         });
         setStep(6);
       } else {
-        toast({
-          title: "Booking Failed",
-          description: data.error || "Failed to create booking",
-          variant: "destructive"
-        });
+        if (response.status === 403) {
+          toast({
+            title: "Security Error",
+            description: "Security verification failed. Please refresh the page and try again.",
+            variant: "destructive"
+          });
+          refetchCsrf();
+        } else {
+          toast({
+            title: "Booking Failed",
+            description: data.error || "Failed to create booking",
+            variant: "destructive"
+          });
+        }
       }
     } catch (error) {
       console.error('Error confirming booking:', error);
@@ -391,6 +520,20 @@ export function Reservations() {
     }
     setLoading(false);
   };
+
+  // Show loading state while CSRF token is being fetched
+  if (csrfLoading) {
+    return (
+      <div className="min-h-screen pt-24 flex items-center justify-center">
+        <Card className="card-glow max-w-md mx-auto">
+          <CardContent className="p-8 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <h2 className="text-xl font-semibold mb-2">Initializing security...</h2>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   // If no gameId is provided, show reservations list
   if (!gameId) {
@@ -860,7 +1003,6 @@ export function Reservations() {
                     )}
                   </Button>
 
-
                   <div className="text-center">
                     <Button
                       variant="ghost"
@@ -883,7 +1025,7 @@ export function Reservations() {
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="requirements" className="text-base font-medium">
-                      Special Requirements (Optional)
+                      {t('reservations.finalDetails.specialRequirements')}
                     </Label>
                     <Textarea
                       id="requirements"
