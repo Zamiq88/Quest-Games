@@ -444,7 +444,8 @@ def create_booking(request):
     try:
         # Create reservation
         reservation = serializer.save()
-        
+        reservation.status='confirmed'
+        reservation.save()
         # Auto-login the user
         if reservation.user:
             login(request, reservation.user)  # Changed from self.request to request

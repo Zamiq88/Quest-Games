@@ -18,7 +18,7 @@
       "description": "Protocolos de seguridad de última generación y sistema de reservas seguro."
     },
     "team": {
-      "title": "Team Building",
+      "title": "Trabajo en Equipo",
       "description": "Perfecto para eventos corporativos y experiencias de unión de equipos."
     },
     "award": {
@@ -60,7 +60,7 @@
       "adventure": "Aventuras",
       "puzzle": "Rompecabezas",
       "horror": "Terror",
-      "team": "Team Building"
+      "team": "Trabajo en Equipo"
     },
     "duration": "{{duration}} min",
     "price": "€{{price}}",
@@ -171,7 +171,9 @@
     "next": "Siguiente",
     "cancel": "Cancelar",
     "confirm": "Confirmar",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "showMore": "Ver más",
+    "showLess": "Ver menos"
   },
   "error": {
     "loadingGames": "No se pudieron cargar los juegos en este momento"

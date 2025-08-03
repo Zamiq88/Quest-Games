@@ -1,9 +1,10 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Clock, Users, Star } from 'lucide-react';
+import { Clock, Users, Star, ChevronDown, ChevronUp } from 'lucide-react';
 import { Game } from '@/types/game';
 
 interface GameCardProps {
@@ -13,6 +14,14 @@ interface GameCardProps {
 
 export function GameCard({ game, featured = false }: GameCardProps) {
   const { t } = useTranslation();
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Determine if description needs truncation (adjust character limit as needed)
+  const DESCRIPTION_LIMIT = 120;
+  const needsTruncation = game.description.length > DESCRIPTION_LIMIT;
+  const displayDescription = isExpanded || !needsTruncation 
+    ? game.description 
+    : `${game.description.slice(0, DESCRIPTION_LIMIT)}...`;
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -34,6 +43,12 @@ export function GameCard({ game, featured = false }: GameCardProps) {
     }
   };
 
+  const toggleExpanded = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent any parent link navigation
+    e.stopPropagation();
+    setIsExpanded(!isExpanded);
+  };
+
   return (
     <Card className={`card-glow group overflow-hidden ${featured ? 'ring-2 ring-primary/50' : ''}`}>
       <CardHeader className="p-0 relative">
@@ -50,17 +65,17 @@ export function GameCard({ game, featured = false }: GameCardProps) {
           <div className="absolute top-4 left-4">
             <Badge className="bg-accent text-accent-foreground font-bold">
               <Star className="w-3 h-3 mr-1" />
-              Featured
+              {t('games.featured', 'Featured')}
             </Badge>
           </div>
         )}
         
         <div className="absolute top-4 right-4 flex flex-col gap-2">
           <Badge className={getCategoryColor(game.category)}>
-            {t(`games.categories.${game.category}`)}
+            {t(`games.categories.${game.category}`, game.category)}
           </Badge>
           <Badge className={getDifficultyColor(game.difficulty)}>
-            {t(`difficulty.${game.difficulty}`)}
+            {t(`difficulty.${game.difficulty}`, game.difficulty)}
           </Badge>
         </div>
       </CardHeader>
@@ -70,9 +85,32 @@ export function GameCard({ game, featured = false }: GameCardProps) {
           {game.title}
         </h3>
         
-        <p className="text-muted-foreground mb-4 line-clamp-2">
-          {game.description}
-        </p>
+        <div className="mb-4">
+          <p className={`text-muted-foreground transition-all duration-300 ${
+            isExpanded ? 'line-clamp-none' : 'line-clamp-2'
+          }`}>
+            {displayDescription}
+          </p>
+          
+          {needsTruncation && (
+            <button
+              onClick={toggleExpanded}
+              className="inline-flex items-center gap-1 text-sm text-primary hover:text-primary/80 transition-colors mt-2 font-medium"
+            >
+              {isExpanded ? (
+                <>
+                  {t('common.showLess', 'Show less')}
+                  <ChevronUp className="w-3 h-3" />
+                </>
+              ) : (
+                <>
+                  {t('common.showMore', 'Show more')}
+                  <ChevronDown className="w-3 h-3" />
+                </>
+              )}
+            </button>
+          )}
+        </div>
 
         <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
           <div className="flex items-center gap-1">
@@ -99,7 +137,7 @@ export function GameCard({ game, featured = false }: GameCardProps) {
       <CardFooter className="p-6 pt-0">
         <Link to={`/reservations?game=${game.id}`} className="w-full">
           <Button className="w-full btn-glow bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
-            {t('games.bookNow')}
+            {t('games.bookNow', 'Book Now')}
           </Button>
         </Link>
       </CardFooter>

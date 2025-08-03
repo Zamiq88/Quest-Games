@@ -171,7 +171,9 @@
     "next": "Next",
     "cancel": "Cancel",
     "confirm": "Confirm",
-    "close": "Close"
+    "close": "Close",
+    "showMore": "Show more",
+    "showLess": "Show less"
   },
   "error": {
     "loadingGames": "Unable to load games at the moment"
