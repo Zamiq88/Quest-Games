@@ -63,7 +63,7 @@
       "team": "Team Building"
     },
     "duration": "{{duration}} min",
-    "price": "${{price}}",
+    "price": "€{{price}}",
     "perPerson": "per person",
     "perGroup": "per group",
     "bookNow": "Book Now",
