@@ -39,7 +39,7 @@ def generate_time_slots(start_time: str, end_time: str, duration: int, interval:
     
     Args:
         start_time: Start time in HH:MM format
-        end_time: End time in HH:MM format  
+        end_time: End time in HH:MM format (00:00 means next day midnight)
         duration: Game duration in minutes
         interval: Interval between slots in minutes (default 60)
     
@@ -53,7 +53,12 @@ def generate_time_slots(start_time: str, end_time: str, duration: int, interval:
     end_hour, end_minute = map(int, end_time.split(':'))
     
     start_dt = datetime.combine(datetime.today(), time(start_hour, start_minute))
-    end_dt = datetime.combine(datetime.today(), time(end_hour, end_minute))
+    
+    # Handle end time - if 00:00, it means next day midnight
+    if end_hour == 0 and end_minute == 0:
+        end_dt = datetime.combine(datetime.today() + timedelta(days=1), time(0, 0))
+    else:
+        end_dt = datetime.combine(datetime.today(), time(end_hour, end_minute))
     
     # Generate slots starting from the next round hour
     current_hour = start_hour
@@ -61,19 +66,28 @@ def generate_time_slots(start_time: str, end_time: str, duration: int, interval:
         current_hour += 1
     
     # Generate only round hour slots
-    while current_hour < end_hour:
-        slot_time = time(current_hour, 0)
-        slot_dt = datetime.combine(datetime.today(), slot_time)
+    while True:
+        # Handle hour overflow (past 23:00)
+        display_hour = current_hour % 24
+        slot_time = time(display_hour, 0)
+        
+        # Create datetime for the slot (could be next day if current_hour >= 24)
+        if current_hour >= 24:
+            slot_dt = datetime.combine(datetime.today() + timedelta(days=1), slot_time)
+        else:
+            slot_dt = datetime.combine(datetime.today(), slot_time)
+        
+        # Break if we've reached or passed the end time
+        if slot_dt >= end_dt:
+            break
         
         # Check if game can finish within working hours
         if slot_dt + timedelta(minutes=duration) <= end_dt:
-            slots.append(f"{current_hour:02d}:00")
+            slots.append(f"{display_hour:02d}:00")
         
         current_hour += 1
     
     return slots
-
-
 
 
 def get_available_times(game_id: str, selected_date: str) -> Dict:
@@ -137,14 +151,26 @@ def get_available_times(game_id: str, selected_date: str) -> Dict:
             # Filter slots to only include future times (only for today)
             all_slots = [slot for slot in all_slots if int(slot.split(':')[0]) >= current_hour]
         
-        # Get booked slots for this date
-        booked_reservations = Reservation.objects.filter(
+        # Get booked slots for this date and next day (for slots that cross midnight)
+        booked_reservations_today = Reservation.objects.filter(
             game=game,
             date=date_obj,
             status__in=['pending', 'confirmed']
         ).values_list('time', flat=True)
         
-        booked_slots = [t.strftime('%H:%M') for t in booked_reservations]
+        # Also check next day for slots that might conflict (if working hours cross midnight)
+        booked_reservations_next_day = []
+        end_hour = int(game.working_hours_end.split(':')[0])
+        if end_hour == 0:  # Working hours cross midnight
+            next_date = date_obj + timedelta(days=1)
+            booked_reservations_next_day = Reservation.objects.filter(
+                game=game,
+                date=next_date,
+                status__in=['pending', 'confirmed']
+            ).values_list('time', flat=True)
+        
+        all_booked_times = list(booked_reservations_today) + list(booked_reservations_next_day)
+        booked_slots = [t.strftime('%H:%M') for t in all_booked_times]
         
         # Remove slots that conflict with booked reservations considering game duration
         available_slots = []
@@ -155,14 +181,28 @@ def get_available_times(game_id: str, selected_date: str) -> Dict:
             
             # Check if this slot conflicts with any booked reservation
             is_available = True
-            for booked_time in booked_reservations:
+            
+            # Check conflicts with today's bookings
+            for booked_time in booked_reservations_today:
                 booked_datetime = datetime.combine(date_obj, booked_time)
                 booked_end_time = booked_datetime + timedelta(minutes=game.duration)
                 
-                # Check for overlap: slot overlaps with booked time
+                # Check for overlap
                 if (slot_time < booked_end_time and slot_end_time > booked_datetime):
                     is_available = False
                     break
+            
+            # Check conflicts with next day's bookings (for late night slots)
+            if is_available and booked_reservations_next_day:
+                next_date = date_obj + timedelta(days=1)
+                for booked_time in booked_reservations_next_day:
+                    booked_datetime = datetime.combine(next_date, booked_time)
+                    booked_end_time = booked_datetime + timedelta(minutes=game.duration)
+                    
+                    # Check for overlap
+                    if (slot_time < booked_end_time and slot_end_time > booked_datetime):
+                        is_available = False
+                        break
             
             if is_available:
                 available_slots.append(slot)
@@ -189,7 +229,6 @@ def get_available_times(game_id: str, selected_date: str) -> Dict:
             'available_slots': [],
             'booked_slots': []
         }
-
 
 
 #template_data = { "language": { "es": language == "es", "uk": language == "uk", "en": language == "en" }, "otp": otp, "subject": subjects[language], } 

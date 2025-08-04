@@ -133,6 +133,7 @@
   },
   "contact": {
     "title": "Ponte en Contacto",
+    "description":"¿Está listo para embarcarse en su próxima aventura? ¡Póngase en contacto con nosotros!",
     "labels": {
       "address": "Dirección",
       "phone": "Teléfono", 

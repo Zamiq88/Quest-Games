@@ -183,7 +183,7 @@ export function Contact() {
             {t('contact.title')}
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Ready to embark on your next adventure? Get in touch with us!
+          {t('contact.description')}
           </p>
         </div>
 

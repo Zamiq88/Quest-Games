@@ -133,6 +133,7 @@
   },
   "contact": {
     "title": "Get in Touch",
+    "description":"Ready to embark on your next adventure? Get in touch with us!",
     "labels": {
       "address": "Address",
       "phone": "Phone",
