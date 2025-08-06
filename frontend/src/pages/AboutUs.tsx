@@ -169,11 +169,11 @@ Puede presentar reclamación ante la Agencia Española de Protección de Datos.
 ### Booking Process
 - Only persons 18 years or older can make bookings
 - Minors must be accompanied by a responsible adult
-- €30 prepayment required to confirm booking
+- Full payment required to confirm booking
 
 ### Cancellations
 - **More than 48h:** Full refund minus €5 administrative fee
-- **Less than 48h:** No refund of prepayment
+- **Less than 48h:** No refund
 - **No-show:** Total amount forfeited
 
 ## 3. CONDITIONS OF USE
@@ -211,11 +211,11 @@ Jurisdiction: Courts of Málaga, Spain
 ### Proceso de Reserva
 - Solo personas mayores de 18 años pueden realizar reservas
 - Menores deben estar acompañados por adulto responsable
-- Se requiere prepago de €30 para confirmar reserva
+- Se requiere pago completo para confirmar reserva
 
 ### Cancelaciones
 - **Más de 48h:** Reembolso completo menos €5 gastos administrativos
-- **Menos de 48h:** No se reembolsa el prepago
+- **Menos de 48h:** No se reembolsa
 - **No presentarse:** Se pierde el importe total
 
 ## 3. CONDICIONES DE USO
@@ -253,11 +253,11 @@ Jurisdicción: Tribunales de Málaga, España
 ### Процес бронювання
 - Тільки особи від 18 років можуть здійснювати бронювання
 - Неповнолітні повинні супроводжуватися відповідальним дорослим
-- Необхідна передоплата €30 для підтвердження бронювання
+- Необхідна повна оплата для підтвердження бронювання
 
 ### Скасування
 - **Більше 48 годин:** Повне відшкодування мінус €5 адміністративний збір
-- **Менше 48 годин:** Передоплата не повертається
+- **Менше 48 годин:** Без відшкодування
 - **Неявка:** Втрачається повна сума
 
 ## 3. УМОВИ ВИКОРИСТАННЯ
