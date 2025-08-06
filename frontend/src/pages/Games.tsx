@@ -1,4 +1,3 @@
-// src/pages/Games.tsx - Updated with API integration
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
@@ -9,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useGames } from '@/hooks/useGames';
 import { Search, SlidersHorizontal, Loader2 } from 'lucide-react';
+import { SEOHead } from '@/components/SEO/SEOHead'; // NEW IMPORT
 
 export function Games() {
   const { t } = useTranslation();
@@ -152,6 +152,14 @@ export function Games() {
   if (loading) {
     return (
       <div className="min-h-screen pt-24">
+        {/* SEO HEAD - NEW ADDITION */}
+        <SEOHead 
+          title={t('seo.games.title', 'All Escape Room Games in Málaga')}
+          description={t('seo.games.description', 'Browse our collection of escape rooms and adventure games in Málaga. Various difficulties and themes available. Book your perfect quest!')}
+          keywords={t('seo.games.keywords', 'juegos escape room málaga, reservar escape room, aventuras málaga, salas escape centro málaga')}
+          url="/games"
+        />
+
         <div className="container mx-auto px-4">
           {/* Header */}
           <div className="text-center mb-12">
@@ -179,6 +187,14 @@ export function Games() {
   if (error) {
     return (
       <div className="min-h-screen pt-24">
+        {/* SEO HEAD - NEW ADDITION */}
+        <SEOHead 
+          title={t('seo.games.title', 'All Escape Room Games in Málaga')}
+          description={t('seo.games.description', 'Browse our collection of escape rooms and adventure games in Málaga. Various difficulties and themes available. Book your perfect quest!')}
+          keywords={t('seo.games.keywords', 'juegos escape room málaga, reservar escape room, aventuras málaga, salas escape centro málaga')}
+          url="/games"
+        />
+
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
@@ -199,6 +215,14 @@ export function Games() {
 
   return (
     <div className="min-h-screen pt-24">
+      {/* SEO HEAD - NEW ADDITION */}
+      <SEOHead 
+        title={t('seo.games.title', 'All Escape Room Games in Málaga')}
+        description={t('seo.games.description', 'Browse our collection of escape rooms and adventure games in Málaga. Various difficulties and themes available. Book your perfect quest!')}
+        keywords={t('seo.games.keywords', 'juegos escape room málaga, reservar escape room, aventuras málaga, salas escape centro málaga')}
+        url="/games"
+      />
+
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-12">

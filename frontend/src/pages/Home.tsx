@@ -5,6 +5,7 @@ import { GameCard } from '@/components/GameCard';
 import { useGames } from '@/hooks/useGames';
 import { ArrowRight, Play, Shield, Users, Trophy } from 'lucide-react';
 import heroBackground from '@/assets/hero-background.jpg';
+import { SEOHead } from '@/components/SEO/SEOHead'; // NEW IMPORT
 
 export function Home() {
   const { t } = useTranslation();
@@ -33,6 +34,14 @@ export function Home() {
 
   return (
     <div className="min-h-screen">
+      {/* SEO HEAD - NEW ADDITION */}
+      <SEOHead 
+        title={t('seo.home.title', 'Best Escape Rooms in Málaga')}
+        description={t('seo.home.description', 'Experience the most thrilling escape rooms in Málaga, Spain. Perfect for team building, dates, and adventures. Book your quest today!')}
+        keywords={t('seo.home.keywords', 'escape room málaga, salas escape málaga, aventuras málaga, team building, planes málaga')}
+        url="/"
+      />
+
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background Image */}

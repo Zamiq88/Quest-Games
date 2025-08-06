@@ -79,6 +79,41 @@
     "puzzle": "Puzzle",
     "team": "Team Building"
   },
+  "seo": {
+    "siteTitle": "Ultimate Quest Adventures Málaga - Best Escape Rooms",
+    "defaultDescription": "Experience the most thrilling escape rooms in Málaga, Spain. Perfect for tourists, team building, and adventure seekers. Book your quest today!",
+    "defaultKeywords": "escape rooms malaga spain, things to do malaga, malaga attractions, escape room booking malaga, malaga entertainment",
+    "businessName": "Ultimate Quest Adventures Málaga",
+    "businessPhone": "+34614786548",
+    "businessAddress": "29007 Мalaga, calle Corredor Jerónimo Valenzuela 6, 3B",
+    "businessEmail": "vidadenoche666@gmail.com",
+    "home": {
+      "title": "Best Escape Rooms in Málaga, Spain - Tourist Attractions",
+      "description": "Top-rated escape room experience in Málaga, Spain. Perfect for tourists, groups, and team building. Book your Spanish adventure today!",
+      "keywords": "escape rooms malaga spain, things to do malaga, malaga tourist attractions, spain entertainment, malaga activities"
+    },
+    "games": {
+      "title": "All Escape Room Games in Málaga, Spain",
+      "description": "Browse our collection of escape rooms and adventure games in Málaga, Spain. Perfect for tourists and locals. Various difficulties available!",
+      "keywords": "escape room games malaga, malaga entertainment, spain attractions, tourist activities malaga"
+    },
+    "contact": {
+      "title": "Contact - Book Your Escape Room in Málaga, Spain",
+      "description": "Contact Ultimate Quest Adventures Málaga to book your escape room. Located in central Málaga. Your adventure awaits!",
+      "keywords": "contact escape room malaga, book malaga, escape room location malaga, escape room phone"
+    },
+    "reservations": {
+      "title": "Book Escape Room - Málaga Adventure Booking",
+      "description": "Easy online booking for escape rooms in Málaga. Secure reservation system with instant confirmation. Book your quest now!",
+      "keywords": "book escape room malaga, online booking malaga, escape room reservation spain"
+    },
+    "about": {
+      "title": "About Us - Premium Escape Room Experience in Málaga",
+      "description": "Learn about Ultimate Quest Adventures, Málaga's premier escape room destination. Our story, mission, and commitment to amazing adventures.",
+      "keywords": "about escape room malaga, escape room company malaga, malaga entertainment business"
+    }
+  }
+,
   "difficulty": {
     "all": "All",
     "easy": "Easy",

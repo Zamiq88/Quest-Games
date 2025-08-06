@@ -79,6 +79,40 @@
     "puzzle": "Rompecabezas",
     "team": "Team Building"
   },
+  "seo": {
+    "siteTitle": "Ultimate Quest Adventures Málaga - Escape Rooms",
+    "defaultDescription": "Los escape rooms más emocionantes de Málaga. Aventuras inmersivas, team building y diversión garantizada en el centro de Málaga. ¡Reserva tu quest ahora!",
+    "defaultKeywords": "escape room málaga, salas escape málaga, aventuras málaga, team building málaga, entretenimiento málaga, planes málaga, actividades grupos málaga",
+    "businessName": "Ultimate Quest Adventures Málaga",
+    "businessPhone": "+34614786548",
+    "businessAddress": "29007 Мalaga, calle Corredor Jerónimo Valenzuela 6, 3B",
+    "businessEmail": "vidadenoche666@gmail.com",
+    "home": {
+      "title": "Mejores Escape Rooms en Málaga - Aventuras Inmersivas",
+      "description": "Vive la experiencia de escape room más emocionante de Málaga. Perfecto para team building, citas y aventuras. ¡Reserva tu quest hoy!",
+      "keywords": "escape room málaga centro, salas escape málaga, aventuras málaga, team building, planes fin de semana málaga"
+    },
+    "games": {
+      "title": "Todos los Juegos de Escape Room en Málaga",
+      "description": "Explora nuestra colección de escape rooms y juegos de aventura en Málaga. Varias dificultades y temáticas disponibles. ¡Reserva tu quest perfecto!",
+      "keywords": "juegos escape room málaga, reservar escape room, aventuras málaga, salas escape centro málaga, entretenimiento málaga"
+    },
+    "contact": {
+      "title": "Contacto - Reserve su Escape Room en Málaga",
+      "description": "Contacte con Ultimate Quest Adventures Málaga para reservar su escape room. Ubicados en el centro de Málaga. ¡Su aventura le espera!",
+      "keywords": "contacto escape room málaga, reservar málaga, ubicación escape room málaga, teléfono escape room"
+    },
+    "reservations": {
+      "title": "Reservar Escape Room - Sistema de Reservas Málaga",
+      "description": "Reserva fácil online para escape rooms en Málaga. Sistema de reservas seguro con confirmación instantánea. ¡Reserva tu quest ahora!",
+      "keywords": "reservar escape room málaga, reservas online málaga, booking escape room españa"
+    },
+    "about": {
+      "title": "Sobre Nosotros - Experiencia Premium de Escape Room en Málaga",
+      "description": "Conoce Ultimate Quest Adventures, el destino premier de escape rooms en Málaga. Nuestra historia, misión y compromiso con aventuras increíbles.",
+      "keywords": "sobre escape room málaga, empresa escape room málaga, negocio entretenimiento málaga"
+    }
+  },
   "difficulty": {
     "all": "Todos",
     "easy": "Fácil",
