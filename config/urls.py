@@ -86,7 +86,7 @@ urlpatterns = [
     path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
     path('',include('user.urls',namespace='user')),
     path('api/games/',include('games.urls',namespace='games')),
-    re_path(r'^.*/$', TemplateView.as_view(template_name='index.html')),
+    re_path(r'^(?!sitemap\.xml|robots\.txt).*$', TemplateView.as_view(template_name='index.html')),
 
 ]
 if settings.DEBUG:
