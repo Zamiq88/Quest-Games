@@ -1,10 +1,53 @@
 {
-  "nav": {
-    "home": "Inicio",
-    "games": "Juegos",
-    "reservations": "Reservas",
-    "contact": "Contacto"
-  },
+  {
+    "nav": {
+      "home": "Inicio",
+      "games": "Juegos",
+      "reservations": "Reservas", 
+      "contact": "Contacto",
+      "about": "Acerca de Nosotros"
+    },
+    "about": {
+      "title": "Acerca de Nosotros",
+      "subtitle": "Conoce más sobre nuestro negocio e información legal",
+      "currentLanguage": "Idioma Actual",
+      "businessInfo": "Información del Negocio",
+      "owner": "Propietaria del Negocio",
+      "taxId": "NIF",
+      "contact": "Contacto",
+      "address": "Dirección",
+      "compliance": "Cumplimiento Legal",
+      "legalDocuments": "Documentos Legales",
+      "legalDescription": "Accede a nuestras políticas legales y términos de servicio",
+      "copyText": "Copiar Texto",
+      "downloadTxt": "Descargar TXT",
+      "contactUs": "Contáctanos",
+      "businessInquiries": "Consultas Comerciales",
+      "businessText": "Para reservas, preguntas sobre nuestros escape rooms o consultas comerciales generales.",
+      "sendEmail": "Enviar Email",
+      "legalInquiries": "Consultas Legales y Privacidad",
+      "legalText": "Para preguntas sobre protección de datos, derechos de privacidad o asuntos legales.",
+      "legalContact": "Contacto Legal",
+      "legalSubject": "Consulta Legal"
+    },
+    "legal": {
+      "privacy": {
+        "title": "Política de Privacidad",
+        "description": "Información sobre cómo recopilamos, usamos y protegemos sus datos personales."
+      },
+      "terms": {
+        "title": "Términos y Condiciones",
+        "description": "Condiciones de uso de nuestros servicios y política de reservas."
+      },
+      "cookies": {
+        "title": "Política de Cookies",
+        "description": "Información sobre las cookies que utilizamos en nuestro sitio web."
+      },
+      "notice": {
+        "title": "Aviso Legal", 
+        "description": "Información legal sobre el sitio web y condiciones de uso."
+      }
+    },
   "hero": {
     "title": "Aventuras",
     "subtitle": "Definitivas",

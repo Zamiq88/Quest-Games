@@ -1,10 +1,53 @@
 {
   "nav": {
     "home": "Home",
-    "games": "Games",
+    "games": "Games", 
     "reservations": "Reservations",
-    "contact": "Contact"
+    "contact": "Contact",
+    "about": "About Us"
   },
+  "about": {
+    "title": "About Us",
+    "subtitle": "Learn more about our business and legal information",
+    "currentLanguage": "Current Language",
+    "businessInfo": "Business Information",
+    "owner": "Business Owner",
+    "taxId": "Tax ID (NIF)",
+    "contact": "Contact",
+    "address": "Address",
+    "compliance": "Legal Compliance",
+    "legalDocuments": "Legal Documents",
+    "legalDescription": "Access our legal policies and terms of service",
+    "copyText": "Copy Text",
+    "downloadTxt": "Download TXT",
+    "contactUs": "Contact Us",
+    "businessInquiries": "Business Inquiries",
+    "businessText": "For bookings, questions about our escape rooms, or general business inquiries.",
+    "sendEmail": "Send Email",
+    "legalInquiries": "Legal & Privacy Inquiries",
+    "legalText": "For questions about data protection, privacy rights, or legal matters.",
+    "legalContact": "Legal Contact",
+    "legalSubject": "Legal Inquiry"
+  },
+  "legal": {
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "Information about how we collect, use and protect your personal data."
+    },
+    "terms": {
+      "title": "Terms and Conditions", 
+      "description": "Terms of use for our services and booking policy."
+    },
+    "cookies": {
+      "title": "Cookies Policy",
+      "description": "Information about cookies we use on our website."
+    },
+    "notice": {
+      "title": "Legal Notice",
+      "description": "Legal information about the website and terms of use."
+    }
+  },
+
   "hero": {
     "title": "Ultimate Quest",
     "subtitle": "Adventures",

@@ -15,6 +15,7 @@ export function Navigation() {
     { key: 'games', href: '/games' },
     { key: 'reservations', href: '/reservations' },
     { key: 'contact', href: '/contact' },
+    { key: 'about', href: '/about' }, // NEW ITEM ADDED
   ];
 
   const isActive = (href: string) => {
@@ -28,9 +29,9 @@ export function Navigation() {
         <div className="flex items-center justify-between h-16">
           {/* VDA Logo - Now using image */}
           <Link to="/" className="flex items-center">
-            <img 
-              src="/media/images/vida-logo.png" 
-              alt="VDA De Noche Estudio Creativo" 
+            <img
+              src="/media/images/vida-logo.png"
+              alt="VDA De Noche Estudio Creativo"
               className="w-36 h-36 object-contain transform translate-y-2 -translate-x-9"
             />
           </Link>
