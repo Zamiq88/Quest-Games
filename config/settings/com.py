@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sitemaps',
     'user.apps.UserConfig',
     'games.apps.GamesConfig',
     'rest_framework',
