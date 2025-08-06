@@ -122,6 +122,36 @@
     "puzzle": "Puzzle",
     "team": "Team Building"
   },
+  "cookies": {
+    "title": "We use cookies",
+    "description": "We use cookies and similar technologies to enhance your browsing experience, analyze site traffic, personalize content, and assist with our marketing efforts.",
+    "learnMore": "Learn more about our cookie policy",
+    "customize": "Customize",
+    "rejectAll": "Reject All",
+    "acceptAll": "Accept All",
+    "modal": {
+      "description": "We use different types of cookies to optimize your experience. You can choose which categories you're comfortable with. Note that disabling some cookies may affect website functionality.",
+      "necessary": {
+        "title": "Necessary Cookies",
+        "alwaysOn": "Always On",
+        "description": "Essential for website functionality, including session management, security, and basic features. These cannot be disabled."
+      },
+      "analytics": {
+        "title": "Analytics Cookies", 
+        "description": "Help us understand how visitors interact with our website by collecting anonymous information. Includes Google Analytics."
+      },
+      "marketing": {
+        "title": "Marketing Cookies",
+        "description": "Used to deliver personalized advertisements and measure their effectiveness. Includes Facebook Pixel and other advertising platforms."
+      },
+      "preferences": {
+        "title": "Preference Cookies",
+        "description": "Remember your preferences such as language, region, and accessibility settings to provide a personalized experience."
+      },
+      "cancel": "Cancel",
+      "savePreferences": "Save Preferences"
+    }
+  },
   "seo": {
     "siteTitle": "Ultimate Quest Adventures Málaga - Best Escape Rooms",
     "defaultDescription": "Experience the most thrilling escape rooms in Málaga, Spain. Perfect for tourists, team building, and adventure seekers. Book your quest today!",

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Cookie, Settings, Check, Info } from 'lucide-react';
 
 const CookieConsent = () => {
+  const { t } = useTranslation();
   const [showBanner, setShowBanner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [consent, setConsent] = useState({
@@ -100,16 +102,15 @@ const CookieConsent = () => {
               <Cookie className="w-6 h-6 text-amber-600 mt-1 flex-shrink-0" />
               <div className="flex-1">
                 <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-white">
-                  🍪 We use cookies
+                  🍪 {t('cookies.title')}
                 </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                  We use cookies and similar technologies to enhance your browsing experience, 
-                  analyze site traffic, personalize content, and assist with our marketing efforts. 
+                  {t('cookies.description')}
                   <button 
-                    onClick={() => window.open('/cookies', '_blank')}
+                    onClick={() => window.open('/about', '_blank')}
                     className="underline hover:no-underline ml-1 text-blue-600 dark:text-blue-400"
                   >
-                    Learn more about our cookie policy
+                    {t('cookies.learnMore')}
                   </button>
                 </p>
               </div>
@@ -122,14 +123,14 @@ const CookieConsent = () => {
                 className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-sm font-medium"
               >
                 <Settings className="w-4 h-4" />
-                Customize
+                {t('cookies.customize')}
               </button>
               
               <button
                 onClick={handleRejectAll}
                 className="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-sm font-medium"
               >
-                Reject All
+                {t('cookies.rejectAll')}
               </button>
               
               <button
@@ -137,7 +138,7 @@ const CookieConsent = () => {
                 className="flex items-center justify-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
               >
                 <Check className="w-4 h-4" />
-                Accept All
+                {t('cookies.acceptAll')}
               </button>
             </div>
           </div>
@@ -153,7 +154,7 @@ const CookieConsent = () => {
               <div className="flex items-center gap-3">
                 <Cookie className="w-6 h-6 text-amber-600" />
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  Cookie Preferences
+                  {t('cookies.modal.title', 'Cookie Preferences')}
                 </h2>
               </div>
               <button
@@ -167,8 +168,7 @@ const CookieConsent = () => {
             {/* Content */}
             <div className="p-6 space-y-6">
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                We use different types of cookies to optimize your experience. You can choose which 
-                categories you're comfortable with. Note that disabling some cookies may affect website functionality.
+                {t('cookies.modal.description')}
               </p>
 
               {/* Cookie Categories */}
@@ -178,20 +178,21 @@ const CookieConsent = () => {
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <h3 className="font-medium text-gray-900 dark:text-white">
-                        Necessary Cookies
+                        {t('cookies.modal.necessary.title')}
                       </h3>
                       <Info className="w-4 h-4 text-gray-400" />
                     </div>
                     <div className="flex items-center">
-                      <span className="text-sm text-green-600 dark:text-green-400 font-medium mr-2">Always On</span>
+                      <span className="text-sm text-green-600 dark:text-green-400 font-medium mr-2">
+                        {t('cookies.modal.necessary.alwaysOn')}
+                      </span>
                       <div className="w-12 h-6 bg-green-500 rounded-full relative">
                         <div className="w-5 h-5 bg-white rounded-full absolute top-0.5 right-0.5 shadow-sm"></div>
                       </div>
                     </div>
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-300">
-                    Essential for website functionality, including session management, security, and basic features. 
-                    These cannot be disabled.
+                    {t('cookies.modal.necessary.description')}
                   </p>
                 </div>
 
@@ -199,7 +200,7 @@ const CookieConsent = () => {
                 <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-medium text-gray-900 dark:text-white">
-                      Analytics Cookies
+                      {t('cookies.modal.analytics.title')}
                     </h3>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
@@ -212,8 +213,7 @@ const CookieConsent = () => {
                     </label>
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-300">
-                    Help us understand how visitors interact with our website by collecting anonymous information. 
-                    Includes Google Analytics.
+                    {t('cookies.modal.analytics.description')}
                   </p>
                 </div>
 
@@ -221,7 +221,7 @@ const CookieConsent = () => {
                 <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-medium text-gray-900 dark:text-white">
-                      Marketing Cookies
+                      {t('cookies.modal.marketing.title')}
                     </h3>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
@@ -234,8 +234,7 @@ const CookieConsent = () => {
                     </label>
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-300">
-                    Used to deliver personalized advertisements and measure their effectiveness. 
-                    Includes Facebook Pixel and other advertising platforms.
+                    {t('cookies.modal.marketing.description')}
                   </p>
                 </div>
 
@@ -243,7 +242,7 @@ const CookieConsent = () => {
                 <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-medium text-gray-900 dark:text-white">
-                      Preference Cookies
+                      {t('cookies.modal.preferences.title')}
                     </h3>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
@@ -256,8 +255,7 @@ const CookieConsent = () => {
                     </label>
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-300">
-                    Remember your preferences such as language, region, and accessibility settings 
-                    to provide a personalized experience.
+                    {t('cookies.modal.preferences.description')}
                   </p>
                 </div>
               </div>
@@ -269,13 +267,13 @@ const CookieConsent = () => {
                 onClick={() => setShowSettings(false)}
                 className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-sm font-medium"
               >
-                Cancel
+                {t('cookies.modal.cancel')}
               </button>
               <button
                 onClick={handleSaveSettings}
                 className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
               >
-                Save Preferences
+                {t('cookies.modal.savePreferences')}
               </button>
             </div>
           </div>

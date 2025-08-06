@@ -122,6 +122,35 @@
     "puzzle": "Rompecabezas",
     "team": "Team Building"
   },
+  "cookies": {
+    "description": "Utilizamos cookies y tecnologías similares para mejorar su experiencia de navegación, analizar el tráfico del sitio, personalizar el contenido y ayudar con nuestros esfuerzos de marketing.",
+    "learnMore": "Más información sobre nuestra política de cookies",
+    "customize": "Personalizar",
+    "rejectAll": "Rechazar Todo",
+    "acceptAll": "Aceptar Todo",
+    "modal": {
+      "description": "Utilizamos diferentes tipos de cookies para optimizar su experiencia. Puede elegir qué categorías le resultan cómodas. Tenga en cuenta que deshabilitar algunas cookies puede afectar la funcionalidad del sitio web.",
+      "necessary": {
+        "title": "Cookies Necesarias",
+        "alwaysOn": "Siempre Activas",
+        "description": "Esenciales para la funcionalidad del sitio web, incluyendo gestión de sesiones, seguridad y características básicas. Estas no pueden deshabilitarse."
+      },
+      "analytics": {
+        "title": "Cookies de Análisis",
+        "description": "Nos ayudan a entender cómo los visitantes interactúan con nuestro sitio web recopilando información anónima. Incluye Google Analytics."
+      },
+      "marketing": {
+        "title": "Cookies de Marketing",
+        "description": "Se utilizan para entregar anuncios personalizados y medir su efectividad. Incluye Facebook Pixel y otras plataformas publicitarias."
+      },
+      "preferences": {
+        "title": "Cookies de Preferencias",
+        "description": "Recuerdan sus preferencias como idioma, región y configuraciones de accesibilidad para proporcionar una experiencia personalizada."
+      },
+      "cancel": "Cancelar",
+      "savePreferences": "Guardar Preferencias"
+    }
+  },
   "seo": {
     "siteTitle": "Ultimate Quest Adventures Málaga - Escape Rooms",
     "defaultDescription": "Los escape rooms más emocionantes de Málaga. Aventuras inmersivas, team building y diversión garantizada en el centro de Málaga. ¡Reserva tu quest ahora!",
