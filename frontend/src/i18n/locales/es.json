@@ -400,7 +400,7 @@
       "viewAllReservations": "Ver Todas las Reservas",
       "arrivalNote": "Por favor llega 15 minutos antes de tu hora programada."
     }
-  }
+  },
   "paymentSuccess": {
     "processing": {
       "title": "Procesando pago...",
