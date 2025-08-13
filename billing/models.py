@@ -8,7 +8,7 @@ import uuid
 
 class Invoice(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    invoice_id = models.CharField(unique=True, max_length=30, editable=False)
+    invoice_id = models.CharField(unique=True, max_length=60, editable=False)
     
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     reservation = models.ForeignKey(Reservation, on_delete=models.SET_NULL, null=True, blank=True)
@@ -62,15 +62,15 @@ class Invoice(models.Model):
     
 class Payment(models.Model):
     amount = models.DecimalField(max_digits=5, decimal_places=2)
-    currency = models.CharField(max_length=5)
+    currency = models.CharField(max_length=10)
 
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, null=True, related_name='payments')
 
-    reference = models.CharField(max_length=100, null=True, blank=True)
+    reference = models.CharField(max_length=150, null=True, blank=True)
 
-    payment_gateway = models.CharField(max_length=100, default='stripe')
+    payment_gateway = models.CharField(max_length=150, default='stripe')
 
-    payment_type = models.CharField(max_length=100, default='online')
+    payment_type = models.CharField(max_length=150, default='online')
 
     url = models.URLField(null=True, blank=True)
 
