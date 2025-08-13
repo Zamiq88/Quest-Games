@@ -212,12 +212,12 @@ STRIPE_TEST_SECRET_KEY = env('STRIPE_TEST_SECRET_KEY')
 STRIPE_TEST_PUBLIC_KEY = env('STRIPE_TEST_PUBLIC_KEY')
 
 
-import sentry_sdk
+# import sentry_sdk
 
-sentry_sdk.init(
-    dsn="https://71f7f903cf36a68b5b82a28cde6ddddb@o4509310227382272.ingest.de.sentry.io/4509837389529168",
-    # Add data like request headers and IP for users,
-    # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
-    send_default_pii=True,
-)
+# sentry_sdk.init(
+#     dsn="https://71f7f903cf36a68b5b82a28cde6ddddb@o4509310227382272.ingest.de.sentry.io/4509837389529168",
+#     # Add data like request headers and IP for users,
+#     # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+#     send_default_pii=True,
+# )
 
