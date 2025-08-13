@@ -116,7 +116,7 @@ class StripeWebhookView(APIView):
         if event['type'] == 'checkout.session.completed':
             session = event['data']['object']
             language = request.GET.get('lang')
-            self.handle_successful_payment(session,language)
+            self.handle_successful_payment(session)
             
         elif event['type'] == 'checkout.session.expired':
             session = event['data']['object']
@@ -128,7 +128,7 @@ class StripeWebhookView(APIView):
         
         return HttpResponse(status=200)
     
-    def handle_successful_payment(self, session,language):
+    def handle_successful_payment(self, session):
         """Handle successful payment"""
         try:
             # Find payment by Stripe session ID
@@ -146,7 +146,7 @@ class StripeWebhookView(APIView):
                 reservation.status = 'confirmed'
                 reservation.save()
                 
-                
+                language = reservation.language
                         
                 language_map = {
                     'en': 'en',

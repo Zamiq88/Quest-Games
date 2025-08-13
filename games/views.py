@@ -274,6 +274,7 @@ class SendOTPView(APIView):
         request.session['booking_email'] = email
         request.session['booking_first_name'] = first_name
         request.session['booking_last_name'] = last_name
+        request.session['language']=language
         request.session.set_expiry(600)  # 10 minutes
         
         # Localized subjects
@@ -451,6 +452,7 @@ def create_booking(request):
         # Create reservation
         reservation = serializer.save()
         reservation.status = 'pending'
+        reservation.language = request.session.get('language')
         reservation.save()
         
         # Generate JWT tokens for the user
