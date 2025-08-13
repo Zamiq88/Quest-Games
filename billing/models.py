@@ -17,7 +17,7 @@ class Invoice(models.Model):
     callback_url = models.URLField(max_length=255, null=True, blank=True)
     cancel_url = models.URLField(max_length=255, null=True, blank=True)
     
-    currency = models.CharField(max_length=3, default='EUR')
+    currency = models.CharField(max_length=5, default='EUR')
     discount = models.FloatField(null=True, blank=True)
     invoice_date = models.DateField(default=timezone.now)
     
@@ -62,7 +62,7 @@ class Invoice(models.Model):
     
 class Payment(models.Model):
     amount = models.DecimalField(max_digits=5, decimal_places=2)
-    currency = models.CharField(max_length=3)
+    currency = models.CharField(max_length=5)
 
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, null=True, related_name='payments')
 
