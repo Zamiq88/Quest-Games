@@ -35,7 +35,7 @@ class Stripe:
             ],
             customer_email=customer_email,
             mode='payment',
-            success_url=self.__domain + '/billing/callback?session_id={CHECKOUT_SESSION_ID}',
+            success_url=self.__domain + '/reservations?session_id={CHECKOUT_SESSION_ID}',
             cancel_url=settings.BASE_URL,
         )
         self.__reference = checkout_session.id
