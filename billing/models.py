@@ -4,66 +4,57 @@ from games.models import Reservation
 from django.utils import timezone
 import random
 from billing.utils import check_invoice_id
+import uuid
 
 class Invoice(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     invoice_id = models.CharField(unique=True, max_length=30, editable=False)
-
+    
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-
-    reservation = models.ForeignKey(Reservation,on_delete=models.SET_NULL,null=True,blank=True)
-
-    payment_method = models.CharField(max_length=30,  null=True, blank=True, default='stripe')
+    reservation = models.ForeignKey(Reservation, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    payment_method = models.CharField(max_length=30, null=True, blank=True, default='stripe')
     callback_url = models.URLField(max_length=255, null=True, blank=True)
     cancel_url = models.URLField(max_length=255, null=True, blank=True)
-
-
-
-    currency = models.CharField(max_length=3,  default='EUR')
+    
+    currency = models.CharField(max_length=3, default='EUR')
     discount = models.FloatField(null=True, blank=True)
     invoice_date = models.DateField(default=timezone.now)
-
-
-
+    
     payment_type = models.CharField(max_length=20, default='online')
-
-    total = models.DecimalField(decimal_places=2,max_digits=8)
-
-
+    total = models.DecimalField(decimal_places=2, max_digits=8)
     invoice_type = models.CharField(max_length=20, default='one_time')
-
-
+    
     def total_display(self):
         return f'{self.total} {self.get_currency_display()}'
-
-
+    
     def get_payment_status(self):
         if self.payments.first():
-            print(self.payments.first().status.capitalize())
             return self.payments.first().status.capitalize()
         else:
             return None
-
+    
     def save(self, *args, **kwargs):
         if not self.invoice_id:
             number = random.randint(100000, 999999)
-            count = Invoice.objects.filter(invoice_date__month=self.invoice_date.month,
-                                                        invoice_date__year=self.invoice_date.year).count() + 1
+            count = Invoice.objects.filter(
+                invoice_date__month=self.invoice_date.month,
+                invoice_date__year=self.invoice_date.year
+            ).count() + 1
             self.invoice_id = f"{self.invoice_date.strftime('%m')}{self.invoice_date.strftime('%y')}{count:05d}00{number}"
-            
             self.invoice_id = check_invoice_id(self.invoice_id)
         super(Invoice, self).save(*args, **kwargs)
-
-
+    
     def create_payment(self):
+        # FIXED: Use correct field name 'invoice' instead of 'invoice_id'
         instance = Payment.objects.create(
-                                          invoice_id=self.id,
-                                          amount=self.total,
-                                          currency=self.currency,
-                                          callback_url=self.callback_url,
-                                          cancel_url=self.cancel_url,
-                                          payment_gateway=self.payment_method)
-
+            invoice=self,  # ✅ Correct FK reference
+            amount=self.total,
+            currency=self.currency,
+            callback_url=self.callback_url,
+            cancel_url=self.cancel_url,
+            payment_gateway=self.payment_method
+        )
         return instance
     
     def __str__(self):

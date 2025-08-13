@@ -71,6 +71,19 @@ class GetReservations(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
+class RetrieveReservation(APIView):
+    def get(self,request,pk):
+        try:
+            reservation = Reservation.objects.get(pk=pk)
+            serializer = ReservationSerializer(reservation)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response({
+                'error': 'Failed to fetch reservations'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
 
 @ensure_csrf_cookie
 @require_http_methods(["GET"])

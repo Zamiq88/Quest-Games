@@ -507,9 +507,10 @@ export function Reservations() {
     setLoading(true);
     try {
       const dateStr = formatDateForAPI(bookingData.date);
-      console.log('Confirming booking with date:', dateStr);
+      console.log('Creating reservation with date:', dateStr);
       
-      const response = await makeAPIRequest('/api/games/create/', {
+      // Step 1: Create the reservation first
+      const reservationResponse = await makeAPIRequest('/api/games/create/', {
         method: 'POST',
         body: JSON.stringify({
           game: parseInt(gameId),
@@ -523,27 +524,57 @@ export function Reservations() {
         })
       }, csrfToken);
 
-      const data = await response.json();
+      const reservationData = await reservationResponse.json();
       
-      if (response.ok) {
+      if (reservationResponse.ok) {
         // Store JWT tokens if provided
-        if (data.tokens) {
-          JWT_STORAGE.setTokens(data.tokens);
+        if (reservationData.tokens) {
+          JWT_STORAGE.setTokens(reservationData.tokens);
           console.log('JWT tokens stored successfully');
         }
         
-        setBookingData(prev => ({ ...prev, referenceNumber: data.reservation.reference_number }));
+        const reservationId = reservationData.reservation.reference_number;
+        console.log('Reservation created successfully:', reservationId);
         
-        // Refresh user reservations after successful booking
-        fetchUserReservations();
+        // Step 2: Create payment URL using the reservation ID
+        const paymentResponse = await makeAPIRequest('/api/create-payment/', {
+          method: 'POST',
+          body: JSON.stringify({
+            reservation_id: reservationData.reservation.id  // Use internal ID for payment
+          })
+        }, csrfToken);
+
+        const paymentData = await paymentResponse.json();
         
-        toast({
-          title: "Booking Confirmed!",
-          description: `Your reference number is ${data.reservation.reference_number}`,
-        });
-        setStep(6);
+        if (paymentResponse.ok && paymentData.payment_url) {
+          // Store reservation data for when user returns
+          setBookingData(prev => ({ 
+            ...prev, 
+            reservationId: reservationData.reservation.id,
+            referenceNumber: reservationId,
+            paymentUrl: paymentData.payment_url
+          }));
+          
+          toast({
+            title: "Reservation Created!",
+            description: "Redirecting to payment...",
+          });
+          
+          // Small delay to show the toast, then redirect to Stripe
+          setTimeout(() => {
+            window.location.href = paymentData.payment_url;
+          }, 1500);
+          
+        } else {
+          toast({
+            title: "Payment Error",
+            description: paymentData.error || "Failed to create payment. Please try again.",
+            variant: "destructive"
+          });
+        }
+        
       } else {
-        if (response.status === 403) {
+        if (reservationResponse.status === 403) {
           toast({
             title: "Security Error",
             description: "Security verification failed. Please refresh the page and try again.",
@@ -552,17 +583,17 @@ export function Reservations() {
           refetchCsrf();
         } else {
           toast({
-            title: "Booking Failed",
-            description: data.error || "Failed to create booking",
+            title: "Reservation Failed",
+            description: reservationData.error || "Failed to create reservation",
             variant: "destructive"
           });
         }
       }
     } catch (error) {
-      console.error('Error confirming booking:', error);
+      console.error('Error in booking process:', error);
       toast({
         title: "Error",
-        description: "Failed to create booking",
+        description: "Failed to process booking. Please try again.",
         variant: "destructive"
       });
     }
@@ -1192,10 +1223,12 @@ export function Reservations() {
                     {loading ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        {t('reservations.finalDetails.creatingBooking')}
+                        {t('reservations.finalDetails.processing')}
                       </>
                     ) : (
-                      t('reservations.finalDetails.confirmBooking')
+                      <>
+                        💳 {t('reservations.finalDetails.proceedToPayment')}
+                      </>
                     )}
                   </Button>
                 </div>
