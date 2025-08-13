@@ -72,7 +72,7 @@ class Payment(models.Model):
 
     payment_type = models.CharField(max_length=150, default='online')
 
-    url = models.URLField(null=True, blank=True)
+    url = models.URLField(max_length=1255,null=True, blank=True)
 
     STATUSES = (
         ('pending', 'Pending'),
