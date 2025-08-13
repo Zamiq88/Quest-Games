@@ -337,12 +337,19 @@
       "selectedDate": "Selected Date",
       "availableTimes": "Available Times",
       "noAvailableTimes": "No available times for selected date",
-      "selectDateFirst": "Please select a date first"
+      "selectDateFirst": "Please select a date first",
+      "available" : "spots available out of",
+      "fullyBooked" : "Fully booked"
+      
     },
     "playerSelection": {
       "title": "Number of Players",
       "playersAllowed": "players allowed",
-      "continue": "Continue"
+      "continue": "Continue",
+      "selectedTime" : "Selected time",
+      "spotsAvailable" : "Spots available",
+      "total" : "Total",
+      "alreadyBooked" :"Already booked"
     },
     "personalInfo": {
       "title": "Your Information",
@@ -378,7 +385,8 @@
       "email": "Email",
       "totalPrice": "Total Price",
       "confirmBooking": "Confirm Booking",
-      "creatingBooking": "Creating Booking..."
+      "creatingBooking": "Creating Booking...",
+      "proceedToPayment" : "Proceed to payment"
     },
     "confirmation": {
       "title": "Booking Confirmed!",
@@ -393,6 +401,47 @@
       "bookAnotherGame": "Book Another Game",
       "viewAllReservations": "View All Reservations",
       "arrivalNote": "Please arrive 15 minutes before your scheduled time."
+    }
+  }
+  "paymentSuccess": {
+    "processing": {
+      "title": "Processing Payment...",
+      "description": "Please wait while we confirm your payment."
+    },
+    "error": {
+      "title": "Payment Error",
+      "description": "There was an issue processing your payment. Please contact support if you were charged.",
+      "browseGames": "Browse Games",
+      "viewReservations": "View My Reservations"
+    },
+    "success": {
+      "title": "Payment Successful!",
+      "subtitle": "Your reservation has been confirmed and payment processed.",
+      "bookingDetails": "Booking Details",
+      "reference": "Reference",
+      "game": "Game",
+      "date": "Date",
+      "time": "Time",
+      "players": "Players",
+      "totalPaid": "Total Paid",
+      "confirmationStatus": {
+        "paymentConfirmed": "Payment confirmed via Stripe",
+        "emailSent": "Confirmation email sent",
+        "reservationConfirmed": "Reservation confirmed"
+      },
+      "actions": {
+        "viewAllReservations": "View All My Reservations",
+        "bookAnother": "Book Another Game",
+        "arrivalNote": "Please arrive 15 minutes before your scheduled time."
+      }
+    },
+    "toast": {
+      "successTitle": "Payment Successful!",
+      "successDescription": "Your reservation has been confirmed.",
+      "issueTitle": "Payment Issue",
+      "issueDescription": "There was an issue with your payment.",
+      "errorTitle": "Error",
+      "errorDescription": "Failed to verify payment status."
     }
   }
 }

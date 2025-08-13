@@ -335,12 +335,19 @@
       "selectedDate": "Fecha Seleccionada",
       "availableTimes": "Horarios Disponibles",
       "noAvailableTimes": "No hay horarios disponibles para la fecha seleccionada",
-      "selectDateFirst": "Por favor selecciona una fecha primero"
+      "selectDateFirst": "Por favor selecciona una fecha primero",
+      "available": "disponibles de",
+      "fullyBooked": "Completamente reservado"
+
     },
     "playerSelection": {
       "title": "Número de Jugadores",
       "playersAllowed": "jugadores permitidos",
-      "continue": "Continuar"
+      "continue": "Continuar",
+      "selectedTime": "Hora seleccionada",
+      "spotsAvailable": "Lugares disponibles",
+      "total": "Total",
+      "alreadyBooked": "Ya ocupado"
     },
     "personalInfo": {
       "title": "Tu Información",
@@ -376,7 +383,8 @@
       "email": "Email",
       "totalPrice": "Precio Total",
       "confirmBooking": "Confirmar Reserva",
-      "creatingBooking": "Creando Reserva..."
+      "creatingBooking": "Creando Reserva...",
+      "proceedToPayment": "Proceder al pago"
     },
     "confirmation": {
       "title": "¡Reserva Confirmada!",
@@ -391,6 +399,47 @@
       "bookAnotherGame": "Reservar Otro Juego",
       "viewAllReservations": "Ver Todas las Reservas",
       "arrivalNote": "Por favor llega 15 minutos antes de tu hora programada."
+    }
+  }
+  "paymentSuccess": {
+    "processing": {
+      "title": "Procesando pago...",
+      "description": "Por favor espera mientras confirmamos tu pago."
+    },
+    "error": {
+      "title": "Error de pago",
+      "description": "Hubo un problema procesando tu pago. Por favor contacta soporte si fuiste cobrado.",
+      "browseGames": "Explorar juegos",
+      "viewReservations": "Ver mis reservas"
+    },
+    "success": {
+      "title": "¡Pago exitoso!",
+      "subtitle": "Tu reserva ha sido confirmada y el pago procesado.",
+      "bookingDetails": "Detalles de la reserva",
+      "reference": "Referencia",
+      "game": "Juego",
+      "date": "Fecha",
+      "time": "Hora",
+      "players": "Jugadores",
+      "totalPaid": "Total pagado",
+      "confirmationStatus": {
+        "paymentConfirmed": "Pago confirmado vía Stripe",
+        "emailSent": "Email de confirmación enviado",
+        "reservationConfirmed": "Reserva confirmada"
+      },
+      "actions": {
+        "viewAllReservations": "Ver todas mis reservas",
+        "bookAnother": "Reservar otro juego",
+        "arrivalNote": "Por favor llega 15 minutos antes de tu hora programada."
+      }
+    },
+    "toast": {
+      "successTitle": "¡Pago exitoso!",
+      "successDescription": "Tu reserva ha sido confirmada.",
+      "issueTitle": "Problema con el pago",
+      "issueDescription": "Hubo un problema con tu pago.",
+      "errorTitle": "Error",
+      "errorDescription": "No se pudo verificar el estado del pago."
     }
   }
 }

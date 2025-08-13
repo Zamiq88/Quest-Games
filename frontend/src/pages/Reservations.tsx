@@ -908,7 +908,7 @@ export function Reservations() {
                             <div className="text-sm text-muted-foreground">
                               {slot.available ? (
                                 <span className="text-green-600">
-                                  {slot.available_capacity}/{slot.max_capacity} {t('reservations.dateTimeSelection.available')}
+                                  {slot.available_capacity} {t('reservations.dateTimeSelection.available')} {slot.max_capacity} 
                                 </span>
                               ) : (
                                 <span className="text-red-600">

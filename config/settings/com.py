@@ -54,11 +54,12 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
         # ... other auth classes
     ),
-    # 'DEFAULT_PERMISSION_CLASSES': [
-    #     'rest_framework.permissions.AllowAny',  # Change this for production
-   # ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',  # Change this for production
+   ],
 }
 
 CORS_ALLOW_CREDENTIALS = True
@@ -209,5 +210,7 @@ SIMPLE_JWT = {
 STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET')
 STRIPE_TEST_SECRET_KEY = env('STRIPE_TEST_SECRET_KEY')
 STRIPE_TEST_PUBLIC_KEY = env('STRIPE_TEST_PUBLIC_KEY')
+
+
 
 

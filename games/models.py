@@ -303,7 +303,7 @@ class Reservation(models.Model):
         verbose_name_plural = _('Бронирования')
         ordering = ['-created_at']
         # Prevent double booking
-        unique_together = ['game', 'date', 'time']
+        # unique_together = ['game', 'date', 'time']
     
     def save(self, *args, **kwargs):
         # Generate reference number if not exists

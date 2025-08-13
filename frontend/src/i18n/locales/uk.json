@@ -334,12 +334,18 @@
       "selectedDate": "Обрана Дата",
       "availableTimes": "Доступні Часи",
       "noAvailableTimes": "Немає доступних часів для обраної дати",
-      "selectDateFirst": "Будь ласка, спочатку оберіть дату"
+      "selectDateFirst": "Будь ласка, спочатку оберіть дату",
+      "available": "доступно з",
+      "fullyBooked": "Повністю заброньовано"
     },
     "playerSelection": {
       "title": "Кількість Гравців",
       "playersAllowed": "гравців дозволено",
-      "continue": "Продовжити"
+      "continue": "Продовжити",
+      "selectedTime": "Обраний час",
+      "spotsAvailable": "Доступні місця",
+      "total": "Всього",
+      "alreadyBooked": "Уже зайнято"
     },
     "personalInfo": {
       "title": "Ваша Інформація",
@@ -375,7 +381,8 @@
       "email": "Email",
       "totalPrice": "Загальна Ціна",
       "confirmBooking": "Підтвердити Бронювання",
-      "creatingBooking": "Створення Бронювання..."
+      "creatingBooking": "Створення Бронювання...",
+      "proceedToPayment": "Перейти до оплати"
     },
     "confirmation": {
       "title": "Бронювання Підтверджено!",
@@ -390,6 +397,47 @@
       "bookAnotherGame": "Забронювати Іншу Гру",
       "viewAllReservations": "Переглянути Всі Бронювання",
       "arrivalNote": "Будь ласка, прибудьте за 15 хвилин до запланованого часу."
+    }
+  }
+  "paymentSuccess": {
+    "processing": {
+      "title": "Обробка платежу...",
+      "description": "Будь ласка, зачекайте, поки ми підтвердимо ваш платіж."
+    },
+    "error": {
+      "title": "Помилка платежу",
+      "description": "Виникла проблема з обробкою вашого платежу. Будь ласка, зверніться до служби підтримки, якщо з вас було стягнено кошти.",
+      "browseGames": "Переглянути ігри",
+      "viewReservations": "Мої бронювання"
+    },
+    "success": {
+      "title": "Платіж успішний!",
+      "subtitle": "Ваше бронювання підтверджено, а платіж оброблено.",
+      "bookingDetails": "Деталі бронювання",
+      "reference": "Номер",
+      "game": "Гра",
+      "date": "Дата",
+      "time": "Час",
+      "players": "Гравці",
+      "totalPaid": "Всього сплачено",
+      "confirmationStatus": {
+        "paymentConfirmed": "Платіж підтверджено через Stripe",
+        "emailSent": "Email підтвердження відправлено",
+        "reservationConfirmed": "Бронювання підтверджено"
+      },
+      "actions": {
+        "viewAllReservations": "Переглянути всі мої бронювання",
+        "bookAnother": "Забронювати іншу гру",
+        "arrivalNote": "Будь ласка, прибудьте за 15 хвилин до запланованого часу."
+      }
+    },
+    "toast": {
+      "successTitle": "Платіж успішний!",
+      "successDescription": "Ваше бронювання підтверджено.",
+      "issueTitle": "Проблема з платежем",
+      "issueDescription": "Виникла проблема з вашим платежем.",
+      "errorTitle": "Помилка",
+      "errorDescription": "Не вдалося перевірити статус платежу."
     }
   }
 }

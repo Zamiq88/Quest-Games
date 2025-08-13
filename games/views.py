@@ -7,7 +7,7 @@ from django.utils.translation import gettext as _
 from .models import Game
 from games.models import Reservation
 from .serializers import GameSerializer, FeaturedGameSerializer,BookingSerializer,SendOTPSerializer,VerifyOTPSerializer
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes,authentication_classes
 from rest_framework.permissions import AllowAny
 
 from rest_framework import status
@@ -58,9 +58,12 @@ class FeaturedGamesView(generics.ListAPIView):
     queryset = Game.objects.filter(is_featured=True, is_active=True).order_by('category', 'title')
 
 class GameDetailView(generics.RetrieveAPIView):
+
     """
     Get details of a specific game
     """
+    permission_classes=[AllowAny]
+    authentication_classes = []
     serializer_class = GameSerializer
     queryset = Game.objects.filter(is_active=True)
     lookup_field = 'id'
@@ -103,6 +106,7 @@ def game_stats(request):
 
 
 @api_view(['GET'])
+@authentication_classes([])
 @permission_classes([AllowAny])
 def get_available_times_api(request):
     """
@@ -142,6 +146,7 @@ from rest_framework.views import APIView
 @method_decorator(csrf_exempt, name='dispatch')
 class SendOTPView(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = []
     
     def get_language_from_request(self, request):
         """
@@ -360,6 +365,7 @@ def send_otp(request):
     }, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
+@authentication_classes([])
 @permission_classes([AllowAny])
 def verify_otp(request):
     """
@@ -405,6 +411,7 @@ def verify_otp(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@authentication_classes([])
 def create_booking(request):
     """
     Create final booking after email verification
@@ -425,8 +432,10 @@ def create_booking(request):
     # Verify that email was verified in this session
     stored_email = request.session.get('booking_email')
     submitted_email = request.data.get('email')
+    print(stored_email,submitted_email)
          
     if not stored_email or stored_email != submitted_email:
+        print(stored_email,submitted_email)
         return Response({
             'error': 'Email not verified. Please verify your email first.'
         }, status=status.HTTP_400_BAD_REQUEST)
@@ -434,6 +443,8 @@ def create_booking(request):
     serializer = BookingSerializer(data=request.data, context={'request': request})
          
     if not serializer.is_valid():
+        print('serializer problem')
+        print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
          
     try:
@@ -496,7 +507,8 @@ def create_booking(request):
                 'time': reservation.time.strftime('%H:%M'),
                 'players': reservation.players,
                 'total_price': float(reservation.total_price),
-                'email': reservation.email
+                'email': reservation.email,
+                'id': int(reservation.pk)
             }
         }
         

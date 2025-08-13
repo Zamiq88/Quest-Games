@@ -125,7 +125,7 @@ export function PaymentSuccess() {
             <Loader2 className="w-12 h-12 text-primary mx-auto mb-4 animate-spin" />
             <h2 className="text-2xl font-semibold mb-2">Processing Payment...</h2>
             <p className="text-muted-foreground">
-              Please wait while we confirm your payment with Stripe.
+              Please wait while we confirm your payment.
             </p>
           </CardContent>
         </Card>
@@ -245,8 +245,7 @@ export function PaymentSuccess() {
               
               <p className="text-sm text-muted-foreground mt-6">
                 Please arrive 15 minutes before your scheduled time.
-                <br />
-                Bring a valid ID for verification.
+
               </p>
             </div>
           </CardContent>

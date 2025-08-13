@@ -21,8 +21,10 @@ class CreatePaymentURLApi(APIView):
     permission_classes = [IsAuthenticated]
     
     def post(self, request):
+        print('payment view called')
         try:
             reservation_id = request.data.get('reservation_id')
+            print('idddddd',reservation_id)
             
             if not reservation_id:
                 return Response({'error': 'Reservation ID is required'}, status=400)
