@@ -103,42 +103,37 @@ def game_stats(request):
 @permission_classes([AllowAny])
 def get_available_times_api(request):
     """
-    Get available time slots for a game on a specific date
-    
+    Get available time slots for a game on a specific date with capacity information
+         
     Query parameters:
     - game_id: ID of the game
     - date: Date in YYYY-MM-DD format
     """
     game_id = request.GET.get('game_id')
     selected_date = request.GET.get('date')
-    
+         
     if not game_id or not selected_date:
         return Response({
             'error': 'game_id and date parameters are required'
         }, status=status.HTTP_400_BAD_REQUEST)
-    
+         
     result = get_available_times(game_id, selected_date)
-    
+         
     if 'error' in result:
         return Response(result, status=status.HTTP_400_BAD_REQUEST)
-    
-    # Format response for frontend
-    time_slots = []
-    for slot in result['all_slots']:
-        time_slots.append({
-            'time': slot,
-            'available': slot in result['available_slots']
-        })
-    
+         
+    # The new get_available_times function already returns time_slots with capacity info
+    # No need to reformat - just pass through the data
     response_data = {
         'game_title': result['game_title'],
         'date': result['date'],
-        'time_slots': time_slots,
+        'time_slots': result['time_slots'],  # Already formatted with capacity info
         'duration': result['duration'],
         'max_players': result['max_players']
     }
-    
+         
     return Response(response_data, status=status.HTTP_200_OK)
+
 
 from rest_framework.views import APIView
 @method_decorator(csrf_exempt, name='dispatch')

@@ -90,16 +90,18 @@ def generate_time_slots(start_time: str, end_time: str, duration: int, interval:
     return slots
 
 
+# Updated backend for Stripe Checkout redirect flow
+
 def get_available_times(game_id: str, selected_date: str) -> Dict:
     """
-    Get available time slots for a game on a specific date
+    Get available time slots for a game on a specific date with capacity information
     
     Args:
         game_id: Game ID
         selected_date: Date in YYYY-MM-DD format
     
     Returns:
-        Dictionary with available and booked time slots
+        Dictionary with time slots and their capacity information
     """
     print('claaauuuuddd cobani',selected_date)
     from .models import Game, Reservation
@@ -121,8 +123,7 @@ def get_available_times(game_id: str, selected_date: str) -> Dict:
         if date_obj < today_spain:
             return {
                 'error': 'Cannot book for past dates',
-                'available_slots': [],
-                'booked_slots': []
+                'time_slots': []
             }
         
         # Check if game is available (for pre_reservation games)
@@ -130,8 +131,7 @@ def get_available_times(game_id: str, selected_date: str) -> Dict:
             if datetime.combine(date_obj, datetime.min.time()) < game.available_from:
                 return {
                     'error': f'Game available from {game.available_from.strftime("%Y-%m-%d %H:%M")}',
-                    'available_slots': [],
-                    'booked_slots': []
+                    'time_slots': []
                 }
         
         # Generate all possible time slots
@@ -151,68 +151,69 @@ def get_available_times(game_id: str, selected_date: str) -> Dict:
             # Filter slots to only include future times (only for today)
             all_slots = [slot for slot in all_slots if int(slot.split(':')[0]) >= current_hour]
         
-        # Get booked slots for this date and next day (for slots that cross midnight)
-        booked_reservations_today = Reservation.objects.filter(
+        # Get reservations for this date and calculate capacity for each slot
+        reservations_today = Reservation.objects.filter(
             game=game,
             date=date_obj,
             status__in=['pending', 'confirmed']
-        ).values_list('time', flat=True)
+        )
         
         # Also check next day for slots that might conflict (if working hours cross midnight)
-        booked_reservations_next_day = []
+        reservations_next_day = []
         end_hour = int(game.working_hours_end.split(':')[0])
         if end_hour == 0:  # Working hours cross midnight
             next_date = date_obj + timedelta(days=1)
-            booked_reservations_next_day = Reservation.objects.filter(
+            reservations_next_day = Reservation.objects.filter(
                 game=game,
                 date=next_date,
                 status__in=['pending', 'confirmed']
-            ).values_list('time', flat=True)
+            )
         
-        all_booked_times = list(booked_reservations_today) + list(booked_reservations_next_day)
-        booked_slots = [t.strftime('%H:%M') for t in all_booked_times]
-        
-        # Remove slots that conflict with booked reservations considering game duration
-        available_slots = []
+        # Calculate capacity for each time slot
+        time_slots = []
         for slot in all_slots:
             slot_hour = int(slot.split(':')[0])
             slot_time = datetime.combine(date_obj, time(slot_hour, 0))
             slot_end_time = slot_time + timedelta(minutes=game.duration)
             
-            # Check if this slot conflicts with any booked reservation
-            is_available = True
+            # Calculate used capacity for this slot
+            used_capacity = 0
             
-            # Check conflicts with today's bookings
-            for booked_time in booked_reservations_today:
-                booked_datetime = datetime.combine(date_obj, booked_time)
-                booked_end_time = booked_datetime + timedelta(minutes=game.duration)
+            # Check overlapping reservations from today
+            for reservation in reservations_today:
+                reservation_datetime = datetime.combine(date_obj, reservation.time)
+                reservation_end_time = reservation_datetime + timedelta(minutes=game.duration)
                 
                 # Check for overlap
-                if (slot_time < booked_end_time and slot_end_time > booked_datetime):
-                    is_available = False
-                    break
+                if (slot_time < reservation_end_time and slot_end_time > reservation_datetime):
+                    used_capacity += reservation.players
             
-            # Check conflicts with next day's bookings (for late night slots)
-            if is_available and booked_reservations_next_day:
+            # Check overlapping reservations from next day (for late night slots)
+            if reservations_next_day:
                 next_date = date_obj + timedelta(days=1)
-                for booked_time in booked_reservations_next_day:
-                    booked_datetime = datetime.combine(next_date, booked_time)
-                    booked_end_time = booked_datetime + timedelta(minutes=game.duration)
+                for reservation in reservations_next_day:
+                    reservation_datetime = datetime.combine(next_date, reservation.time)
+                    reservation_end_time = reservation_datetime + timedelta(minutes=game.duration)
                     
                     # Check for overlap
-                    if (slot_time < booked_end_time and slot_end_time > booked_datetime):
-                        is_available = False
-                        break
+                    if (slot_time < reservation_end_time and slot_end_time > reservation_datetime):
+                        used_capacity += reservation.players
             
-            if is_available:
-                available_slots.append(slot)
+            # Calculate available capacity
+            available_capacity = max(0, game.max_players - used_capacity)
+            
+            time_slots.append({
+                'time': slot,
+                'available_capacity': available_capacity,
+                'used_capacity': used_capacity,
+                'max_capacity': game.max_players,
+                'available': available_capacity > 0
+            })
         
         return {
             'game_title': game.get_title('ru'),
             'date': selected_date,
-            'all_slots': all_slots,
-            'available_slots': available_slots,
-            'booked_slots': booked_slots,
+            'time_slots': time_slots,
             'duration': game.duration,
             'max_players': game.max_players
         }
@@ -220,15 +221,10 @@ def get_available_times(game_id: str, selected_date: str) -> Dict:
     except Game.DoesNotExist:
         return {
             'error': 'Game not found',
-            'available_slots': [],
-            'booked_slots': []
+            'time_slots': []
         }
     except ValueError:
         return {
             'error': 'Invalid date format. Use YYYY-MM-DD',
-            'available_slots': [],
-            'booked_slots': []
+            'time_slots': []
         }
-
-
-#template_data = { "language": { "es": language == "es", "uk": language == "uk", "en": language == "en" }, "otp": otp, "subject": subjects[language], } 
