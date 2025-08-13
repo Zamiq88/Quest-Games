@@ -115,8 +115,6 @@ def get_available_times(game_id: str, selected_date: str) -> Dict:
         now_spain = datetime.now(spain_tz)
         today_spain = now_spain.date()
         
-
-        
         # Check if date is in the past (but allow today in Spain timezone)
         if date_obj < today_spain:
             return {
@@ -126,7 +124,14 @@ def get_available_times(game_id: str, selected_date: str) -> Dict:
         
         # Check if game is available (for pre_reservation games)
         if game.status == 'pre_reservation' and game.available_from:
-            if datetime.combine(date_obj, datetime.min.time()) < game.available_from:
+            # FIX: Make the comparison datetime timezone-aware
+            selected_datetime = datetime.combine(date_obj, datetime.min.time())
+            
+            # If available_from is timezone-aware, make selected_datetime aware too
+            if game.available_from.tzinfo is not None:
+                selected_datetime = spain_tz.localize(selected_datetime)
+            
+            if selected_datetime < game.available_from:
                 return {
                     'error': f'Game available from {game.available_from.strftime("%Y-%m-%d %H:%M")}',
                     'time_slots': []
