@@ -13,6 +13,8 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils.decorators import method_decorator
+from django.utils import timezone
+from games.utils import sendgrid_send_email
 
 
 
@@ -113,7 +115,8 @@ class StripeWebhookView(APIView):
         # Handle the event
         if event['type'] == 'checkout.session.completed':
             session = event['data']['object']
-            self.handle_successful_payment(session)
+            language = request.GET.get('lang')
+            self.handle_successful_payment(session,language)
             
         elif event['type'] == 'checkout.session.expired':
             session = event['data']['object']
@@ -125,7 +128,7 @@ class StripeWebhookView(APIView):
         
         return HttpResponse(status=200)
     
-    def handle_successful_payment(self, session):
+    def handle_successful_payment(self, session,language):
         """Handle successful payment"""
         try:
             # Find payment by Stripe session ID
@@ -143,8 +146,39 @@ class StripeWebhookView(APIView):
                 reservation.status = 'confirmed'
                 reservation.save()
                 
-                # Send confirmation email (optional)
-                # send_booking_confirmation_email(reservation)
+                
+                        
+                language_map = {
+                    'en': 'en',
+                    'es': 'es',
+                    'uk': 'uk',
+                    'ua': 'uk'  # Ukrainian variants
+                }
+                language = language_map.get(language, 'en')
+                
+                subjects = {
+                    "en": "Booking Confirmed",
+                    "es": "Reserva Confirmada", 
+                    "uk": "Бронювання Підтверджено"
+                }
+                
+                template_data = {
+                    "game_title": reservation.game.title[language],
+                    "spanish": language == "es",
+                    "ukrainian": language == "uk", 
+                    "date": reservation.date.strftime("%B %d, %Y"),  # Convert to string
+                    "time": reservation.time.strftime("%I:%M %p"),   # Convert to string
+                    "subject": subjects[language],
+                }
+                
+                email_sent = sendgrid_send_email(
+                    to_email=reservation.user.email, 
+                    dynamic_template_data=template_data,
+                    template_id='d-f0aa12f4f2944b61a8d004d96560efbe'
+                )
+                
+                if not email_sent:
+                    print("email couldn't be sent")
                 
             print(f"✅ Payment completed: {payment.id}")
             

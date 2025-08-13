@@ -462,39 +462,7 @@ def create_booking(request):
                 'access': str(refresh.access_token),
             }
         
-        language = request.GET.get('lang')
-                
-        language_map = {
-            'en': 'en',
-            'es': 'es',
-            'uk': 'uk',
-            'ua': 'uk'  # Ukrainian variants
-        }
-        language = language_map.get(language, 'en')
-        
-        subjects = {
-            "en": "Booking Confirmed",
-            "es": "Reserva Confirmada", 
-            "uk": "Бронювання Підтверджено"
-        }
-        
-        template_data = {
-            "game_title": reservation.game.title[language],
-            "spanish": language == "es",
-            "ukrainian": language == "uk", 
-            "date": reservation.date.strftime("%B %d, %Y"),  # Convert to string
-            "time": reservation.time.strftime("%I:%M %p"),   # Convert to string
-            "subject": subjects[language],
-        }
-        
-        email_sent = sendgrid_send_email(
-            to_email=submitted_email, 
-            dynamic_template_data=template_data,
-            template_id='d-f0aa12f4f2944b61a8d004d96560efbe'
-        )
-        
-        if not email_sent:
-            print("email couldn't be sent")
+
                  
         response_data = {
             'success': True,
