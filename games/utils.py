@@ -103,7 +103,7 @@ def get_available_times(game_id: str, selected_date: str) -> Dict:
     Returns:
         Dictionary with time slots and their capacity information
     """
-    print('claaauuuuddd cobani',selected_date)
+    
     from .models import Game, Reservation
     
     try:
@@ -115,9 +115,7 @@ def get_available_times(game_id: str, selected_date: str) -> Dict:
         now_spain = datetime.now(spain_tz)
         today_spain = now_spain.date()
         
-        print('claaauuuuddd cobani - date_obj:', date_obj)
-        print('claaauuuuddd cobani - today_spain:', today_spain)
-        print('claaauuuuddd cobani - now_spain:', now_spain)
+
         
         # Check if date is in the past (but allow today in Spain timezone)
         if date_obj < today_spain:

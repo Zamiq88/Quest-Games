@@ -1,4 +1,4 @@
-// Updated Reservations.jsx with CSRF support
+// Updated Reservations.jsx with capacity display and JWT token storage
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -13,6 +13,35 @@ import { Calendar } from '@/components/ui/calendar';
 import { useToast } from '@/hooks/use-toast';
 import { BookingData, TimeSlot } from '@/types/game';
 import { Calendar as CalendarIcon, Clock, Users, Mail, ArrowLeft, Check, User, GamepadIcon } from 'lucide-react';
+
+// JWT Token Management
+const JWT_STORAGE = {
+  setTokens: (tokens) => {
+    if (tokens.access) {
+      localStorage.setItem('access_token', tokens.access);
+    }
+    if (tokens.refresh) {
+      localStorage.setItem('refresh_token', tokens.refresh);
+    }
+  },
+  
+  getAccessToken: () => {
+    return localStorage.getItem('access_token');
+  },
+  
+  getRefreshToken: () => {
+    return localStorage.getItem('refresh_token');
+  },
+  
+  clearTokens: () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+  },
+  
+  isAuthenticated: () => {
+    return !!localStorage.getItem('access_token');
+  }
+};
 
 // CSRF Hook
 const useCsrf = () => {
@@ -87,14 +116,17 @@ const getCurrentLanguage = () => {
   return supportedLanguages.includes(browserLang) ? browserLang : 'en';
 };
 
-// Enhanced API request function with CSRF support
+// Enhanced API request function with CSRF and JWT support
 const makeAPIRequest = async (url, options = {}, csrfToken = null) => {
   const language = getCurrentLanguage();
+  const accessToken = JWT_STORAGE.getAccessToken();
   
   const defaultOptions = {
     headers: {
       'Content-Type': 'application/json',
       'X-Language': language, // Send language in custom header
+      // Add JWT Authorization header if token exists
+      ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {}),
       // Add CSRF token for POST, PUT, DELETE requests
       ...(csrfToken && options.method && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(options.method.toUpperCase()) ? {
         'X-CSRFToken': csrfToken
@@ -110,7 +142,7 @@ const makeAPIRequest = async (url, options = {}, csrfToken = null) => {
   const separator = url.includes('?') ? '&' : '?';
   const urlWithLang = `${url}${separator}lang=${language}`;
 
-  console.log(`Making API request to: ${urlWithLang} with language: ${language}, CSRF: ${csrfToken ? 'present' : 'missing'}`);
+  console.log(`Making API request to: ${urlWithLang} with language: ${language}, CSRF: ${csrfToken ? 'present' : 'missing'}, JWT: ${accessToken ? 'present' : 'missing'}`);
   
   try {
     const response = await fetch(urlWithLang, defaultOptions);
@@ -176,6 +208,7 @@ export function Reservations() {
   const [step, setStep] = useState(1);
   const [timeSlots, setTimeSlots] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState(null); // Store the full slot object
   const [bookingData, setBookingData] = useState({
     gameId: gameId || '',
     players: 2,
@@ -302,11 +335,18 @@ export function Reservations() {
   const handleDateSelect = (date) => {
     console.log('Date selected:', date, 'Formatted:', formatDateForAPI(date));
     setBookingData(prev => ({ ...prev, date }));
+    setSelectedTimeSlot(null); // Reset selected time slot when date changes
     fetchAvailableTimes(date);
   };
 
-  const handleTimeSelect = (time) => {
-    setBookingData(prev => ({ ...prev, time }));
+  const handleTimeSelect = (timeSlot) => {
+    setSelectedTimeSlot(timeSlot);
+    setBookingData(prev => ({ 
+      ...prev, 
+      time: timeSlot.time,
+      // Reset players to minimum valid value for this slot
+      players: Math.min(prev.players, timeSlot.available_capacity) || 1
+    }));
     setStep(2);
   };
 
@@ -486,9 +526,17 @@ export function Reservations() {
       const data = await response.json();
       
       if (response.ok) {
+        // Store JWT tokens if provided
+        if (data.tokens) {
+          JWT_STORAGE.setTokens(data.tokens);
+          console.log('JWT tokens stored successfully');
+        }
+        
         setBookingData(prev => ({ ...prev, referenceNumber: data.reservation.reference_number }));
+        
         // Refresh user reservations after successful booking
         fetchUserReservations();
+        
         toast({
           title: "Booking Confirmed!",
           description: `Your reference number is ${data.reservation.reference_number}`,
@@ -622,7 +670,7 @@ export function Reservations() {
                         <div className="flex items-center space-x-2">
                           <div className="w-4 h-4 text-primary">€</div>
                           <div>
-                            <span className="text-muted-foreground text-sm">T{t('reservations.total')}:</span>
+                            <span className="text-muted-foreground text-sm">{t('reservations.total')}:</span>
                             <div className="font-medium text-primary">€{reservation.total_price}</div>
                           </div>
                         </div>
@@ -813,17 +861,30 @@ export function Reservations() {
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                       </div>
                     ) : timeSlots.length > 0 ? (
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 gap-3">
                         {timeSlots.map((slot) => (
                           <Button
                             key={slot.time}
                             variant={slot.available ? "outline" : "secondary"}
                             disabled={!slot.available}
-                            onClick={() => handleTimeSelect(slot.time)}
-                            className="h-12"
+                            onClick={() => handleTimeSelect(slot)}
+                            className="h-16 flex flex-col items-center justify-center text-center p-3"
                           >
-                            <Clock className="w-4 h-4 mr-2" />
-                            {slot.time}
+                            <div className="flex items-center gap-2 mb-1">
+                              <Clock className="w-4 h-4" />
+                              <span className="font-semibold text-lg">{slot.time}</span>
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {slot.available ? (
+                                <span className="text-green-600">
+                                  {slot.available_capacity}/{slot.max_capacity} {t('reservations.dateTimeSelection.available')}
+                                </span>
+                              ) : (
+                                <span className="text-red-600">
+                                  {t('reservations.dateTimeSelection.fullyBooked')}
+                                </span>
+                              )}
+                            </div>
                           </Button>
                         ))}
                       </div>
@@ -847,9 +908,24 @@ export function Reservations() {
                 <div className="text-center">
                   <Users className="w-12 h-12 text-primary mx-auto mb-4" />
                   <h2 className="text-2xl font-semibold mb-2">{t('reservations.playerSelection.title')}</h2>
-                  <p className="text-muted-foreground">
-                    1 - {game.max_players} {t('reservations.playerSelection.playersAllowed')}
-                  </p>
+                  {selectedTimeSlot && (
+                    <div className="bg-muted/50 p-4 rounded-lg max-w-md mx-auto">
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {t('reservations.playerSelection.selectedTime')}: <span className="font-semibold">{selectedTimeSlot.time}</span>
+                      </p>
+                      <p className="text-sm">
+                        <span className="text-green-600 font-medium">
+                          {selectedTimeSlot.available_capacity} {t('reservations.playerSelection.spotsAvailable')}
+                        </span>
+                        <span className="text-muted-foreground"> / {selectedTimeSlot.max_capacity} {t('reservations.playerSelection.total')}</span>
+                      </p>
+                      {selectedTimeSlot.used_capacity > 0 && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {selectedTimeSlot.used_capacity} {t('reservations.playerSelection.alreadyBooked')}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex justify-center">
@@ -875,18 +951,43 @@ export function Reservations() {
                       size="icon"
                       onClick={() => setBookingData(prev => ({ 
                         ...prev, 
-                        players: Math.min(game.max_players, prev.players + 1) 
+                        players: Math.min(
+                          selectedTimeSlot ? selectedTimeSlot.available_capacity : game.max_players, 
+                          prev.players + 1
+                        ) 
                       }))}
-                      disabled={bookingData.players >= game.max_players}
+                      disabled={
+                        selectedTimeSlot 
+                          ? bookingData.players >= selectedTimeSlot.available_capacity
+                          : bookingData.players >= game.max_players
+                      }
                     >
                       +
                     </Button>
                   </div>
                 </div>
 
+                {selectedTimeSlot && bookingData.players > selectedTimeSlot.available_capacity && (
+                  <div className="text-center">
+                    <p className="text-red-600 text-sm bg-red-50 dark:bg-red-900/20 p-3 rounded-md max-w-md mx-auto">
+                      {t('reservations.playerSelection.exceedsCapacity', { 
+                        available: selectedTimeSlot.available_capacity 
+                      })}
+                    </p>
+                  </div>
+                )}
+
                 <div className="text-center">
-                  <Button onClick={() => handlePlayersSelect(bookingData.players)} className="btn-glow">
-                  {t('reservations.playerSelection.continue')}
+                  <Button 
+                    onClick={() => handlePlayersSelect(bookingData.players)} 
+                    className="btn-glow"
+                    disabled={
+                      selectedTimeSlot 
+                        ? bookingData.players > selectedTimeSlot.available_capacity || bookingData.players < 1
+                        : bookingData.players < 1 || bookingData.players > game.max_players
+                    }
+                  >
+                    {t('reservations.playerSelection.continue')}
                   </Button>
                 </div>
               </div>
@@ -1059,6 +1160,14 @@ export function Reservations() {
                         <span>{t('reservations.finalDetails.players')}:</span>
                         <span className="font-medium">{bookingData.players}</span>
                       </div>
+                      {selectedTimeSlot && (
+                        <div className="flex justify-between">
+                          <span>{t('reservations.finalDetails.capacity')}:</span>
+                          <span className="font-medium">
+                            {selectedTimeSlot.used_capacity + bookingData.players}/{selectedTimeSlot.max_capacity} {t('reservations.finalDetails.afterBooking')}
+                          </span>
+                        </div>
+                      )}
                       <div className="flex justify-between">
                         <span>{t('reservations.finalDetails.name')}:</span>
                         <span className="font-medium">{bookingData.firstName} {bookingData.lastName}</span>
@@ -1106,6 +1215,15 @@ export function Reservations() {
                 <p className="text-muted-foreground">
                 {t('reservations.confirmation.emailSent')} <strong>{bookingData.email}</strong>
                 </p>
+                
+                {/* Show authentication status */}
+                {JWT_STORAGE.isAuthenticated() && (
+                  <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg max-w-md mx-auto">
+                    <p className="text-green-700 dark:text-green-300 text-sm">
+                      ✓ {t('reservations.confirmation.accountCreated')}
+                    </p>
+                  </div>
+                )}
                 
                 <div className="bg-muted/50 p-6 rounded-lg max-w-md mx-auto">
                   <h3 className="font-semibold mb-4">{t('reservations.confirmation.bookingDetails')}</h3>

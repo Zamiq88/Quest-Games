@@ -52,12 +52,13 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
     ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',  # Change this for production
-    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # ... other auth classes
+    ),
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    #     'rest_framework.permissions.AllowAny',  # Change this for production
+   # ],
 }
 
 CORS_ALLOW_CREDENTIALS = True
@@ -75,6 +76,7 @@ INSTALLED_APPS = [
     'django.contrib.sitemaps',
     'user.apps.UserConfig',
     'games.apps.GamesConfig',
+    'billing.apps.BillingConfig',
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders'
@@ -195,6 +197,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'user.User'
 
 SENDGRID_API_KEY = "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"
+
+STRIPE_LIVE_MODE = False
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
+    'ROTATE_REFRESH_TOKENS': True,
+}
 
 
 

@@ -22,6 +22,9 @@ from games.utils import sendgrid_send_email
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 import json
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.tokens import RefreshToken
 
 def generate_otp():
     """Generate 6-digit OTP"""
@@ -397,18 +400,15 @@ def verify_otp(request):
         }
     }, status=status.HTTP_200_OK)
 
-from django.contrib.auth import login
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from rest_framework import status
+
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def create_booking(request):
     """
     Create final booking after email verification
-    
+         
     POST data:
     {
         "game": 1,
@@ -421,43 +421,52 @@ def create_booking(request):
         "last_name": "Doe"
     }
     """
-    
+         
     # Verify that email was verified in this session
     stored_email = request.session.get('booking_email')
     submitted_email = request.data.get('email')
-    
+         
     if not stored_email or stored_email != submitted_email:
         return Response({
             'error': 'Email not verified. Please verify your email first.'
         }, status=status.HTTP_400_BAD_REQUEST)
-    
+         
     serializer = BookingSerializer(data=request.data, context={'request': request})
-    
+         
     if not serializer.is_valid():
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+         
     try:
         # Create reservation
         reservation = serializer.save()
-        reservation.status='confirmed'
+        reservation.status = 'pending'
         reservation.save()
-        # Auto-login the user
+        
+        # Generate JWT tokens for the user
+        tokens = None
         if reservation.user:
-            login(request, reservation.user)  # Changed from self.request to request
+            refresh = RefreshToken.for_user(reservation.user)
+            tokens = {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }
+        
         language = request.GET.get('lang')
-        print('lannguuuuuage param',language)
+                
         language_map = {
-        'en': 'en',
-        'es': 'es',
-        'uk': 'uk',
-        'ua': 'uk'  # Ukrainian variants
-    }
-        language = language_map.get(language,'en')
+            'en': 'en',
+            'es': 'es',
+            'uk': 'uk',
+            'ua': 'uk'  # Ukrainian variants
+        }
+        language = language_map.get(language, 'en')
+        
         subjects = {
             "en": "Booking Confirmed",
             "es": "Reserva Confirmada", 
             "uk": "Бронювання Підтверджено"
         }
+        
         template_data = {
             "game_title": reservation.game.title[language],
             "spanish": language == "es",
@@ -466,14 +475,20 @@ def create_booking(request):
             "time": reservation.time.strftime("%I:%M %p"),   # Convert to string
             "subject": subjects[language],
         }
-        email_sent = sendgrid_send_email(to_email=submitted_email, dynamic_template_data=template_data,template_id='d-f0aa12f4f2944b61a8d004d96560efbe')
-        if not email_sent:
-            print("email couldn sent")
         
-        return Response({
+        email_sent = sendgrid_send_email(
+            to_email=submitted_email, 
+            dynamic_template_data=template_data,
+            template_id='d-f0aa12f4f2944b61a8d004d96560efbe'
+        )
+        
+        if not email_sent:
+            print("email couldn't be sent")
+                 
+        response_data = {
             'success': True,
             'message': 'Booking created successfully!',
-            'user_authenticated': request.user.is_authenticated,  # Optional: confirm login worked
+            'user_authenticated': reservation.user is not None,
             'reservation': {
                 'reference_number': reservation.reference_number,
                 'game': reservation.game.get_title('en'),
@@ -483,8 +498,20 @@ def create_booking(request):
                 'total_price': float(reservation.total_price),
                 'email': reservation.email
             }
-        }, status=status.HTTP_201_CREATED)
+        }
         
+        # Add tokens to response if user exists
+        if tokens:
+            response_data['tokens'] = tokens
+            response_data['user'] = {
+                'id': reservation.user.id,
+                'email': reservation.user.email,
+                'first_name': reservation.user.first_name,
+                'last_name': reservation.user.last_name,
+            }
+                 
+        return Response(response_data, status=status.HTTP_201_CREATED)
+             
     except Exception as e:
         return Response({
             'error': f'Failed to create booking: {str(e)}'
