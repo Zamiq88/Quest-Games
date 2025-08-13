@@ -18,6 +18,7 @@ def check_invoice_id(invoice_id):
 def create_payment_gateway(payment):
     """Create payment gateway for reservation payment"""
     if payment.payment_type == 'online':
+        # FIXED: Use reservation data instead of non-existent product
         reservation = payment.invoice.reservation
         game_title = reservation.game.title if reservation and reservation.game else "Game Reservation"
         
@@ -26,7 +27,7 @@ def create_payment_gateway(payment):
             'user_id': payment.invoice.user.id if payment.invoice.user else None,
             'email': payment.invoice.user.email if payment.invoice.user else "guest@example.com",
             'callback_url': payment.invoice.callback_url,
-            'reservation_description': f"{game_title} - {reservation.date} at {reservation.time}"
+            'reservation_description': f"{game_title} - {reservation.date} at {reservation.time}"  # ✅ Fixed
         }
         
         gateway = PaymentGateway(
@@ -36,13 +37,17 @@ def create_payment_gateway(payment):
             payment.payment_gateway
         )
         
-        # Process payment (now includes payment_id for webhook tracking)
-        gateway.proceed_stripe(payment_id=payment.id)
+        # Set callback URL
+        callback_url = f'{settings.BASE_URL}/billing/payment-result/{payment.invoice.pk}'
+        gateway.set_callback_url(callback_url)
+        
+        # Process payment
+        gateway.proceed_stripe()
         
         # Update payment with reference
         payment.reference = gateway.get_reference()
         payment.payment_gateway = gateway.get_payment_gateway()
-        payment.url = gateway.get_payment_url()
+        payment.url = gateway.get_payment_url()  # ✅ Store payment URL
         
         # Update invoice payment method
         if payment.payment_gateway:

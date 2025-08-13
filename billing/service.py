@@ -16,14 +16,8 @@ class Stripe:
         self.__payment_url = ''
         self.__reference = ''
     
-    def transaction(self, amount, currency, customer_email, reservation_description, payment_id=None):
+    def transaction(self, amount, currency, customer_email, reservation_description):
         stripe.api_key = self.__stripe_secret_key
-        
-        # Create metadata to link back to your payment
-        metadata = {}
-        if payment_id:
-            metadata['payment_id'] = str(payment_id)
-        
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=['card'],
             line_items=[
@@ -33,6 +27,7 @@ class Stripe:
                         'unit_amount': int(float(amount) * 100),
                         'product_data': {
                             'name': reservation_description,
+                            'images': None,
                         },
                     },
                     'quantity': 1,
@@ -40,12 +35,9 @@ class Stripe:
             ],
             customer_email=customer_email,
             mode='payment',
-            # Success URL just shows success message - webhook handles processing
-            success_url=self.__domain + '/payment-success?session_id={CHECKOUT_SESSION_ID}',
-            cancel_url=self.__domain + '/payment-cancelled',
-            metadata=metadata,  # Add metadata for webhook processing
+            success_url=self.__domain + '/billing/callback?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=settings.BASE_URL,
         )
-        
         self.__reference = checkout_session.id
         self.__payment_url = checkout_session.url
     
@@ -56,10 +48,9 @@ class Stripe:
         return self.__reference
     
     def check_status(self, session_id):
-        """
-        This method is still useful for manual status checks
-        But primary processing should be via webhook
-        """
         stripe.api_key = self.__stripe_secret_key
         result = stripe.checkout.Session.retrieve(session_id)
-        return result.payment_status == 'paid'
+        if result.payment_status == 'paid':
+            return True
+        else:
+            return False

@@ -27,30 +27,44 @@ class CreatePaymentURLApi(APIView):
             if not reservation_id:
                 return Response({'error': 'Reservation ID is required'}, status=400)
             
+            # Get reservation and ensure it belongs to the user
             reservation = get_object_or_404(Reservation, id=reservation_id, user=request.user)
             
-            # Check if reservation already has an invoice
+            # Check if reservation is in valid state for payment
+            if reservation.status not in ['pending']:
+                return Response({
+                    'error': f'Reservation status "{reservation.status}" is not valid for payment'
+                }, status=400)
+            
+            # Check if reservation already has a completed payment
             existing_invoice = Invoice.objects.filter(reservation=reservation).first()
             if existing_invoice:
                 # Check if payment is already completed
                 if existing_invoice.get_payment_status() == 'Completed':
                     return Response({'error': 'Payment already completed'}, status=400)
                 
-                # If pending, return existing payment URL
-                existing_payment = existing_invoice.payments.first()
+                # If pending payment exists, return existing payment URL
+                existing_payment = existing_invoice.payments.filter(status='pending').first()
                 if existing_payment and existing_payment.url:
-                    return Response({'payment_url': existing_payment.url})
+                    return Response({
+                        'payment_url': existing_payment.url,
+                        'invoice_id': existing_invoice.invoice_id,
+                        'payment_id': existing_payment.id
+                    })
             
-            # Create new invoice
-            invoice = Invoice.objects.create(
-                user=request.user,
-                reservation=reservation,
-                total=reservation.total_price,
-                callback_url=f'{settings.BASE_URL}/booking-success',
-                cancel_url=f'{settings.BASE_URL}/booking-cancelled'
-            )
+            # Create new invoice if none exists
+            if not existing_invoice:
+                invoice = Invoice.objects.create(
+                    user=request.user,
+                    reservation=reservation,
+                    total=reservation.total_price,
+                    callback_url=f'{settings.BASE_URL}/payment-success',
+                    cancel_url=f'{settings.BASE_URL}/payment-cancelled'
+                )
+            else:
+                invoice = existing_invoice
             
-            # Create payment
+            # Create new payment
             payment = invoice.create_payment()
             
             # Generate payment URL
@@ -60,7 +74,8 @@ class CreatePaymentURLApi(APIView):
                 return Response({
                     'payment_url': payment_url,
                     'invoice_id': invoice.invoice_id,
-                    'payment_id': payment.id
+                    'payment_id': payment.id,
+                    'reservation_id': reservation.id
                 })
             else:
                 return Response({'error': 'Failed to create payment URL'}, status=400)

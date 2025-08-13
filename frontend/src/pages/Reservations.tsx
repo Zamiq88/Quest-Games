@@ -537,7 +537,7 @@ export function Reservations() {
         console.log('Reservation created successfully:', reservationId);
         
         // Step 2: Create payment URL using the reservation ID
-        const paymentResponse = await makeAPIRequest('/api/create-payment/', {
+        const paymentResponse = await makeAPIRequest('/billing/create-payment/', {
           method: 'POST',
           body: JSON.stringify({
             reservation_id: reservationData.reservation.id  // Use internal ID for payment

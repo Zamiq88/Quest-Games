@@ -15,14 +15,13 @@ class PaymentGateway:
         self.__payment_url = ''
         self.__reference = ''
     
-    def proceed_stripe(self, payment_id=None):
+    def proceed_stripe(self):
         stripe_handler = Stripe()
         stripe_handler.transaction(
             self.__amount,
             self.__currency,
             self.__data.get('email'),
-            self.__data.get('reservation_description'),
-            payment_id=payment_id  # Pass payment ID for webhook tracking
+            self.__data.get('reservation_description')  # ✅ Updated key name
         )
         
         self.__reference = stripe_handler.get_reference()
@@ -34,6 +33,15 @@ class PaymentGateway:
     
     def get_payment_url(self):
         return self.__payment_url
+    
+    def set_ip_address(self, ip):
+        self._ip_address = ip
+    
+    def set_callback_url(self, url):
+        self.__callback_url = url
+    
+    def set_env(self, env):
+        self.__env = env
     
     def get_payment_gateway(self):
         return self.__payment_gateway
