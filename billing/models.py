@@ -14,8 +14,8 @@ class Invoice(models.Model):
     reservation = models.ForeignKey(Reservation, on_delete=models.SET_NULL, null=True, blank=True)
     
     payment_method = models.CharField(max_length=30, null=True, blank=True, default='stripe')
-    callback_url = models.URLField(max_length=255, null=True, blank=True)
-    cancel_url = models.URLField(max_length=255, null=True, blank=True)
+    callback_url = models.URLField(max_length=1000, null=True, blank=True)
+    cancel_url = models.URLField(max_length=1000, null=True, blank=True)
     
     currency = models.CharField(max_length=5, default='EUR')
     discount = models.FloatField(null=True, blank=True)
@@ -88,8 +88,8 @@ class Payment(models.Model):
     status = models.CharField(max_length=20, choices=STATUSES, default='pending')
     details = models.JSONField(null=True, blank=True)
 
-    callback_url = models.URLField(max_length=255, null=True, blank=True)
-    cancel_url = models.URLField(max_length=255, null=True, blank=True)
+    callback_url = models.URLField(max_length=1255, null=True, blank=True)
+    cancel_url = models.URLField(max_length=1255, null=True, blank=True)
 
 
 

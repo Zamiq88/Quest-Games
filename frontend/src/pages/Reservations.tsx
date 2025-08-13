@@ -1,4 +1,4 @@
-// Updated Reservations.jsx with capacity display and JWT token storage
+// Updated Reservations.jsx with availability message in time section
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -12,7 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Calendar } from '@/components/ui/calendar';
 import { useToast } from '@/hooks/use-toast';
 import { BookingData, TimeSlot } from '@/types/game';
-import { Calendar as CalendarIcon, Clock, Users, Mail, ArrowLeft, Check, User, GamepadIcon } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Users, Mail, ArrowLeft, Check, User, GamepadIcon, Info } from 'lucide-react';
 
 // JWT Token Management
 const JWT_STORAGE = {
@@ -209,6 +209,10 @@ export function Reservations() {
   const [timeSlots, setTimeSlots] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(null); // Store the full slot object
+  
+  // NEW: Add state for availability info message
+  const [availabilityInfo, setAvailabilityInfo] = useState(null);
+  
   const [bookingData, setBookingData] = useState({
     gameId: gameId || '',
     players: 2,
@@ -305,6 +309,8 @@ export function Reservations() {
     if (!selectedDate || !gameId) return;
 
     setLoading(true);
+    setAvailabilityInfo(null); // Reset availability info
+    
     try {
       const dateStr = formatDateForAPI(selectedDate);
       console.log('Fetching times for date:', dateStr, 'Original date:', selectedDate);
@@ -315,11 +321,26 @@ export function Reservations() {
       if (response.ok) {
         setTimeSlots(data.time_slots);
       } else {
-        toast({
-          title: "Error",
-          description: data.error || "Failed to load available times",
-          variant: "destructive"
-        });
+        // UPDATED: Instead of showing toast error, set availability info
+        if (data.error && data.error.includes('Game available from')) {
+          setAvailabilityInfo({
+            type: 'info',
+            message: data.error
+          });
+        } else if (data.error === 'Cannot book for past dates') {
+          setAvailabilityInfo({
+            type: 'warning',
+            message: 'Cannot book for past dates'
+          });
+        } else {
+          // For other errors, still show toast
+          toast({
+            title: "Error",
+            description: data.error || "Failed to load available times",
+            variant: "destructive"
+          });
+        }
+        setTimeSlots([]); // Clear time slots on error
       }
     } catch (error) {
       console.error('Error fetching available times:', error);
@@ -328,6 +349,7 @@ export function Reservations() {
         description: "Failed to load available times",
         variant: "destructive"
       });
+      setTimeSlots([]);
     }
     setLoading(false);
   };
@@ -887,6 +909,40 @@ export function Reservations() {
 
                   <div>
                     <Label className="text-base font-medium mb-4 block">{t('reservations.dateTimeSelection.availableTimes')}</Label>
+                    
+                    {/* UPDATED: Show availability info message instead of error toast */}
+                    {availabilityInfo && (
+                      <div className={`p-4 rounded-lg mb-4 flex items-start space-x-3 ${
+                        availabilityInfo.type === 'info' 
+                          ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800' 
+                          : 'bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800'
+                      }`}>
+                        <Info className={`w-5 h-5 mt-0.5 ${
+                          availabilityInfo.type === 'info' 
+                            ? 'text-blue-600 dark:text-blue-400' 
+                            : 'text-yellow-600 dark:text-yellow-400'
+                        }`} />
+                        <div>
+                          <p className={`text-sm font-medium ${
+                            availabilityInfo.type === 'info' 
+                              ? 'text-blue-800 dark:text-blue-200' 
+                              : 'text-yellow-800 dark:text-yellow-200'
+                          }`}>
+                            {availabilityInfo.message}
+                          </p>
+                          {availabilityInfo.type === 'info' && (
+                            <p className={`text-xs mt-1 ${
+                              availabilityInfo.type === 'info' 
+                                ? 'text-blue-600 dark:text-blue-300' 
+                                : 'text-yellow-600 dark:text-yellow-300'
+                            }`}>
+                              Please select a different date or check back later.
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    
                     {loading ? (
                       <div className="flex items-center justify-center h-32">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -919,15 +975,15 @@ export function Reservations() {
                           </Button>
                         ))}
                       </div>
-                    ) : bookingData.date ? (
+                    ) : bookingData.date && !availabilityInfo ? (
                       <p className="text-muted-foreground text-center py-8">
                         {t('reservations.dateTimeSelection.noAvailableTimes')}
                       </p>
-                    ) : (
+                    ) : !bookingData.date ? (
                       <p className="text-muted-foreground text-center py-8">
                         {t('reservations.dateTimeSelection.selectDateFirst')}
                       </p>
-                    )}
+                    ) : null}
                   </div>
                 </div>
               </div>
