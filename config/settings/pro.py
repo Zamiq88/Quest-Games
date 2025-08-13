@@ -15,3 +15,5 @@ DATABASES = {
 }
 
 ALLOWED_HOSTS=['vidadenoche.com','www.vidadenoche.com','143.110.234.145','localhost']
+
+BASE_URL = 'https://vidadenoche.com'
