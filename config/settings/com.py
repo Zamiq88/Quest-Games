@@ -199,7 +199,7 @@ AUTH_USER_MODEL = 'user.User'
 
 SENDGRID_API_KEY = "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"
 
-STRIPE_LIVE_MODE = False
+STRIPE_LIVE_MODE = True
 from datetime import timedelta
 
 SIMPLE_JWT = {
