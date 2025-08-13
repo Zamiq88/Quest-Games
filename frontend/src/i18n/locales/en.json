@@ -402,7 +402,7 @@
       "viewAllReservations": "View All Reservations",
       "arrivalNote": "Please arrive 15 minutes before your scheduled time."
     }
-  }
+  },
   "paymentSuccess": {
     "processing": {
       "title": "Processing Payment...",
