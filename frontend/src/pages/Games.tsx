@@ -15,12 +15,12 @@ export function Games() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { games, loading, error, refetch } = useGames();
   
-  // State for UI controls
+  // State for UI controls - FIXED: Changed default price range to [0, 1000]
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [activeCategory, setActiveCategory] = useState(searchParams.get('category') || 'all');
   const [activeDifficulty, setActiveDifficulty] = useState(searchParams.get('difficulty') || 'all');
   const [activeStatus, setActiveStatus] = useState(searchParams.get('status') || 'all');
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 50]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
   const [showFilters, setShowFilters] = useState(false);
 
   // Update URL params when filters change
@@ -75,8 +75,9 @@ export function Games() {
         return false;
       }
       
-      // Price filter
-      if (game.price < priceRange[0] || game.price > priceRange[1]) {
+      // Price filter - FIXED: Convert string price to number
+      const gamePrice = parseFloat(game.price);
+      if (gamePrice < priceRange[0] || gamePrice > priceRange[1]) {
         return false;
       }
       
@@ -131,22 +132,24 @@ export function Games() {
     setSearchTerm(value);
   };
 
+  // FIXED: Clear all filters now sets price range to [0, 1000]
   const clearAllFilters = () => {
     setSearchTerm('');
     setActiveCategory('all');
     setActiveDifficulty('all');
     setActiveStatus('all');
-    setPriceRange([0, 50]);
+    setPriceRange([0, 1000]);
     setSearchParams({});
   };
 
+  // FIXED: Updated hasActiveFilters to match new default price range
   const hasActiveFilters = 
     searchTerm.trim() || 
     activeCategory !== 'all' || 
     activeDifficulty !== 'all' || 
     activeStatus !== 'all' ||
     priceRange[0] !== 0 || 
-    priceRange[1] !== 50;
+    priceRange[1] !== 1000;
 
   // Loading state
   if (loading) {
@@ -338,7 +341,7 @@ export function Games() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setPriceRange([0, 50])}
+                      onClick={() => setPriceRange([0, 1000])}
                     >
                       {t('games.reset', 'Reset')}
                     </Button>
@@ -466,7 +469,7 @@ export function Games() {
                 </div>
                 <div className="space-y-2">
                   <div className="text-2xl font-bold text-green-400">
-                    €{Math.min(...games.map(g => g.price))} - €{Math.max(...games.map(g => g.price))}
+                    €{Math.min(...games.map(g => parseFloat(g.price)))} - €{Math.max(...games.map(g => parseFloat(g.price)))}
                   </div>
                   <div className="text-sm text-muted-foreground">
                     {t('stats.priceRange', 'Price Range')}
