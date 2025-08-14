@@ -20,7 +20,8 @@ def create_payment_gateway(payment):
     if payment.payment_type == 'online':
         # FIXED: Use reservation data instead of non-existent product
         reservation = payment.invoice.reservation
-        game_title = reservation.game.title if reservation and reservation.game else "Game Reservation"
+        language = reservation.language
+        game_title = reservation.game.title[language] if reservation and reservation.game else "Game Reservation"
         
         data = {
             'invoice_id': payment.invoice.invoice_id,
