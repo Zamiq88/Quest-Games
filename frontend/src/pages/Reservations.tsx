@@ -1,4 +1,4 @@
-// Updated Reservations.jsx with availability message in time section
+// Updated Reservations.jsx with disclaimer checkbox
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -10,9 +10,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Calendar } from '@/components/ui/calendar';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { BookingData, TimeSlot } from '@/types/game';
-import { Calendar as CalendarIcon, Clock, Users, Mail, ArrowLeft, Check, User, GamepadIcon, Info } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Users, Mail, ArrowLeft, Check, User, GamepadIcon, Info, AlertTriangle } from 'lucide-react';
 
 // JWT Token Management
 const JWT_STORAGE = {
@@ -73,13 +75,11 @@ const useCsrf = () => {
         const data = await response.json();
         setCsrfToken(data.csrfToken);
       } else {
-        // Try to get from cookie as fallback
         const cookieToken = getCsrfTokenFromCookie();
         setCsrfToken(cookieToken);
       }
     } catch (error) {
       console.error('Failed to fetch CSRF token:', error);
-      // Try to get from cookie as fallback
       const cookieToken = getCsrfTokenFromCookie();
       setCsrfToken(cookieToken);
     } finally {
@@ -88,13 +88,11 @@ const useCsrf = () => {
   };
 
   useEffect(() => {
-    // First try to get from cookie
     const cookieToken = getCsrfTokenFromCookie();
     if (cookieToken) {
       setCsrfToken(cookieToken);
       setLoading(false);
     } else {
-      // If no cookie token, fetch from server
       fetchCsrfToken();
     }
   }, []);
@@ -104,13 +102,11 @@ const useCsrf = () => {
 
 // Helper function to get current language from localStorage or i18n
 const getCurrentLanguage = () => {
-  // First try localStorage (set by LanguageSwitcher)
   const savedLanguage = localStorage.getItem('language');
   if (savedLanguage) {
     return savedLanguage;
   }
   
-  // Fallback to browser language or default
   const browserLang = navigator.language.split('-')[0];
   const supportedLanguages = ['en', 'es', 'uk'];
   return supportedLanguages.includes(browserLang) ? browserLang : 'en';
@@ -124,21 +120,17 @@ const makeAPIRequest = async (url, options = {}, csrfToken = null) => {
   const defaultOptions = {
     headers: {
       'Content-Type': 'application/json',
-      'X-Language': language, // Send language in custom header
-      // Add JWT Authorization header if token exists
+      'X-Language': language,
       ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {}),
-      // Add CSRF token for POST, PUT, DELETE requests
       ...(csrfToken && options.method && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(options.method.toUpperCase()) ? {
         'X-CSRFToken': csrfToken
       } : {}),
       ...options.headers,
     },
-    // Include credentials to send cookies
     credentials: 'include',
     ...options,
   };
 
-  // Also add language as query parameter as backup
   const separator = url.includes('?') ? '&' : '?';
   const urlWithLang = `${url}${separator}lang=${language}`;
 
@@ -153,12 +145,10 @@ const makeAPIRequest = async (url, options = {}, csrfToken = null) => {
   }
 };
 
-// FIXED: Helper function to format date consistently
+// Helper function to format date consistently
 const formatDateForAPI = (date) => {
   if (!date) return null;
   
-  // Simply format the date without timezone conversion
-  // The calendar component gives us the correct local date
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
@@ -166,10 +156,9 @@ const formatDateForAPI = (date) => {
   return `${year}-${month}-${day}`;
 };
 
-// FIXED: Helper function to get current date properly
+// Helper function to get current date properly
 const getToday = () => {
   const now = new Date();
-  // Reset time to start of day for comparison
   now.setHours(0, 0, 0, 0);
   return now;
 };
@@ -191,27 +180,21 @@ export function Reservations() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   
-  // CSRF Hook
   const { csrfToken, loading: csrfLoading, refetch: refetchCsrf } = useCsrf();
   
   const gameId = searchParams.get('game');
   
-  // Add state for game data and loading
   const [game, setGame] = useState(null);
   const [gameLoading, setGameLoading] = useState(true);
   const [gameError, setGameError] = useState(null);
-
-  // Add state for user reservations
   const [userReservations, setUserReservations] = useState([]);
   const [reservationsLoading, setReservationsLoading] = useState(false);
-
   const [step, setStep] = useState(1);
   const [timeSlots, setTimeSlots] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState(null); // Store the full slot object
-  
-  // NEW: Add state for availability info message
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
   const [availabilityInfo, setAvailabilityInfo] = useState(null);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
   
   const [bookingData, setBookingData] = useState({
     gameId: gameId || '',
@@ -222,14 +205,13 @@ export function Reservations() {
     email: '',
     otpSent: false,
     emailVerified: false,
-    otp: ''
+    otp: '',
+    disclaimerAccepted: false
   });
 
-  // Listen for language changes and update API calls accordingly
   useEffect(() => {
     const handleLanguageChange = () => {
       console.log('Language changed to:', i18n.language);
-      // You can trigger a refresh of data here if needed
     };
     
     i18n.on('languageChanged', handleLanguageChange);
@@ -239,7 +221,6 @@ export function Reservations() {
     };
   }, [i18n]);
 
-  // Fetch user reservations
   const fetchUserReservations = async () => {
     setReservationsLoading(true);
     try {
@@ -249,7 +230,6 @@ export function Reservations() {
         const data = await response.json();
         setUserReservations(data);
       } else if (response.status === 401) {
-        // User not authenticated, that's okay
         setUserReservations([]);
       } else {
         console.error('Failed to fetch reservations');
@@ -262,14 +242,12 @@ export function Reservations() {
     setReservationsLoading(false);
   };
 
-  // Check if user is authenticated and fetch reservations (wait for CSRF token)
   useEffect(() => {
     if (!csrfLoading) {
       fetchUserReservations();
     }
   }, [csrfLoading, csrfToken]);
 
-  // Fetch game data from backend only if gameId is provided
   useEffect(() => {
     if (gameId && !csrfLoading) {
       setGameLoading(true);
@@ -304,12 +282,11 @@ export function Reservations() {
     }
   }, [game, bookingData.players]);
 
-  // Fetch available times when date is selected
   const fetchAvailableTimes = async (selectedDate) => {
     if (!selectedDate || !gameId) return;
 
     setLoading(true);
-    setAvailabilityInfo(null); // Reset availability info
+    setAvailabilityInfo(null);
     
     try {
       const dateStr = formatDateForAPI(selectedDate);
@@ -321,7 +298,6 @@ export function Reservations() {
       if (response.ok) {
         setTimeSlots(data.time_slots);
       } else {
-        // UPDATED: Instead of showing toast error, set availability info
         if (data.error && data.error.includes('Game available from')) {
           setAvailabilityInfo({
             type: 'info',
@@ -333,14 +309,13 @@ export function Reservations() {
             message: 'Cannot book for past dates'
           });
         } else {
-          // For other errors, still show toast
           toast({
             title: "Error",
             description: data.error || "Failed to load available times",
             variant: "destructive"
           });
         }
-        setTimeSlots([]); // Clear time slots on error
+        setTimeSlots([]);
       }
     } catch (error) {
       console.error('Error fetching available times:', error);
@@ -357,7 +332,7 @@ export function Reservations() {
   const handleDateSelect = (date) => {
     console.log('Date selected:', date, 'Formatted:', formatDateForAPI(date));
     setBookingData(prev => ({ ...prev, date }));
-    setSelectedTimeSlot(null); // Reset selected time slot when date changes
+    setSelectedTimeSlot(null);
     fetchAvailableTimes(date);
   };
 
@@ -366,7 +341,6 @@ export function Reservations() {
     setBookingData(prev => ({ 
       ...prev, 
       time: timeSlot.time,
-      // Reset players to minimum valid value for this slot
       players: Math.min(prev.players, timeSlot.available_capacity) || 1
     }));
     setStep(2);
@@ -393,7 +367,6 @@ export function Reservations() {
         description: "Security token missing. Please refresh the page.",
         variant: "destructive"
       });
-      // Try to refetch CSRF token
       refetchCsrf();
       return;
     }
@@ -419,7 +392,6 @@ export function Reservations() {
         });
         setStep(4);
         
-        // Log the language that was sent
         console.log('OTP sent with language:', getCurrentLanguage(), 'Response:', data);
       } else {
         if (response.status === 403) {
@@ -428,7 +400,6 @@ export function Reservations() {
             description: "Security verification failed. Please refresh the page and try again.",
             variant: "destructive"
           });
-          // Try to refetch CSRF token
           refetchCsrf();
         } else {
           toast({
@@ -531,7 +502,6 @@ export function Reservations() {
       const dateStr = formatDateForAPI(bookingData.date);
       console.log('Creating reservation with date:', dateStr);
       
-      // Step 1: Create the reservation first
       const reservationResponse = await makeAPIRequest('/api/games/create/', {
         method: 'POST',
         body: JSON.stringify({
@@ -549,7 +519,6 @@ export function Reservations() {
       const reservationData = await reservationResponse.json();
       
       if (reservationResponse.ok) {
-        // Store JWT tokens if provided
         if (reservationData.tokens) {
           JWT_STORAGE.setTokens(reservationData.tokens);
           console.log('JWT tokens stored successfully');
@@ -558,18 +527,16 @@ export function Reservations() {
         const reservationId = reservationData.reservation.reference_number;
         console.log('Reservation created successfully:', reservationId);
         
-        // Step 2: Create payment URL using the reservation ID
         const paymentResponse = await makeAPIRequest('/billing/create-payment/', {
           method: 'POST',
           body: JSON.stringify({
-            reservation_id: reservationData.reservation.id  // Use internal ID for payment
+            reservation_id: reservationData.reservation.id
           })
         }, csrfToken);
 
         const paymentData = await paymentResponse.json();
         
         if (paymentResponse.ok && paymentData.payment_url) {
-          // Store reservation data for when user returns
           setBookingData(prev => ({ 
             ...prev, 
             reservationId: reservationData.reservation.id,
@@ -582,7 +549,6 @@ export function Reservations() {
             description: "Redirecting to payment...",
           });
           
-          // Small delay to show the toast, then redirect to Stripe
           setTimeout(() => {
             window.location.href = paymentData.payment_url;
           }, 1500);
@@ -622,26 +588,23 @@ export function Reservations() {
     setLoading(false);
   };
 
-  // Show loading state while CSRF token is being fetched
   if (csrfLoading) {
     return (
       <div className="min-h-screen pt-24 flex items-center justify-center">
         <Card className="card-glow max-w-md mx-auto">
           <CardContent className="p-8 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <h2 className="text-xl font-semibold mb-2">Initializing security...</h2>
+            <h2 className="text-xl font-semibold mb-2">{t('common.loading')}</h2>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  // If no gameId is provided, show reservations list
   if (!gameId) {
     return (
       <div className="min-h-screen pt-24">
         <div className="container mx-auto px-4 max-w-4xl">
-          {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-orbitron font-bold mb-4 text-neon">
             {t('reservations.title')}
@@ -651,7 +614,6 @@ export function Reservations() {
             </p>
           </div>
 
-          {/* Reservations List */}
           <Card className="card-glow">
             <CardHeader>
               <div className="flex justify-between items-center">
@@ -772,21 +734,19 @@ export function Reservations() {
     );
   }
 
-  // Show loading state while fetching game
   if (gameLoading) {
     return (
       <div className="min-h-screen pt-24 flex items-center justify-center">
         <Card className="card-glow max-w-md mx-auto">
           <CardContent className="p-8 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <h2 className="text-xl font-semibold mb-2">Loading game details...</h2>
+            <h2 className="text-xl font-semibold mb-2">{t('common.loading')}</h2>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  // Show error state if game fetch failed
   if (gameError || !game) {
     return (
       <div className="min-h-screen pt-24 flex items-center justify-center">
@@ -814,7 +774,6 @@ export function Reservations() {
   return (
     <div className="min-h-screen pt-24">
       <div className="container mx-auto px-4 max-w-4xl">
-        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-orbitron font-bold mb-4 text-neon">
             {t('booking.title')}
@@ -829,7 +788,6 @@ export function Reservations() {
             <span>{t('difficulty.' + game.difficulty.toLowerCase())}</span>
           </div>
           
-          {/* User Reservations Quick Link */}
           {userReservations.length > 0 && (
             <div className="mt-6">
               <Button
@@ -843,7 +801,6 @@ export function Reservations() {
           )}
         </div>
 
-        {/* Progress Steps */}
         <div className="flex justify-center mb-12">
           <div className="flex items-center space-x-4">
             {[1, 2, 3, 4, 5, 6].map((stepNumber) => (
@@ -865,10 +822,8 @@ export function Reservations() {
           </div>
         </div>
 
-        {/* Step Content */}
         <Card className="card-glow">
           <CardContent className="p-8">
-            {/* Step 1: Date & Time Selection */}
             {step === 1 && (
               <div className="space-y-6">
                 <div className="text-center">
@@ -885,12 +840,10 @@ export function Reservations() {
                         selected={bookingData.date}
                         onSelect={handleDateSelect}
                         disabled={(date) => {
-                          // FIXED: Simplified date comparison logic
                           const today = getToday();
                           const checkDate = new Date(date);
                           checkDate.setHours(0, 0, 0, 0);
                           
-                          // Disable if before today or more than 30 days in future
                           return (
                             checkDate < today || 
                             checkDate > new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000)
@@ -910,7 +863,6 @@ export function Reservations() {
                   <div>
                     <Label className="text-base font-medium mb-4 block">{t('reservations.dateTimeSelection.availableTimes')}</Label>
                     
-                    {/* UPDATED: Show availability info message instead of error toast */}
                     {availabilityInfo && (
                       <div className={`p-4 rounded-lg mb-4 flex items-start space-x-3 ${
                         availabilityInfo.type === 'info' 
@@ -936,7 +888,7 @@ export function Reservations() {
                                 ? 'text-blue-600 dark:text-blue-300' 
                                 : 'text-yellow-600 dark:text-yellow-300'
                             }`}>
-                              Please select a different date or check back later.
+                             {t('reservations.dateTimeSelection.selectDifferentDate')}
                             </p>
                           )}
                         </div>
@@ -989,7 +941,6 @@ export function Reservations() {
               </div>
             )}
 
-            {/* Step 2: Player Count */}
             {step === 2 && (
               <div className="space-y-6">
                 <div className="text-center">
@@ -1080,7 +1031,6 @@ export function Reservations() {
               </div>
             )}
 
-            {/* Step 3: Personal Information */}
             {step === 3 && (
               <div className="space-y-6">
                 <div className="text-center">
@@ -1152,7 +1102,6 @@ export function Reservations() {
               </div>
             )}
 
-            {/* Step 4: Email Verification */}
             {step === 4 && (
               <div className="space-y-6">
                 <div className="text-center">
@@ -1205,7 +1154,6 @@ export function Reservations() {
               </div>
             )}
 
-            {/* Step 5: Special Requirements & Final Confirmation */}
             {step === 5 && (
               <div className="space-y-6">
                 <h2 className="text-2xl font-semibold text-center mb-6">{t('reservations.finalDetails.title')}</h2>
@@ -1227,7 +1175,6 @@ export function Reservations() {
 
                   <Separator />
 
-                  {/* Booking Summary */}
                   <div className="bg-muted/50 p-6 rounded-lg space-y-3">
                     <h3 className="font-semibold text-lg">{t('reservations.finalDetails.bookingSummary')}</h3>
                     <div className="grid gap-2 text-sm">
@@ -1271,9 +1218,40 @@ export function Reservations() {
                     </div>
                   </div>
 
+                  <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 p-4 rounded-lg">
+                    <div className="flex items-start space-x-3">
+                      <Checkbox
+                        id="disclaimer"
+                        checked={bookingData.disclaimerAccepted}
+                        onCheckedChange={(checked) => 
+                          setBookingData(prev => ({ ...prev, disclaimerAccepted: checked === true }))
+                        }
+                        className="mt-1"
+                      />
+                      <div className="flex-1">
+                        <Label 
+                          htmlFor="disclaimer" 
+                          className="text-sm font-medium cursor-pointer flex items-start"
+                        >
+                          <AlertTriangle className="w-4 h-4 mr-2 mt-0.5 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
+                          <span>
+                            {t('reservations.finalDetails.disclaimerText')}{' '}
+                            <button
+                              type="button"
+                              onClick={() => setShowDisclaimer(true)}
+                              className="text-primary hover:underline font-semibold"
+                            >
+                              {t('reservations.finalDetails.disclaimerLink')}
+                            </button>
+                          </span>
+                        </Label>
+                      </div>
+                    </div>
+                  </div>
+
                   <Button
                     onClick={handleConfirmBooking}
-                    disabled={loading}
+                    disabled={loading || !bookingData.disclaimerAccepted}
                     className="w-full btn-glow text-lg py-6"
                   >
                     {loading ? (
@@ -1287,11 +1265,16 @@ export function Reservations() {
                       </>
                     )}
                   </Button>
+                  
+                  {!bookingData.disclaimerAccepted && (
+                    <p className="text-xs text-center text-muted-foreground">
+                      {t('reservations.finalDetails.mustAcceptDisclaimer')}
+                    </p>
+                  )}
                 </div>
               </div>
             )}
 
-            {/* Step 6: Confirmation */}
             {step === 6 && (
               <div className="text-center space-y-6">
                 <div className="text-6xl mb-4">🎉</div>
@@ -1305,7 +1288,6 @@ export function Reservations() {
                 {t('reservations.confirmation.emailSent')} <strong>{bookingData.email}</strong>
                 </p>
                 
-                {/* Show authentication status */}
                 {JWT_STORAGE.isAuthenticated() && (
                   <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg max-w-md mx-auto">
                     <p className="text-green-700 dark:text-green-300 text-sm">
@@ -1362,7 +1344,6 @@ export function Reservations() {
               </div>
             )}
 
-            {/* Back Button */}
             {step > 1 && step < 6 && (
               <div className="flex justify-between mt-8">
                 <Button
@@ -1371,12 +1352,45 @@ export function Reservations() {
                   disabled={loading}
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back
+                  {t('common.back')}
                 </Button>
               </div>
             )}
           </CardContent>
         </Card>
+        
+        <Dialog open={showDisclaimer} onOpenChange={setShowDisclaimer}>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-xl">
+                <AlertTriangle className="w-6 h-6 text-yellow-600" />
+                {t('reservations.disclaimer.title')}
+              </DialogTitle>
+            </DialogHeader>
+            <DialogDescription className="text-left space-y-4 text-sm leading-relaxed">
+              <p className="font-medium text-foreground">
+                {t('reservations.disclaimer.content')}
+              </p>
+            </DialogDescription>
+            <div className="flex justify-end gap-3 mt-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowDisclaimer(false)}
+              >
+                {t('reservations.disclaimer.close')}
+              </Button>
+              <Button
+                onClick={() => {
+                  setBookingData(prev => ({ ...prev, disclaimerAccepted: true }));
+                  setShowDisclaimer(false);
+                }}
+                className="btn-glow"
+              >
+                {t('reservations.disclaimer.acceptAndContinue')}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

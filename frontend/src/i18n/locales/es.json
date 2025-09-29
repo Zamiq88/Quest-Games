@@ -1,53 +1,52 @@
 {
-  
-    "nav": {
-      "home": "Inicio",
-      "games": "Juegos",
-      "reservations": "Reservas", 
-      "contact": "Contacto",
-      "about": "Acerca de Nosotros"
+  "nav": {
+    "home": "Inicio",
+    "games": "Juegos",
+    "reservations": "Reservas", 
+    "contact": "Contacto",
+    "about": "Acerca de Nosotros"
+  },
+  "about": {
+    "title": "Acerca de Nosotros",
+    "subtitle": "Conoce más sobre nuestro negocio e información legal",
+    "currentLanguage": "Idioma Actual",
+    "businessInfo": "Información del Negocio",
+    "owner": "Propietaria del Negocio",
+    "taxId": "NIF",
+    "contact": "Contacto",
+    "address": "Dirección",
+    "compliance": "Cumplimiento Legal",
+    "legalDocuments": "Documentos Legales",
+    "legalDescription": "Accede a nuestras políticas legales y términos de servicio",
+    "copyText": "Copiar Texto",
+    "downloadTxt": "Descargar TXT",
+    "contactUs": "Contáctanos",
+    "businessInquiries": "Consultas Comerciales",
+    "businessText": "Para reservas, preguntas sobre nuestros escape rooms o consultas comerciales generales.",
+    "sendEmail": "Enviar Email",
+    "legalInquiries": "Consultas Legales y Privacidad",
+    "legalText": "Para preguntas sobre protección de datos, derechos de privacidad o asuntos legales.",
+    "legalContact": "Contacto Legal",
+    "legalSubject": "Consulta Legal"
+  },
+  "legal": {
+    "privacy": {
+      "title": "Política de Privacidad",
+      "description": "Información sobre cómo recopilamos, usamos y protegemos sus datos personales."
     },
-    "about": {
-      "title": "Acerca de Nosotros",
-      "subtitle": "Conoce más sobre nuestro negocio e información legal",
-      "currentLanguage": "Idioma Actual",
-      "businessInfo": "Información del Negocio",
-      "owner": "Propietaria del Negocio",
-      "taxId": "NIF",
-      "contact": "Contacto",
-      "address": "Dirección",
-      "compliance": "Cumplimiento Legal",
-      "legalDocuments": "Documentos Legales",
-      "legalDescription": "Accede a nuestras políticas legales y términos de servicio",
-      "copyText": "Copiar Texto",
-      "downloadTxt": "Descargar TXT",
-      "contactUs": "Contáctanos",
-      "businessInquiries": "Consultas Comerciales",
-      "businessText": "Para reservas, preguntas sobre nuestros escape rooms o consultas comerciales generales.",
-      "sendEmail": "Enviar Email",
-      "legalInquiries": "Consultas Legales y Privacidad",
-      "legalText": "Para preguntas sobre protección de datos, derechos de privacidad o asuntos legales.",
-      "legalContact": "Contacto Legal",
-      "legalSubject": "Consulta Legal"
+    "terms": {
+      "title": "Términos y Condiciones",
+      "description": "Condiciones de uso de nuestros servicios y política de reservas."
     },
-    "legal": {
-      "privacy": {
-        "title": "Política de Privacidad",
-        "description": "Información sobre cómo recopilamos, usamos y protegemos sus datos personales."
-      },
-      "terms": {
-        "title": "Términos y Condiciones",
-        "description": "Condiciones de uso de nuestros servicios y política de reservas."
-      },
-      "cookies": {
-        "title": "Política de Cookies",
-        "description": "Información sobre las cookies que utilizamos en nuestro sitio web."
-      },
-      "notice": {
-        "title": "Aviso Legal", 
-        "description": "Información legal sobre el sitio web y condiciones de uso."
-      }
+    "cookies": {
+      "title": "Política de Cookies",
+      "description": "Información sobre las cookies que utilizamos en nuestro sitio web."
     },
+    "notice": {
+      "title": "Aviso Legal", 
+      "description": "Información legal sobre el sitio web y condiciones de uso."
+    }
+  },
   "hero": {
     "title": "Aventuras",
     "subtitle": "Definitivas",
@@ -123,6 +122,7 @@
     "team": "Team Building"
   },
   "cookies": {
+    "title": "Utilizamos cookies",
     "description": "Utilizamos cookies y tecnologías similares para mejorar su experiencia de navegación, analizar el tráfico del sitio, personalizar el contenido y ayudar con nuestros esfuerzos de marketing.",
     "learnMore": "Más información sobre nuestra política de cookies",
     "customize": "Personalizar",
@@ -337,8 +337,8 @@
       "noAvailableTimes": "No hay horarios disponibles para la fecha seleccionada",
       "selectDateFirst": "Por favor selecciona una fecha primero",
       "available": "disponibles de",
-      "fullyBooked": "Completamente reservado"
-
+      "fullyBooked": "Completamente reservado",
+      "selectDifferentDate": "Por favor selecciona una fecha diferente o vuelve más tarde."
     },
     "playerSelection": {
       "title": "Número de Jugadores",
@@ -347,7 +347,8 @@
       "selectedTime": "Hora seleccionada",
       "spotsAvailable": "Lugares disponibles",
       "total": "Total",
-      "alreadyBooked": "Ya ocupado"
+      "alreadyBooked": "Ya ocupado",
+      "exceedsCapacity": "Solo {{available}} lugares disponibles para este horario"
     },
     "personalInfo": {
       "title": "Tu Información",
@@ -379,17 +380,24 @@
       "date": "Fecha",
       "time": "Hora",
       "players": "Jugadores",
+      "capacity": "Capacidad",
+      "afterBooking": "después de la reserva",
       "name": "Nombre",
       "email": "Email",
       "totalPrice": "Precio Total",
       "confirmBooking": "Confirmar Reserva",
       "creatingBooking": "Creando Reserva...",
-      "proceedToPayment": "Proceder al pago"
+      "proceedToPayment": "Proceder al pago",
+      "processing": "Procesando...",
+      "disclaimerText": "He leído y acepto los",
+      "disclaimerLink": "Términos y Exención de Responsabilidad",
+      "mustAcceptDisclaimer": "Debe aceptar la exención de responsabilidad para proceder con el pago"
     },
     "confirmation": {
       "title": "¡Reserva Confirmada!",
       "reference": "Referencia",
       "emailSent": "Un email de confirmación ha sido enviado a",
+      "accountCreated": "Tu cuenta ha sido creada y ahora has iniciado sesión",
       "bookingDetails": "Detalles de la Reserva",
       "game": "Juego",
       "date": "Fecha",
@@ -399,6 +407,12 @@
       "bookAnotherGame": "Reservar Otro Juego",
       "viewAllReservations": "Ver Todas las Reservas",
       "arrivalNote": "Por favor llega 15 minutos antes de tu hora programada."
+    },
+    "disclaimer": {
+      "title": "Exención de Responsabilidad",
+      "content": "La participación en actividades de escape room involucra desafíos físicos y mentales que pueden incluir iluminación tenue, espacios confinados, sonidos fuertes y accesorios físicos. Los participantes participan bajo su propio riesgo. No se recomienda para individuos con condiciones cardíacas, claustrofobia, embarazo o limitaciones de movilidad. Los menores de 16 años deben estar acompañados por un adulto. No nos hacemos responsables por lesiones, artículos perdidos o angustia emocional. Las salidas de emergencia están claramente señalizadas y los juegos pueden detenerse en cualquier momento previa solicitud. Al participar, usted reconoce estos riesgos y acepta seguir todas las instrucciones de seguridad proporcionadas por el personal.",
+      "close": "Cerrar",
+      "acceptAndContinue": "Aceptar y Continuar"
     }
   },
   "paymentSuccess": {

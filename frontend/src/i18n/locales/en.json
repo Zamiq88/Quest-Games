@@ -47,7 +47,6 @@
       "description": "Legal information about the website and terms of use."
     }
   },
-
   "hero": {
     "title": "Ultimate Quest",
     "subtitle": "Adventures",
@@ -185,8 +184,7 @@
       "description": "Learn about Ultimate Quest Adventures, Málaga's premier escape room destination. Our story, mission, and commitment to amazing adventures.",
       "keywords": "about escape room malaga, escape room company malaga, malaga entertainment business"
     }
-  }
-,
+  },
   "difficulty": {
     "all": "All",
     "easy": "Easy",
@@ -338,18 +336,19 @@
       "availableTimes": "Available Times",
       "noAvailableTimes": "No available times for selected date",
       "selectDateFirst": "Please select a date first",
-      "available" : "spots available out of",
-      "fullyBooked" : "Fully booked"
-      
+      "available": "spots available out of",
+      "fullyBooked": "Fully booked",
+      "selectDifferentDate": "Please select a different date or check back later."
     },
     "playerSelection": {
       "title": "Number of Players",
       "playersAllowed": "players allowed",
       "continue": "Continue",
-      "selectedTime" : "Selected time",
-      "spotsAvailable" : "Spots available",
-      "total" : "Total",
-      "alreadyBooked" :"Already booked"
+      "selectedTime": "Selected time",
+      "spotsAvailable": "Spots available",
+      "total": "Total",
+      "alreadyBooked": "Already booked",
+      "exceedsCapacity": "Only {{available}} spots available for this time slot"
     },
     "personalInfo": {
       "title": "Your Information",
@@ -381,17 +380,24 @@
       "date": "Date",
       "time": "Time",
       "players": "Players",
+      "capacity": "Capacity",
+      "afterBooking": "after booking",
       "name": "Name",
       "email": "Email",
       "totalPrice": "Total Price",
       "confirmBooking": "Confirm Booking",
       "creatingBooking": "Creating Booking...",
-      "proceedToPayment" : "Proceed to payment"
+      "proceedToPayment": "Proceed to payment",
+      "processing": "Processing...",
+      "disclaimerText": "I have read and agree to the",
+      "disclaimerLink": "Terms and Disclaimer",
+      "mustAcceptDisclaimer": "You must accept the disclaimer to proceed with payment"
     },
     "confirmation": {
       "title": "Booking Confirmed!",
       "reference": "Reference",
       "emailSent": "A confirmation email has been sent to",
+      "accountCreated": "Your account has been created and you're now signed in",
       "bookingDetails": "Booking Details",
       "game": "Game",
       "date": "Date",
@@ -401,6 +407,12 @@
       "bookAnotherGame": "Book Another Game",
       "viewAllReservations": "View All Reservations",
       "arrivalNote": "Please arrive 15 minutes before your scheduled time."
+    },
+    "disclaimer": {
+      "title": "Liability Disclaimer",
+      "content": "Participation in escape room activities involves physical and mental challenges that may include dim lighting, confined spaces, loud sounds, and physical props. Participants engage at their own risk. It is not recommended for individuals with heart conditions, claustrophobia, pregnancy, or mobility limitations. Minors under 16 must be accompanied by an adult. We are not responsible for injuries, lost items, or emotional distress. Emergency exits are clearly marked, and games can be stopped at any time upon request. By participating, you acknowledge these risks and agree to follow all safety instructions provided by staff.",
+      "close": "Close",
+      "acceptAndContinue": "Accept & Continue"
     }
   },
   "paymentSuccess": {
