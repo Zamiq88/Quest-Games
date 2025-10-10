@@ -15,6 +15,7 @@ from django.forms import ModelForm, CharField, Textarea, ValidationError
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from .models import Game
+from .models import Reservation
 
 class GameAdminForm(ModelForm):
     title_ru = CharField(
@@ -187,3 +188,5 @@ class GameAdmin(admin.ModelAdmin):
             f'Успешно переведено {success_count} из {queryset.count()} игр.'
         )
     retranslate_games.short_description = 'Перевести выбранные игры заново'
+
+admin.site.register(Reservation)
