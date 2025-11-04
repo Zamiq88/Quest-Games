@@ -197,7 +197,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'user.User'
 
-SENDGRID_API_KEY = "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"
+SENDGRID_API_KEY = env("SENDGRID_API_KEY")
 
 STRIPE_LIVE_MODE = True
 from datetime import timedelta
